@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.example</groupId>
+	<artifactId>template-project</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>A template project.</name>
+	<description>Template for a simple SpringBoot web service written in Kotlin.</description>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>api</module>
+		<module>persistence</module>
+		<module>core</module>
+		<module>web</module>
+	</modules>
+
+	<build>
+		<sourceDirectory>src/main/kotlin</sourceDirectory>
+		<testSourceDirectory>src/test/kotlin</testSourceDirectory>
+	</build>
+</project>
