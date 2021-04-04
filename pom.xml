@@ -28,6 +28,7 @@
 	<properties>
 		<start-class>com.example.TemplateApplication</start-class>
 		<kotlin.version>1.4.30</kotlin.version>
+		<mockk.version>1.10.6</mockk.version>
 	</properties>
 
 	<dependencies>
@@ -38,6 +39,13 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.mockk</groupId>
+			<artifactId>mockk</artifactId>
+			<version>${mockk.version}</version>
 			<scope>test</scope>
 		</dependency>
 
