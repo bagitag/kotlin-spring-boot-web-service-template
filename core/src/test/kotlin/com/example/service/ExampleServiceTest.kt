@@ -2,8 +2,8 @@ package com.example.service
 
 import com.example.dto.ExampleDTO
 import com.example.entity.Example
-import com.example.entity.ExampleRepository
 import com.example.mapper.ExampleMapper
+import com.example.repository.ExampleRepository
 import com.example.util.anExample
 import com.example.util.anExampleDTOFromEntity
 import io.mockk.every
