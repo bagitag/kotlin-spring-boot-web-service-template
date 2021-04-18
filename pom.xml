@@ -26,7 +26,6 @@
 	</modules>
 
 	<properties>
-		<start-class>com.example.TemplateApplication</start-class>
 		<kotlin.version>1.4.30</kotlin.version>
 		<mockk.version>1.10.6</mockk.version>
 	</properties>
