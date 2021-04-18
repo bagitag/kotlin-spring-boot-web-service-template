@@ -2,7 +2,6 @@ package com.example.service
 
 import com.example.dto.ExampleDTO
 import com.example.entity.Example
-import com.example.exception.IdNotFoundException
 import com.example.mapper.ExampleMapper
 import com.example.repository.ExampleRepository
 import org.springframework.stereotype.Service
