@@ -3,7 +3,6 @@ package com.example.controller
 import com.example.dto.ExampleDTO
 import com.example.service.ExampleService
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -29,12 +28,9 @@ class ExampleController(private val exampleService: ExampleService) {
     }
 
     @GetMapping("/{id}")
-    fun getExample(@PathVariable id: Long): ResponseEntity<ExampleDTO> {
+    fun getExample(@PathVariable id: Long): ExampleDTO {
         LOGGER.info("Returning example with id: $id")
-
         return exampleService.getExample(id)
-            .map { ResponseEntity.ok(it) }
-            .orElseGet{ ResponseEntity(HttpStatus.NOT_FOUND) }
     }
 
     @PostMapping
