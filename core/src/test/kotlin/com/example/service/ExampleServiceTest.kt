@@ -2,6 +2,7 @@ package com.example.service
 
 import com.example.dto.ExampleDTO
 import com.example.entity.Example
+import com.example.exception.IdNotFoundException
 import com.example.mapper.ExampleMapper
 import com.example.repository.ExampleRepository
 import com.example.util.anExample
@@ -12,9 +13,9 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verifySequence
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.Optional
 
@@ -71,25 +72,23 @@ internal class ExampleServiceTest {
             exampleRepository.findById(id)
             exampleMapper.toDTO(example)
         }
-        assertTrue(actual.isPresent)
-        assertEquals(id, actual.get().id)
-        assertEquals("#$id example", actual.get().name)
+        assertEquals(id, actual.id)
+        assertEquals("#$id example", actual.name)
     }
 
     @Test
-    fun `Should return empty for the given id`() {
+    fun `Should return exception for the given id`() {
         // given
         val id = 100L
         every { exampleRepository.findById(id) } returns Optional.empty()
 
         // when
-        val actual = victim.getExample(id)
+        assertThrows<IdNotFoundException> {  victim.getExample(id) }
 
         // then
         verifySequence {
             exampleRepository.findById(id)
         }
-        assertTrue(actual.isEmpty)
     }
 
     @Test

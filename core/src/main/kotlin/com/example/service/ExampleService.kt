@@ -2,10 +2,10 @@ package com.example.service
 
 import com.example.dto.ExampleDTO
 import com.example.entity.Example
+import com.example.exception.IdNotFoundException
 import com.example.mapper.ExampleMapper
 import com.example.repository.ExampleRepository
 import org.springframework.stereotype.Service
-import java.util.Optional
 
 @Service
 class ExampleService(
@@ -15,11 +15,14 @@ class ExampleService(
 
     fun getAllExamples(): List<ExampleDTO> = exampleRepository.findAll().map { exampleMapper.toDTO(it) }
 
-    fun getExample(id: Long) : Optional<ExampleDTO> = exampleRepository.findById(id).map { exampleMapper.toDTO(it) }
+    fun getExample(id: Long): ExampleDTO =
+        exampleRepository.findById(id).map { exampleMapper.toDTO(it) }
+            .orElseThrow { IdNotFoundException(Example::class, id) }
 
     fun createExample(dto: ExampleDTO): Long {
-        val example = exampleMapper.fromDTO(dto)
-        return exampleRepository.save(example).id!!
+        return exampleMapper.fromDTO(dto)
+            .let { exampleRepository.save(it) }
+            .id!!
     }
 
     fun updateExample(dto: ExampleDTO): Long {
@@ -27,7 +30,7 @@ class ExampleService(
             .map { Example(it.id, dto.name) }
             .map { exampleRepository.save(it) }
             .map { it.id!! }
-            .get()
+            .orElseThrow { IdNotFoundException(Example::class, dto.id!!) }
     }
 
     fun deleteExample(id: Long) {
