@@ -4,7 +4,6 @@ import com.example.controller.ExampleController
 import com.example.dto.ExampleDTO
 import com.example.entity.Example
 import com.example.service.ExampleService
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.`when`
@@ -38,7 +37,6 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
         // then
         action.andExpect(status().isNotFound)
         action.andExpect { result -> assertTrue(result.resolvedException is IdNotFoundException) }
-        action.andExpect { result -> assertEquals("Could not find Example with id: $id", result.resolvedException!!.message) }
         action.andExpect { jsonPath("$.id").isNotEmpty }
         action.andExpect { jsonPath("$.stackTrace").isEmpty }
         action.andExpect { jsonPath("$.message").value("Could not find Example with id: $id") }
@@ -60,7 +58,6 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
         // then
         action.andExpect(status().isNotFound)
         action.andExpect { result -> assertTrue(result.resolvedException is IdNotFoundException) }
-        action.andExpect { result -> assertEquals("Could not find Example with id: $id", result.resolvedException!!.message) }
         action.andExpect { jsonPath("$.id").isNotEmpty }
         action.andExpect { jsonPath("$.stackTrace").isEmpty }
         action.andExpect { jsonPath("$.message").value("Could not find Example with id: $id") }

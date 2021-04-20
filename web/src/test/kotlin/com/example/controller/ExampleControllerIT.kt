@@ -2,7 +2,6 @@ package com.example.controller
 
 import com.example.dto.ExampleDTO
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -23,76 +22,77 @@ import java.net.URI
 @ActiveProfiles("test")
 class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate) {
 
-	val mapper = ObjectMapper().registerKotlinModule()
+    val mapper = ObjectMapper().registerKotlinModule()
 
-	@Test
-	fun testForGetAllExamples() {
-		// when
-		val actual = restTemplate.getForEntity("/example", String::class.java)
+    @Test
+    fun testForGetAllExamples() {
+        // when
+        val actual = restTemplate.getForEntity("/example", String::class.java)
 
-		// then
-		assertEquals(HttpStatus.OK, actual.statusCode)
-		val body = getResponseBody(actual.body, List::class.java)
-		assertEquals(3, body.size)
-		assertFalse(body.isNullOrEmpty())
-	}
+        // then
+        assertEquals(HttpStatus.OK, actual.statusCode)
+        val body = getResponseBody(actual.body, List::class.java)
+        assertEquals(3, body.size)
+        assertFalse(body.isNullOrEmpty())
+    }
 
-	@Test
-	fun testForGetExample() {
-		// given
-		val id = 1L
+    @Test
+    fun testForGetExample() {
+        // given
+        val id = 1L
 
-		// when
-		val actual = restTemplate.getForEntity(URI.create("/example/$id"), ExampleDTO::class.java)
+        // when
+        val actual = restTemplate.getForEntity(URI.create("/example/$id"), ExampleDTO::class.java)
 
-		// then
-		assertEquals(HttpStatus.OK, actual.statusCode)
-		assertEquals(id, actual.body.id)
-		assertEquals("#$id example", actual.body.name)
-	}
+        // then
+        assertEquals(HttpStatus.OK, actual.statusCode)
+        assertEquals(id, actual.body.id)
+        assertEquals("#$id example", actual.body.name)
+    }
 
-	@Test
-	fun testForCreateExample() {
-		// given
-		val name = "New example"
-		val request = ExampleDTO(name = name)
+    @Test
+    fun testForCreateExample() {
+        // given
+        val name = "New example"
+        val request = ExampleDTO(name = name)
 
-		// when
-		val actual = restTemplate.postForLocation("/example", request)
+        // when
+        val actual = restTemplate.postForLocation("/example", request)
 
-		// then
-		assertTrue(actual.toString().endsWith("/example/4"))
-	}
+        // then
+        assertTrue(actual.toString().endsWith("/example/4"))
+    }
 
-	@Test
-	fun testForUpdateExample() {
-		// given
-		val id = 2L
-		val name = "Updated example"
-		val request = ExampleDTO(id, name)
+    @Test
+    fun testForUpdateExample() {
+        // given
+        val id = 2L
+        val name = "Updated example"
+        val request = ExampleDTO(id, name)
 
-		// when
-		val actual = restTemplate.exchange(URI.create("/example"), HttpMethod.PUT, HttpEntity(request), RedirectView::class.java)
+        // when
+        val actual =
+            restTemplate.exchange(URI.create("/example"), HttpMethod.PUT, HttpEntity(request), RedirectView::class.java)
 
-		// then
-		assertEquals(HttpStatus.FOUND, actual.statusCode)
-		val location = actual.headers.location!!.toString()
-		assertTrue(location.endsWith("/example/$id"))
-	}
+        // then
+        assertEquals(HttpStatus.FOUND, actual.statusCode)
+        val location = actual.headers.location!!.toString()
+        assertTrue(location.endsWith("/example/$id"))
+    }
 
-	@Test
-	fun testForDeleteExample() {
-		// given
-		val id = 3L
+    @Test
+    fun testForDeleteExample() {
+        // given
+        val id = 3L
 
-		// when
-		val actual = restTemplate.exchange("/example/$id", HttpMethod.DELETE, null, ResponseEntity::class.java)
+        // when
+        val actual = restTemplate.exchange("/example/$id", HttpMethod.DELETE, null, ResponseEntity::class.java)
 
-		// then
-		assertEquals(HttpStatus.NO_CONTENT, actual.statusCode)
-	}
+        // then
+        assertEquals(HttpStatus.NO_CONTENT, actual.statusCode)
+    }
 
-	private fun <T> getResponseBody(body: String, clz: Class<T>): T {
-		return mapper.readValue(body, clz)
-	}
+    private fun <T> getResponseBody(body: String, clz: Class<T>): T {
+        return mapper.readValue(body, clz)
+    }
 }

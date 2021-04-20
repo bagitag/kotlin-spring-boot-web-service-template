@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<SmellBaseline>
+    <Whitelist>
+        <ID>SpreadOperator:TemplateApplication.kt$(*args)</ID>
+        <ID>TooGenericExceptionCaught:ExampleExceptionHandler.kt$ExampleExceptionHandler$e: Exception</ID>
+    </Whitelist>
+</SmellBaseline>

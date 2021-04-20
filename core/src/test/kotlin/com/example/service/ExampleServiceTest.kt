@@ -83,7 +83,7 @@ internal class ExampleServiceTest {
         every { exampleRepository.findById(id) } returns Optional.empty()
 
         // when
-        assertThrows<IdNotFoundException> {  victim.getExample(id) }
+        assertThrows<IdNotFoundException> { victim.getExample(id) }
 
         // then
         verifySequence {

@@ -11,13 +11,14 @@ import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 
 @ControllerAdvice
-class ExampleExceptionHandler(@Value("\${app.stack.trace.enabled:false}") var printStackTraceEnabled: Boolean)
-    : ResponseEntityExceptionHandler() {
+class ExampleExceptionHandler(@Value("\${app.stack.trace.enabled:false}") var printStackTraceEnabled: Boolean) :
+    ResponseEntityExceptionHandler() {
 
     companion object {
         const val unknownError = "Unknown internal server error"
         const val stackTraceParameter = "trace"
         const val basePackageName = "com.example"
+        const val exceptionIdLength = 10
     }
 
     @ExceptionHandler(value = [Exception::class])
@@ -38,9 +39,9 @@ class ExampleExceptionHandler(@Value("\${app.stack.trace.enabled:false}") var pr
                 StackWalker.getInstance().walk { exception.stackTrace }.first { it.className.contains(basePackageName) }
             val exceptionIdString = exception.javaClass.canonicalName +
                     stackTraceElement.className + stackTraceElement.methodName + stackTraceElement.lineNumber
-            DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(10)
+            DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(exceptionIdLength)
         } catch (e: Exception) {
-            logger.error("Unexpected error while generating exceptionId.")
+            logger.error("Unexpected error while generating exceptionId: $e")
             "unknown"
         }
     }

@@ -15,7 +15,7 @@ import javax.persistence.SequenceGenerator
 @EntityListeners(AuditingEntityListener::class)
 data class Example(
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="exampleSequenceGenerator")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "exampleSequenceGenerator")
     @SequenceGenerator(name = "exampleSequenceGenerator", sequenceName = "example_seq", allocationSize = 1)
     val id: Long?,
     val name: String,
