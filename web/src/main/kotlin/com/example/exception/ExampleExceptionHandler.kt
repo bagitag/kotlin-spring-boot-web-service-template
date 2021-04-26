@@ -1,6 +1,7 @@
 package com.example.exception
 
 import com.example.dto.ErrorDTO
+import com.example.metrics.ExceptionMetrics
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -11,8 +12,10 @@ import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 
 @ControllerAdvice
-class ExampleExceptionHandler(@Value("\${app.stack.trace.enabled:false}") var printStackTraceEnabled: Boolean) :
-    ResponseEntityExceptionHandler() {
+class ExampleExceptionHandler(
+    @Value("\${app.stack.trace.enabled:false}") val printStackTraceEnabled: Boolean,
+    val exceptionMetrics: ExceptionMetrics
+) : ResponseEntityExceptionHandler() {
 
     companion object {
         const val unknownError = "Unknown internal server error"
@@ -25,6 +28,8 @@ class ExampleExceptionHandler(@Value("\${app.stack.trace.enabled:false}") var pr
     fun handleIdNotFoundException(exception: Exception, request: WebRequest): ResponseEntity<ErrorDTO> {
         val message = exception.message ?: unknownError
         val exceptionId = generateExceptionId(exception)
+
+        exceptionMetrics.updateExceptionCounter(exceptionId)
         logger.error("ExceptionId: $exceptionId - $message", exception)
 
         val stackTrace = getStackTrace(exception, request)

@@ -3,13 +3,17 @@ package com.example.exception
 import com.example.controller.ExampleController
 import com.example.dto.ExampleDTO
 import com.example.entity.Example
+import com.example.metrics.ExceptionMetrics
 import com.example.service.ExampleService
+import io.micrometer.core.instrument.MockClock
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -19,6 +23,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest(ExampleController::class)
 @ActiveProfiles("test")
+@Import(MockClock::class, SimpleMeterRegistry::class, ExceptionMetrics::class)
 class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
 
     @MockBean
