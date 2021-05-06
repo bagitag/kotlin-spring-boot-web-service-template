@@ -5,6 +5,8 @@ import com.example.metrics.ExceptionMetrics
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -29,7 +31,7 @@ internal class ExampleExceptionHandlerTest {
     @BeforeEach
     fun initialize() {
         victim = ExampleExceptionHandler(true, exceptionMetrics)
-        every { webRequest.getParameterValues("trace") } returns Array(1) { "false" }
+        every { webRequest.getParameterValues("trace") } returns emptyArray()
         every { exceptionMetrics.updateExceptionCounter(any()) } returns Unit
     }
 
@@ -41,7 +43,7 @@ internal class ExampleExceptionHandlerTest {
         val exceptionIdString = "com.example.exception.IdNotFoundException" +
                 "com.example.exception.ExampleExceptionHandlerTest" +
                 "Should generate response entity from known exception" +
-                40
+                42
         val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(10)
 
         // when
@@ -62,7 +64,7 @@ internal class ExampleExceptionHandlerTest {
         val exceptionIdString = "com.example.exception.IdNotFoundException" +
                 "com.example.exception.ExampleExceptionHandlerTest" +
                 "Should generate response entity from known exception with stack trace" +
-                61
+                63
         val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(10)
 
         // and
@@ -79,13 +81,63 @@ internal class ExampleExceptionHandlerTest {
     }
 
     @Test
+    fun `Should generate response entity without stacktrace if the feature is disabled`() {
+        // given
+        victim = ExampleExceptionHandler(false, exceptionMetrics)
+
+        val id = 10L
+        val exception = IdNotFoundException(Example::class, id)
+
+        // when
+        val actual = victim.handleIdNotFoundException(exception, webRequest)
+
+        // then
+        assertEquals(HttpStatus.NOT_FOUND, actual.statusCode)
+        assertTrue(actual.body.stackTrace.isNullOrEmpty())
+    }
+
+    @Test
+    fun `Should generate response entity without stacktrace trace request parameter is null`() {
+        // given
+        val id = 10L
+        val exception = IdNotFoundException(Example::class, id)
+
+        // and
+        every { webRequest.getParameterValues("trace") } returns null
+
+        // when
+        val actual = victim.handleIdNotFoundException(exception, webRequest)
+
+        // then
+        assertEquals(HttpStatus.NOT_FOUND, actual.statusCode)
+        assertTrue(actual.body.stackTrace.isNullOrEmpty())
+    }
+
+    @Test
+    fun `Should generate response entity without stacktrace trace request parameter is not valid`() {
+        // given
+        val id = 10L
+        val exception = IdNotFoundException(Example::class, id)
+
+        // and
+        every { webRequest.getParameterValues("trace") } returns arrayOf(null, "", "   ", "asdas", "false")
+
+        // when
+        val actual = victim.handleIdNotFoundException(exception, webRequest)
+
+        // then
+        assertEquals(HttpStatus.NOT_FOUND, actual.statusCode)
+        assertTrue(actual.body.stackTrace.isNullOrEmpty())
+    }
+
+    @Test
     fun `Should generate response entity from exception`() {
         // given
         val exception = RuntimeException()
         val exceptionIdString = "java.lang.RuntimeException" +
                 "com.example.exception.ExampleExceptionHandlerTest" +
                 "Should generate response entity from exception" +
-                84
+                136
         val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(10)
 
         // when
@@ -105,7 +157,7 @@ internal class ExampleExceptionHandlerTest {
         val exceptionIdString = "java.lang.RuntimeException" +
                 "com.example.exception.ExampleExceptionHandlerTest" +
                 "Should generate response entity from exception with stack trace" +
-                104
+                156
         val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(10)
 
         // and
@@ -129,7 +181,7 @@ internal class ExampleExceptionHandlerTest {
         val exceptionIdString = "com.example.exception.IdNotFoundException" +
                 "com.example.exception.ExampleExceptionHandlerTest" +
                 "Should generate exception id and update the related counter" +
-                128
+                180
         val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(10)
 
         // and
@@ -144,5 +196,24 @@ internal class ExampleExceptionHandlerTest {
         assertEquals(expected, actual.body.id)
         assertTrue(actual.body.stackTrace.isNullOrEmpty())
         verify { exceptionMetrics.updateExceptionCounter(expected) }
+    }
+
+    @Test
+    fun `Should generate response entity with unknown exception id`() {
+        // given
+        val exception = RuntimeException()
+        mockkStatic(StackWalker::class)
+        every { StackWalker.getInstance() } throws ClassNotFoundException()
+
+        // when
+        val actual = victim.handleIdNotFoundException(exception, webRequest)
+
+        // then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actual.statusCode)
+        assertEquals(ExampleExceptionHandler.unknownError, actual.body.message)
+        assertEquals("unknown", actual.body.id)
+        assertTrue(actual.body.stackTrace.isNullOrEmpty())
+
+        unmockkStatic(StackWalker::class)
     }
 }

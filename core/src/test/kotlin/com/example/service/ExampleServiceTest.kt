@@ -12,6 +12,7 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
+import io.mockk.verify
 import io.mockk.verifySequence
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -111,5 +112,73 @@ internal class ExampleServiceTest {
             exampleRepository.save(example)
         }
         assertEquals(example.id, actual)
+    }
+
+    @Test
+    fun `Should update existing example and return id`() {
+        // given
+        val id = 99L
+        val name = "test example"
+        val exampleDTO = ExampleDTO(id, name)
+        val example = Example(id, name)
+
+        every { exampleRepository.findById(id) } returns Optional.of(example)
+        every { exampleMapper.fromDTO(exampleDTO) } returns example
+        every { exampleRepository.save(example) } returns example
+
+        // when
+        val actual = victim.updateExample(exampleDTO)
+
+        // then
+        verifySequence {
+            exampleRepository.findById(id)
+            exampleMapper.fromDTO(exampleDTO)
+            exampleRepository.save(example)
+        }
+        assertEquals(example.id, actual)
+    }
+
+    @Test
+    fun `Update should return exception if the id is missing`() {
+        // given
+        val name = "test example"
+        val exampleDTO = ExampleDTO(name = name)
+
+        // when
+        assertThrows<NullPointerException> { victim.updateExample(exampleDTO) }
+    }
+
+    @Test
+    fun `Update should return IdNotFoundException`() {
+        // given
+        val id = 100L
+        val name = "test example"
+        val exampleDTO = ExampleDTO(id, name)
+
+        every { exampleRepository.findById(id) } returns Optional.empty()
+
+        // when
+        assertThrows<IdNotFoundException> { victim.updateExample(exampleDTO) }
+
+        // then
+        verify {
+            exampleRepository.findById(id)
+        }
+    }
+
+    @Test
+    fun `Should delete example`() {
+        // given
+        val id = 99L
+
+        every { exampleRepository.deleteById(id) } returns mockk()
+
+        // when
+        victim.deleteExample(id)
+
+        // then
+        verifySequence {
+            exampleRepository.deleteById(id)
+        }
     }
 }

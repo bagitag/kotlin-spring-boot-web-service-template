@@ -34,6 +34,8 @@
         <detekt.version>1.16.0</detekt.version>
         <detekt.config>detekt-config.yml</detekt.config>
         <detekt.baseline>detekt-baseline.xml</detekt.baseline>
+
+        <jacoco.version>0.8.6</jacoco.version>
     </properties>
 
     <dependencies>
@@ -78,6 +80,72 @@
                 <executions>
                     <execution>
                         <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>com/example/TemplateApplicationKt.class</exclude>
+                        <exclude>com/example/configuration/*.class</exclude>
+                        <exclude>com/example/exception/BaseException.class</exclude>
+                        <exclude>com/example/exception/IdNotFoundException.class</exclude>
+                    </excludes>
+                    <rules>
+                        <rule>
+                            <element>CLASS</element>
+                            <limits>
+                                <limit>
+                                    <counter>LINE</counter>
+                                    <value>COVEREDRATIO</value>
+                                    <minimum>100%</minimum>
+                                </limit>
+                                <limit>
+                                    <counter>METHOD</counter>
+                                    <value>COVEREDRATIO</value>
+                                    <minimum>100%</minimum>
+                                </limit>
+                                <limit>
+                                    <counter>COMPLEXITY</counter>
+                                    <value>TOTALCOUNT</value>
+                                    <maximum>30</maximum>
+                                </limit>
+                                <limit>
+                                    <counter>CLASS</counter>
+                                    <value>COVEREDRATIO</value>
+                                    <minimum>100%</minimum>
+                                </limit>
+                                <limit>
+                                    <counter>BRANCH</counter>
+                                    <value>COVEREDRATIO</value>
+                                    <minimum>90%</minimum>
+                                </limit>
+                            </limits>
+                        </rule>
+                    </rules>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>check-unit-tests</id>
+                        <phase>test</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
