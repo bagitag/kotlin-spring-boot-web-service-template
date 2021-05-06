@@ -27,7 +27,7 @@ class ExampleService(
 
     fun updateExample(dto: ExampleDTO): Long {
         return exampleRepository.findById(dto.id!!)
-            .map { Example(it.id, dto.name) }
+            .map { exampleMapper.fromDTO(dto) }
             .map { exampleRepository.save(it) }
             .map { it.id!! }
             .orElseThrow { IdNotFoundException(Example::class, dto.id!!) }
