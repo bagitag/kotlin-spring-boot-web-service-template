@@ -3,6 +3,7 @@ package com.example.exception
 import com.example.dto.ErrorDTO
 import com.example.metrics.ExceptionMetrics
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.util.DigestUtils
@@ -24,8 +25,14 @@ class ExampleExceptionHandler(
         const val exceptionIdLength = 10
     }
 
+    public override fun handleExceptionInternal(ex: java.lang.Exception, body: Any?, headers: HttpHeaders,
+                                                status: HttpStatus, request: WebRequest): ResponseEntity<Any> {
+        val responseEntity = handleExceptions(ex, request)
+        return ResponseEntity(responseEntity.body as Any, status)
+    }
+
     @ExceptionHandler(value = [Exception::class])
-    fun handleIdNotFoundException(exception: Exception, request: WebRequest): ResponseEntity<ErrorDTO> {
+    fun handleExceptions(exception: Exception, request: WebRequest): ResponseEntity<ErrorDTO> {
         val message = exception.message ?: unknownError
         val exceptionId = generateExceptionId(exception)
 
@@ -41,7 +48,9 @@ class ExampleExceptionHandler(
     private fun generateExceptionId(exception: Exception): String {
         return try {
             val stackTraceElement =
-                StackWalker.getInstance().walk { exception.stackTrace }.first { it.className.contains(basePackageName) }
+                StackWalker.getInstance().walk { exception.stackTrace }.find { it.className.contains(basePackageName) }
+                    ?: StackWalker.getInstance().walk { exception.stackTrace }.first()
+
             val exceptionIdString = exception.javaClass.canonicalName +
                     stackTraceElement.className + stackTraceElement.methodName + stackTraceElement.lineNumber
             DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(exceptionIdLength)

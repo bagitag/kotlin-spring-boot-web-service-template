@@ -7,7 +7,7 @@ import com.example.metrics.ExceptionMetrics
 import com.example.service.ExampleService
 import io.micrometer.core.instrument.MockClock
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.hamcrest.CoreMatchers.startsWith
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,6 +18,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
@@ -36,15 +37,12 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
 
         `when`(exampleService.getExample(id)).thenThrow(IdNotFoundException(Example::class, id))
 
-        // when
-        val action = mockMvc.perform(MockMvcRequestBuilders.get("/example/$id").contentType(MediaType.APPLICATION_JSON))
-
-        // then
-        action.andExpect(status().isNotFound)
-        action.andExpect { result -> assertTrue(result.resolvedException is IdNotFoundException) }
-        action.andExpect { jsonPath("$.id").isNotEmpty }
-        action.andExpect { jsonPath("$.stackTrace").isEmpty }
-        action.andExpect { jsonPath("$.message").value("Could not find Example with id: $id") }
+        // when - then
+        mockMvc.perform(MockMvcRequestBuilders.get("/example/$id").contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.id").isNotEmpty)
+            .andExpect(jsonPath("$.stackTrace").doesNotExist())
+            .andExpect(jsonPath("$.message").value("Could not find Example with id: $id"))
     }
 
     @Test
@@ -55,17 +53,14 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
 
         `when`(exampleService.updateExample(ExampleDTO(id, name))).thenThrow(IdNotFoundException(Example::class, id))
 
-        // when
-        val action = mockMvc.perform(MockMvcRequestBuilders.put("/example")
+        // when - then
+        mockMvc.perform(MockMvcRequestBuilders.put("/example?trace=true")
             .content("{ \"id\": $id, \"name\":\"$name\"}")
             .contentType(MediaType.APPLICATION_JSON))
-
-        // then
-        action.andExpect(status().isNotFound)
-        action.andExpect { result -> assertTrue(result.resolvedException is IdNotFoundException) }
-        action.andExpect { jsonPath("$.id").isNotEmpty }
-        action.andExpect { jsonPath("$.stackTrace").isEmpty }
-        action.andExpect { jsonPath("$.message").value("Could not find Example with id: $id") }
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.id").isNotEmpty)
+            .andExpect(jsonPath("$.stackTrace").isNotEmpty)
+            .andExpect(jsonPath("$.message").value("Could not find Example with id: $id"))
     }
 
     @Test
@@ -75,17 +70,29 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
 
         `when`(exampleService.getExample(id)).thenThrow(RuntimeException())
 
-        // when
-        val action = mockMvc.perform(MockMvcRequestBuilders.get("/example/$id")
+        // when - then
+        mockMvc.perform(MockMvcRequestBuilders.get("/example/$id")
             .param(ExampleExceptionHandler.stackTraceParameter, "true")
-            .contentType(MediaType.APPLICATION_JSON)
-        )
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isInternalServerError)
+            .andExpect(jsonPath("$.id").isNotEmpty)
+            .andExpect(jsonPath("$.stackTrace").isNotEmpty)
+            .andExpect(jsonPath("$.message").value("Unknown internal server error"))
+    }
 
-        // then
-        action.andExpect(status().isInternalServerError)
-        action.andExpect { result -> assertTrue(result.resolvedException is java.lang.RuntimeException) }
-        action.andExpect { jsonPath("$.id").isNotEmpty }
-        action.andExpect { jsonPath("$.stackTrace").isNotEmpty }
-        action.andExpect { jsonPath("$.message").value("Unknown internal server error") }
+    @Test
+    fun `Create example should return detailed error if JSON is malformed`() {
+        // given
+        val id = 10L
+
+        // when - then
+        mockMvc.perform(MockMvcRequestBuilders.post("/example")
+            .content("{ \"id\": $id }")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest)
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").isNotEmpty)
+            .andExpect(jsonPath("$.stackTrace").doesNotExist())
+            .andExpect(jsonPath("$.message", startsWith("JSON parse error")))
     }
 }
