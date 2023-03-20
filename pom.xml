@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.4.2</version>
+        <version>3.0.2</version>
         <relativePath/>
     </parent>
 
@@ -26,16 +26,16 @@
     </modules>
 
     <properties>
-        <java.version>13</java.version>
+        <java.version>17</java.version>
 
-        <kotlin.version>1.4.30</kotlin.version>
-        <mockk.version>1.10.6</mockk.version>
+        <kotlin.version>1.8.0</kotlin.version>
+        <mockk.version>1.13.4</mockk.version>
 
         <detekt.version>1.22.0</detekt.version>
         <detekt.config>detekt-config.yml</detekt.config>
         <detekt.baseline>detekt-baseline.xml</detekt.baseline>
 
-        <jacoco.version>0.8.6</jacoco.version>
+        <jacoco.version>0.8.8</jacoco.version>
     </properties>
 
     <dependencies>
@@ -51,7 +51,7 @@
 
         <dependency>
             <groupId>io.mockk</groupId>
-            <artifactId>mockk</artifactId>
+            <artifactId>mockk-jvm</artifactId>
             <version>${mockk.version}</version>
             <scope>test</scope>
         </dependency>

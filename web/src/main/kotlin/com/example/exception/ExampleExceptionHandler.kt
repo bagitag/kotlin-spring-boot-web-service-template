@@ -5,6 +5,7 @@ import com.example.metrics.ExceptionMetrics
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
 import org.springframework.util.DigestUtils
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -25,10 +26,15 @@ class ExampleExceptionHandler(
         const val exceptionIdLength = 10
     }
 
-    public override fun handleExceptionInternal(ex: java.lang.Exception, body: Any?, headers: HttpHeaders,
-                                                status: HttpStatus, request: WebRequest): ResponseEntity<Any> {
+    public override fun handleExceptionInternal(
+        ex: java.lang.Exception,
+        body: Any?,
+        headers: HttpHeaders,
+        statusCode: HttpStatusCode,
+        request: WebRequest
+    ): ResponseEntity<Any> {
         val responseEntity = handleExceptions(ex, request)
-        return ResponseEntity(responseEntity.body as Any, status)
+        return ResponseEntity(responseEntity.body as Any, statusCode)
     }
 
     @ExceptionHandler(value = [Exception::class])
