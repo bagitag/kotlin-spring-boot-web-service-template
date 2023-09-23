@@ -52,8 +52,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.12.0
         with:
           image-ref: '${{ steps.build_image.outputs.image_tag }}'
-          format: 'template'
-          template: '@/contrib/sarif.tpl'
+          format: 'sarif'
           output: 'trivy-results.sarif'
 
       - name: Upload Trivy scan results to GitHub Security tab
