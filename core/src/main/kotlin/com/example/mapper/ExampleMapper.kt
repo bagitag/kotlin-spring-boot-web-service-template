@@ -8,11 +8,13 @@ import org.springframework.stereotype.Service
 class ExampleMapper {
     fun toDTO(source: Example) = ExampleDTO(
         id = source.id,
-        name = source.name
+        name = source.name,
+        createdDate = source.createdDate
     )
 
     fun fromDTO(source: ExampleDTO) = Example(
         id = source.id,
-        name = source.name
+        name = source.name,
+        createdDate = source.createdDate
     )
 }

@@ -23,6 +23,7 @@
         <module>persistence</module>
         <module>core</module>
         <module>web</module>
+        <module>jacoco-report</module>
     </modules>
 
     <properties>
@@ -135,9 +136,14 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                        <configuration>
+                            <destFile>${project.build.directory}/jacoco-unit-tests.exec</destFile>
+                            <propertyName>surefire.jacoco.args</propertyName>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>check-unit-tests</id>
@@ -146,6 +152,10 @@
                             <goal>report</goal>
                             <goal>check</goal>
                         </goals>
+                        <configuration>
+                            <dataFile>${project.build.directory}/jacoco-unit-tests.exec</dataFile>
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-unit-test-report</outputDirectory>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>before-integration-test</id>
@@ -215,6 +225,13 @@
                         <version>${kotlin.version}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>${surefire.jacoco.args}</argLine>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
