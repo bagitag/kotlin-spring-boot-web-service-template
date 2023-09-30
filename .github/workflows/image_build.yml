@@ -1,5 +1,5 @@
 name: Build Docker image
-run-name: Build Docker image with tag ${{ inputs.image_tag == '' && 'latest' || inputs.image_tag }}'
+run-name: Build Docker image with tag '${{ inputs.image_tag == '' && 'latest' || inputs.image_tag }}'
 
 on:
   workflow_run:
