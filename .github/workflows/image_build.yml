@@ -1,8 +1,9 @@
 name: Build Docker image
+run-name: Build Docker image with tag ${{ inputs.image_tag == '' && 'latest' || inputs.image_tag }}'
 
 on:
   workflow_run:
-    workflows: [ "CI build" ]
+    workflows: [ 'CI build' ]
     types: [ completed ]
     branches: [ main ]
   workflow_dispatch:
@@ -44,7 +45,7 @@ jobs:
       - name: Build the Docker image
         id: build_image
         run: |
-          image_tag=${{ inputs.image_tag == '' && ${{ steps.get_version.outputs.app_version }} || inputs.image_tag }}
+          image_tag=${{ inputs.image_tag == '' && steps.get_version.outputs.app_version || inputs.image_tag }}
           image_name=${{ github.repository }}:${image_tag}
           echo "image_name=${image_name}" >> $GITHUB_OUTPUT
           
