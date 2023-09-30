@@ -16,6 +16,10 @@ jobs:
       pages: write
       id-token: write
 
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
 
       - name: Checkout repository
@@ -43,4 +47,5 @@ jobs:
           path: jacoco-report/target/site/jacoco-aggregate/
 
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v2
