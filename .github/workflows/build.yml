@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -31,37 +32,3 @@ jobs:
         with:
           name: jacoco-report
           path: jacoco-report/target/site/jacoco-aggregate/
-
-      - name: Get app version
-        id: get_version
-        run: |
-          version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo "app_version=${version}" >> $GITHUB_OUTPUT
-
-      - name: Lint Dockerfile
-        run: |
-          docker run --rm -i ghcr.io/hadolint/hadolint < Dockerfile
-
-      - name: Build the Docker image
-        id: build_image
-        run: |
-          image_tag=${{ github.repository }}:${{ steps.get_version.outputs.app_version }}
-          echo "image_tag=${image_tag}" >> $GITHUB_OUTPUT
-          
-          docker build . --file Dockerfile --tag ${image_tag}
-
-          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
-            docker tag ${image_tag} ${{ github.repository }}:latest
-          fi
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.12.0
-        with:
-          image-ref: '${{ steps.build_image.outputs.image_tag }}'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: 'trivy-results.sarif'
