@@ -12,6 +12,14 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    permissions:
+      pages: write
+      id-token: write
+
     steps:
 
       - name: Checkout repository
@@ -28,7 +36,15 @@ jobs:
         run: mvn -B verify -ntp
 
       - name: Upload JaCoCo coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-pages-artifact@v2
         with:
           name: jacoco-report
           path: jacoco-report/target/site/jacoco-aggregate/
+          retention-days: 10
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        id: deployment
+        uses: actions/deploy-pages@v2
+        with:
+          artifact_name: jacoco-report
