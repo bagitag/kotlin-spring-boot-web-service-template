@@ -32,3 +32,8 @@ jobs:
         with:
           name: jacoco-report
           path: jacoco-report/target/site/jacoco-aggregate/
+
+      - name: Upload JaCoCo report to Pages
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: jacoco-report/target/site/jacoco-aggregate/
