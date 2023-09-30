@@ -37,3 +37,6 @@ jobs:
         uses: actions/upload-pages-artifact@v2
         with:
           path: jacoco-report/target/site/jacoco-aggregate/
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v2
