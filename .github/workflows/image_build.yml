@@ -52,13 +52,13 @@ jobs:
           docker build . --file Dockerfile --tag ${image_name}
 
           if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
-            docker tag ${image_tag} ${{ github.repository }}:latest
+            docker tag ${image_name} ${{ github.repository }}:latest
           fi
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.12.0
         with:
-          image-ref: '${{ steps.build_image.outputs.image_tag }}'
+          image-ref: '${{ steps.build_image.outputs.image_name }}'
           format: 'sarif'
           output: 'trivy-results.sarif'
 
