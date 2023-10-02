@@ -51,4 +51,4 @@ jobs:
           artifact_name: jacoco-report
 
       - name: Print GitHub Pages URL
-        run: echo ${steps.deployment.outputs.page_url}
+        run: echo ${{ steps.deployment.outputs.page_url }}
