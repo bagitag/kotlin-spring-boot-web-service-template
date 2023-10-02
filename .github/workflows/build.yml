@@ -12,6 +12,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    environment:
+      name: github-pages
+      url: asdas
+
     permissions:
       pages: write
       id-token: write
@@ -31,12 +35,6 @@ jobs:
       - name: Build with Maven
         run: mvn -B verify -ntp
 
-#      - name: Upload JaCoCo coverage report
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: jacoco-report
-#          path: jacoco-report/target/site/jacoco-aggregate/
-
       - name: Upload JaCoCo coverage report
         uses: actions/upload-pages-artifact@v2
         with:
@@ -49,6 +47,3 @@ jobs:
         uses: actions/deploy-pages@v2
         with:
           artifact_name: jacoco-report
-
-      - name: Print GitHub Pages URL
-        run: echo ${{ steps.deployment.outputs.page_url }}
