@@ -16,10 +16,6 @@ jobs:
       pages: write
       id-token: write
 
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
 
       - name: Checkout repository
@@ -35,17 +31,21 @@ jobs:
       - name: Build with Maven
         run: mvn -B verify -ntp
 
+#      - name: Upload JaCoCo coverage report
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: jacoco-report
+#          path: jacoco-report/target/site/jacoco-aggregate/
+
       - name: Upload JaCoCo coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-pages-artifact@v2
         with:
           name: jacoco-report
           path: jacoco-report/target/site/jacoco-aggregate/
-
-      - name: Upload JaCoCo report to Pages
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: jacoco-report/target/site/jacoco-aggregate/
+          retention-days: 10
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
+        with:
+          artifact_name: jacoco-report
