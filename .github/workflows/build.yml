@@ -49,3 +49,6 @@ jobs:
         uses: actions/deploy-pages@v2
         with:
           artifact_name: jacoco-report
+
+      - name: Print GitHub Pages URL
+        run: echo ${steps.deployment.outputs.page_url}
