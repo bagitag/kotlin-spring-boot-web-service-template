@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:20-jre-alpine
 LABEL maintainer=bagitagab
 EXPOSE 8080
 RUN addgroup --system appuser && adduser -S appuser -G appuser
