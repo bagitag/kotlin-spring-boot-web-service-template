@@ -1,19 +1,20 @@
 name: Build Docker image
-run-name: Build Docker image with tag '${{ inputs.image_tag == '' && 'latest' || inputs.image_tag }}'
+run-name: "Build Docker image with tag: ${{ inputs.image_tag == '' && 'latest' || inputs.image_tag }}"
 
 on:
-  workflow_run:
-    workflows: [ 'CI build' ]
-    types: [ completed ]
-    branches: [ main ]
   workflow_dispatch:
     inputs:
       image_tag:
         description: 'Input for custom Docker image tag'
         type: string
+  workflow_call:
+    inputs:
+      image_tag:
+        type: string
 
 jobs:
   build:
+    name: Building image
 
     runs-on: ubuntu-latest
 
@@ -29,7 +30,15 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        continue-on-error: true
+        with:
+          name: ${{ github.ref_name }}-artifact
+          path: web/target
+
       - name: Build with Maven
+        if: failure()
         run: mvn -B package -ntp -DskipTests
 
       - name: Get app version
