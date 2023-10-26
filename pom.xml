@@ -36,7 +36,7 @@
         <detekt.config>detekt-config.yml</detekt.config>
         <detekt.baseline>detekt-baseline.xml</detekt.baseline>
 
-        <jacoco.version>0.8.10</jacoco.version>
+        <jacoco.version>0.8.11</jacoco.version>
 
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
