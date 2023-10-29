@@ -13,3 +13,7 @@ class DevProfile
 @Profile("test")
 @PropertySource(value = [ "classpath:persistence-test.properties" ])
 class TestProfile
+
+@Component
+@PropertySource(value = [ "classpath:persistence.properties" ])
+class DefaultProfile
