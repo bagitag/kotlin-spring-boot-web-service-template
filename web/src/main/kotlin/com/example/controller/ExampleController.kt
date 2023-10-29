@@ -32,9 +32,9 @@ class ExampleController(private val exampleService: ExampleService) {
 
     @GetMapping
     @Timed(extraTags = ["path", "list"])
-    @Operation(summary = "Gets all examples.")
+    @Operation(summary = "Gets all Examples.")
     @ApiResponses(
-        ApiResponse(responseCode = "200", description = "The list of examples has been successfully returned.",
+        ApiResponse(responseCode = "200", description = "The Example list has been successfully returned.",
             content = [
                 (Content(mediaType = "application/json", array = (
                         ArraySchema(schema = Schema(implementation = ExampleDTO::class)))
@@ -42,19 +42,19 @@ class ExampleController(private val exampleService: ExampleService) {
             ])
     )
     fun getAllExamples(): List<ExampleDTO> {
-        return exampleService.getAllExamples().apply { LOGGER.info("Returning $size examples") }
+        return exampleService.getAllExamples().apply { LOGGER.info("Returning $size Examples") }
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Gets example by its id.")
+    @Operation(summary = "Gets Example by its id.")
     @ApiResponses(
-        ApiResponse(responseCode = "200", description = "The requested examples has been successfully returned.",
+        ApiResponse(responseCode = "200", description = "The requested Example has been successfully returned.",
             content = [
                 (Content(mediaType = "application/json", array = (
                         ArraySchema(schema = Schema(implementation = ExampleDTO::class)))
                 ))
             ]),
-        ApiResponse(responseCode = "404", description = "The requested example was not found.",
+        ApiResponse(responseCode = "404", description = "The requested Example was not found.",
             content = [
                 (Content(mediaType = "application/json", array = (
                         ArraySchema(schema = Schema(implementation = ErrorDTO::class)))
@@ -63,12 +63,12 @@ class ExampleController(private val exampleService: ExampleService) {
     )
     @Timed(extraTags = ["path", "read"])
     fun getExample(@PathVariable id: Long): ExampleDTO {
-        LOGGER.info("Returning example with id: $id")
+        LOGGER.info("Returning Example with id: $id")
         return exampleService.getExample(id)
     }
 
     @PostMapping
-    @Operation(summary = "Creates a new example.")
+    @Operation(summary = "Creates a new Example.")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "Example successfully created.",
             content = [
@@ -79,14 +79,14 @@ class ExampleController(private val exampleService: ExampleService) {
     )
     @Timed(extraTags = ["path", "create"])
     fun createExample(@RequestBody request: ExampleDTO): RedirectView {
-        LOGGER.info("Creating example: $request")
+        LOGGER.info("Creating Example: $request")
 
         val id = exampleService.createExample(request)
         return RedirectView("/example/$id")
     }
 
     @PutMapping
-    @Operation(summary = "Update an existing example.")
+    @Operation(summary = "Update an existing Example.")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "Example successfully updated.",
             content = [
@@ -94,7 +94,7 @@ class ExampleController(private val exampleService: ExampleService) {
                         ArraySchema(schema = Schema(implementation = ExampleDTO::class)))
                 ))
             ]),
-        ApiResponse(responseCode = "404", description = "The requested example was not found.",
+        ApiResponse(responseCode = "404", description = "The requested Example was not found.",
             content = [
                 (Content(mediaType = "application/json", array = (
                         ArraySchema(schema = Schema(implementation = ErrorDTO::class)))
@@ -103,20 +103,20 @@ class ExampleController(private val exampleService: ExampleService) {
     )
     @Timed(extraTags = ["path", "update"])
     fun updateExample(@RequestBody request: ExampleDTO): RedirectView {
-        LOGGER.info("Updating example: $request")
+        LOGGER.info("Updating Example: $request")
 
         val id = exampleService.updateExample(request)
         return RedirectView("/example/$id")
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Deletes an example by its id.")
+    @Operation(summary = "Deletes an Example by its id.")
     @ApiResponses(
         ApiResponse(responseCode = "204")
     )
     @Timed(extraTags = ["path", "delete"])
     fun deleteExample(@PathVariable id: Long): ResponseEntity<Void> {
-        LOGGER.info("Deleting example with id: $id")
+        LOGGER.info("Deleting Example with id: $id")
 
         exampleService.deleteExample(id)
         return ResponseEntity.noContent().build()

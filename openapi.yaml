@@ -17,8 +17,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ExampleDTO'
-          description: The list of examples has been successfully returned.
-      summary: Gets all examples.
+          description: The Example list has been successfully returned.
+      summary: Gets all Examples.
       tags:
       - example-controller
     post:
@@ -38,7 +38,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/ExampleDTO'
           description: Example successfully created.
-      summary: Creates a new example.
+      summary: Creates a new Example.
       tags:
       - example-controller
     put:
@@ -65,8 +65,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ErrorDTO'
-          description: The requested example was not found.
-      summary: Update an existing example.
+          description: The requested Example was not found.
+      summary: Update an existing Example.
       tags:
       - example-controller
   /example/{id}:
@@ -82,7 +82,7 @@ paths:
       responses:
         "204":
           description: No Content
-      summary: Deletes an example by its id.
+      summary: Deletes an Example by its id.
       tags:
       - example-controller
     get:
@@ -102,7 +102,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ExampleDTO'
-          description: The requested examples has been successfully returned.
+          description: The requested Example has been successfully returned.
         "404":
           content:
             application/json:
@@ -110,8 +110,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ErrorDTO'
-          description: The requested example was not found.
-      summary: Gets example by its id.
+          description: The requested Example was not found.
+      summary: Gets Example by its id.
       tags:
       - example-controller
 components:
@@ -121,8 +121,6 @@ components:
       properties:
         id:
           type: string
-          maxLength: 10
-          minLength: 0
         message:
           type: string
         stackTrace:
@@ -141,7 +139,5 @@ components:
           format: int64
         name:
           type: string
-          maxLength: 20
-          minLength: 3
       required:
       - name
