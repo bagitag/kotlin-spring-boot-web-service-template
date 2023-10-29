@@ -1,0 +1,143 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- description: Generated server url
+  url: http://localhost:8080
+paths:
+  /example:
+    get:
+      operationId: getAllExamples
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExampleDTO'
+          description: The Example list has been successfully returned.
+      summary: Gets all Examples.
+      tags:
+      - example-controller
+    post:
+      operationId: createExample
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExampleDTO'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExampleDTO'
+          description: Example successfully created.
+      summary: Creates a new Example.
+      tags:
+      - example-controller
+    put:
+      operationId: updateExample
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExampleDTO'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExampleDTO'
+          description: Example successfully updated.
+        "404":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErrorDTO'
+          description: The requested Example was not found.
+      summary: Update an existing Example.
+      tags:
+      - example-controller
+  /example/{id}:
+    delete:
+      operationId: deleteExample
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+      summary: Deletes an Example by its id.
+      tags:
+      - example-controller
+    get:
+      operationId: getExample
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExampleDTO'
+          description: The requested Example has been successfully returned.
+        "404":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErrorDTO'
+          description: The requested Example was not found.
+      summary: Gets Example by its id.
+      tags:
+      - example-controller
+components:
+  schemas:
+    ErrorDTO:
+      type: object
+      properties:
+        id:
+          type: string
+        message:
+          type: string
+        stackTrace:
+          type: string
+      required:
+      - id
+      - message
+    ExampleDTO:
+      type: object
+      properties:
+        createdDate:
+          type: string
+          format: date-time
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+      required:
+      - name
