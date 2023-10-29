@@ -12,12 +12,13 @@ paths:
       responses:
         "200":
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/ExampleDTO'
-          description: OK
+          description: The list of examples has been successfully returned.
+      summary: Gets all examples.
       tags:
       - example-controller
     post:
@@ -31,10 +32,13 @@ paths:
       responses:
         "200":
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: '#/components/schemas/RedirectView'
-          description: OK
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExampleDTO'
+          description: Example successfully created.
+      summary: Creates a new example.
       tags:
       - example-controller
     put:
@@ -48,10 +52,21 @@ paths:
       responses:
         "200":
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: '#/components/schemas/RedirectView'
-          description: OK
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExampleDTO'
+          description: Example successfully updated.
+        "404":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErrorDTO'
+          description: The requested example was not found.
+      summary: Update an existing example.
       tags:
       - example-controller
   /example/{id}:
@@ -65,8 +80,9 @@ paths:
           type: integer
           format: int64
       responses:
-        "200":
-          description: OK
+        "204":
+          description: No Content
+      summary: Deletes an example by its id.
       tags:
       - example-controller
     get:
@@ -81,270 +97,39 @@ paths:
       responses:
         "200":
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: '#/components/schemas/ExampleDTO'
-          description: OK
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExampleDTO'
+          description: The requested examples has been successfully returned.
+        "404":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErrorDTO'
+          description: The requested example was not found.
+      summary: Gets example by its id.
       tags:
       - example-controller
 components:
   schemas:
-    ApplicationContext:
+    ErrorDTO:
       type: object
       properties:
-        applicationName:
-          type: string
-        autowireCapableBeanFactory:
-          $ref: '#/components/schemas/AutowireCapableBeanFactory'
-        beanDefinitionCount:
-          type: integer
-          format: int32
-        beanDefinitionNames:
-          type: array
-          items:
-            type: string
-        classLoader:
-          type: object
-          properties:
-            defaultAssertionStatus:
-              type: boolean
-              writeOnly: true
-            definedPackages:
-              type: array
-              items:
-                type: object
-                properties:
-                  annotations:
-                    type: array
-                    items:
-                      type: object
-                  declaredAnnotations:
-                    type: array
-                    items:
-                      type: object
-                  implementationTitle:
-                    type: string
-                  implementationVendor:
-                    type: string
-                  implementationVersion:
-                    type: string
-                  name:
-                    type: string
-                  sealed:
-                    type: boolean
-                  specificationTitle:
-                    type: string
-                  specificationVendor:
-                    type: string
-                  specificationVersion:
-                    type: string
-            name:
-              type: string
-            parent:
-              type: object
-              properties:
-                defaultAssertionStatus:
-                  type: boolean
-                  writeOnly: true
-                definedPackages:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      annotations:
-                        type: array
-                        items:
-                          type: object
-                      declaredAnnotations:
-                        type: array
-                        items:
-                          type: object
-                      implementationTitle:
-                        type: string
-                      implementationVendor:
-                        type: string
-                      implementationVersion:
-                        type: string
-                      name:
-                        type: string
-                      sealed:
-                        type: boolean
-                      specificationTitle:
-                        type: string
-                      specificationVendor:
-                        type: string
-                      specificationVersion:
-                        type: string
-                name:
-                  type: string
-                registeredAsParallelCapable:
-                  type: boolean
-                unnamedModule:
-                  type: object
-                  properties:
-                    annotations:
-                      type: array
-                      items:
-                        type: object
-                    classLoader:
-                      type: object
-                      properties:
-                        defaultAssertionStatus:
-                          type: boolean
-                          writeOnly: true
-                        definedPackages:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              annotations:
-                                type: array
-                                items:
-                                  type: object
-                              declaredAnnotations:
-                                type: array
-                                items:
-                                  type: object
-                              implementationTitle:
-                                type: string
-                              implementationVendor:
-                                type: string
-                              implementationVersion:
-                                type: string
-                              name:
-                                type: string
-                              sealed:
-                                type: boolean
-                              specificationTitle:
-                                type: string
-                              specificationVendor:
-                                type: string
-                              specificationVersion:
-                                type: string
-                        name:
-                          type: string
-                        registeredAsParallelCapable:
-                          type: boolean
-                    declaredAnnotations:
-                      type: array
-                      items:
-                        type: object
-                    descriptor:
-                      type: object
-                      properties:
-                        automatic:
-                          type: boolean
-                        open:
-                          type: boolean
-                    layer:
-                      type: object
-                    name:
-                      type: string
-                    named:
-                      type: boolean
-                    packages:
-                      type: array
-                      items:
-                        type: string
-                      uniqueItems: true
-            registeredAsParallelCapable:
-              type: boolean
-            unnamedModule:
-              type: object
-              properties:
-                annotations:
-                  type: array
-                  items:
-                    type: object
-                classLoader:
-                  type: object
-                  properties:
-                    defaultAssertionStatus:
-                      type: boolean
-                      writeOnly: true
-                    definedPackages:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          annotations:
-                            type: array
-                            items:
-                              type: object
-                          declaredAnnotations:
-                            type: array
-                            items:
-                              type: object
-                          implementationTitle:
-                            type: string
-                          implementationVendor:
-                            type: string
-                          implementationVersion:
-                            type: string
-                          name:
-                            type: string
-                          sealed:
-                            type: boolean
-                          specificationTitle:
-                            type: string
-                          specificationVendor:
-                            type: string
-                          specificationVersion:
-                            type: string
-                    name:
-                      type: string
-                    registeredAsParallelCapable:
-                      type: boolean
-                declaredAnnotations:
-                  type: array
-                  items:
-                    type: object
-                descriptor:
-                  type: object
-                  properties:
-                    automatic:
-                      type: boolean
-                    open:
-                      type: boolean
-                layer:
-                  type: object
-                name:
-                  type: string
-                named:
-                  type: boolean
-                packages:
-                  type: array
-                  items:
-                    type: string
-                  uniqueItems: true
-        displayName:
-          type: string
-        environment:
-          $ref: '#/components/schemas/Environment'
         id:
           type: string
-        parent:
-          $ref: '#/components/schemas/ApplicationContext'
-        parentBeanFactory:
-          $ref: '#/components/schemas/BeanFactory'
-        startupDate:
-          type: integer
-          format: int64
-    AutowireCapableBeanFactory:
-      type: object
-    BeanFactory:
-      type: object
-    Environment:
-      type: object
-      properties:
-        activeProfiles:
-          type: array
-          items:
-            type: string
-        defaultProfiles:
-          type: array
-          items:
-            type: string
+          maxLength: 10
+          minLength: 0
+        message:
+          type: string
+        stackTrace:
+          type: string
+      required:
+      - id
+      - message
     ExampleDTO:
       type: object
       properties:
@@ -356,314 +141,7 @@ components:
           format: int64
         name:
           type: string
+          maxLength: 20
+          minLength: 3
       required:
       - name
-    FilterRegistration:
-      type: object
-      properties:
-        className:
-          type: string
-        initParameters:
-          type: object
-          additionalProperties:
-            type: string
-        name:
-          type: string
-        servletNameMappings:
-          type: array
-          items:
-            type: string
-        urlPatternMappings:
-          type: array
-          items:
-            type: string
-    HttpStatusCode:
-      type: object
-      properties:
-        error:
-          type: boolean
-        is1xxInformational:
-          type: boolean
-        is2xxSuccessful:
-          type: boolean
-        is3xxRedirection:
-          type: boolean
-        is4xxClientError:
-          type: boolean
-        is5xxServerError:
-          type: boolean
-    JspConfigDescriptor:
-      type: object
-      properties:
-        jspPropertyGroups:
-          type: array
-          items:
-            $ref: '#/components/schemas/JspPropertyGroupDescriptor'
-        taglibs:
-          type: array
-          items:
-            $ref: '#/components/schemas/TaglibDescriptor'
-    JspPropertyGroupDescriptor:
-      type: object
-      properties:
-        buffer:
-          type: string
-        defaultContentType:
-          type: string
-        deferredSyntaxAllowedAsLiteral:
-          type: string
-        elIgnored:
-          type: string
-        errorOnELNotFound:
-          type: string
-        errorOnUndeclaredNamespace:
-          type: string
-        includeCodas:
-          type: array
-          items:
-            type: string
-        includePreludes:
-          type: array
-          items:
-            type: string
-        isXml:
-          type: string
-        pageEncoding:
-          type: string
-        scriptingInvalid:
-          type: string
-        trimDirectiveWhitespaces:
-          type: string
-        urlPatterns:
-          type: array
-          items:
-            type: string
-    RedirectView:
-      type: object
-      properties:
-        applicationContext:
-          $ref: '#/components/schemas/ApplicationContext'
-        attributes:
-          type: object
-          additionalProperties:
-            type: string
-          writeOnly: true
-        attributesCSV:
-          type: string
-          writeOnly: true
-        attributesMap:
-          type: object
-          additionalProperties:
-            type: object
-        beanName:
-          type: string
-        contentType:
-          type: string
-        contextRelative:
-          type: boolean
-          writeOnly: true
-        encodingScheme:
-          type: string
-          writeOnly: true
-        expandUriTemplateVariables:
-          type: boolean
-          writeOnly: true
-        exposeContextBeansAsAttributes:
-          type: boolean
-          writeOnly: true
-        exposeModelAttributes:
-          type: boolean
-          writeOnly: true
-        exposePathVariables:
-          type: boolean
-        exposedContextBeanNames:
-          type: array
-          items:
-            type: string
-          writeOnly: true
-        hosts:
-          type: array
-          items:
-            type: string
-        http10Compatible:
-          type: boolean
-          writeOnly: true
-        propagateQueryParams:
-          type: boolean
-          writeOnly: true
-        propagateQueryProperties:
-          type: boolean
-        redirectView:
-          type: boolean
-        requestContextAttribute:
-          type: string
-        servletContext:
-          $ref: '#/components/schemas/ServletContext'
-        staticAttributes:
-          type: object
-          additionalProperties:
-            type: object
-        statusCode:
-          $ref: '#/components/schemas/HttpStatusCode'
-        url:
-          type: string
-    ServletContext:
-      type: object
-      properties:
-        attributeNames:
-          type: object
-        classLoader:
-          type: object
-          properties:
-            defaultAssertionStatus:
-              type: boolean
-              writeOnly: true
-            definedPackages:
-              type: array
-              items:
-                type: object
-                properties:
-                  annotations:
-                    type: array
-                    items:
-                      type: object
-                  declaredAnnotations:
-                    type: array
-                    items:
-                      type: object
-                  implementationTitle:
-                    type: string
-                  implementationVendor:
-                    type: string
-                  implementationVersion:
-                    type: string
-                  name:
-                    type: string
-                  sealed:
-                    type: boolean
-                  specificationTitle:
-                    type: string
-                  specificationVendor:
-                    type: string
-                  specificationVersion:
-                    type: string
-            name:
-              type: string
-            registeredAsParallelCapable:
-              type: boolean
-        contextPath:
-          type: string
-        defaultSessionTrackingModes:
-          type: array
-          items:
-            type: string
-            enum:
-            - COOKIE
-            - URL
-            - SSL
-          uniqueItems: true
-        effectiveMajorVersion:
-          type: integer
-          format: int32
-        effectiveMinorVersion:
-          type: integer
-          format: int32
-        effectiveSessionTrackingModes:
-          type: array
-          items:
-            type: string
-            enum:
-            - COOKIE
-            - URL
-            - SSL
-          uniqueItems: true
-        filterRegistrations:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/FilterRegistration'
-        initParameterNames:
-          type: object
-        jspConfigDescriptor:
-          $ref: '#/components/schemas/JspConfigDescriptor'
-        majorVersion:
-          type: integer
-          format: int32
-        minorVersion:
-          type: integer
-          format: int32
-        requestCharacterEncoding:
-          type: string
-        responseCharacterEncoding:
-          type: string
-        serverInfo:
-          type: string
-        servletContextName:
-          type: string
-        servletRegistrations:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/ServletRegistration'
-        sessionCookieConfig:
-          $ref: '#/components/schemas/SessionCookieConfig'
-        sessionTimeout:
-          type: integer
-          format: int32
-        sessionTrackingModes:
-          type: array
-          items:
-            type: string
-            enum:
-            - COOKIE
-            - URL
-            - SSL
-          uniqueItems: true
-          writeOnly: true
-        virtualServerName:
-          type: string
-    ServletRegistration:
-      type: object
-      properties:
-        className:
-          type: string
-        initParameters:
-          type: object
-          additionalProperties:
-            type: string
-        mappings:
-          type: array
-          items:
-            type: string
-        name:
-          type: string
-        runAsRole:
-          type: string
-    SessionCookieConfig:
-      type: object
-      properties:
-        attributes:
-          type: object
-          additionalProperties:
-            type: string
-        comment:
-          type: string
-          deprecated: true
-        domain:
-          type: string
-        httpOnly:
-          type: boolean
-        maxAge:
-          type: integer
-          format: int32
-        name:
-          type: string
-        path:
-          type: string
-        secure:
-          type: boolean
-    TaglibDescriptor:
-      type: object
-      properties:
-        taglibLocation:
-          type: string
-        taglibURI:
-          type: string
