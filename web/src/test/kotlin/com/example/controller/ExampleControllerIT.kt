@@ -31,7 +31,7 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate) {
 
         // then
         assertEquals(HttpStatus.OK, actual.statusCode)
-        val body = getResponseBody(actual.body, List::class.java)
+        val body = getResponseBody(actual.body!!, List::class.java)
         assertEquals(3, body.size)
         assertFalse(body.isNullOrEmpty())
     }
@@ -46,8 +46,8 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate) {
 
         // then
         assertEquals(HttpStatus.OK, actual.statusCode)
-        assertEquals(id, actual.body.id)
-        assertEquals("#$id example", actual.body.name)
+        assertEquals(id, actual.body!!.id)
+        assertEquals("#$id example", actual.body!!.name)
     }
 
     @Test
