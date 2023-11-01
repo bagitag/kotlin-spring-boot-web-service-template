@@ -6,5 +6,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 data class ErrorDTO(
     val id: String,
     val message: String,
+    val details: Any?,
     val stackTrace: String?
 )
