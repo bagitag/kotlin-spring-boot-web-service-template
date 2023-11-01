@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -78,7 +79,7 @@ class ExampleController(private val exampleService: ExampleService) {
             ])
     )
     @Timed(extraTags = ["path", "create"])
-    fun createExample(@RequestBody request: ExampleDTO): RedirectView {
+    fun createExample(@RequestBody @Valid request: ExampleDTO): RedirectView {
         LOGGER.info("Creating Example: $request")
 
         val id = exampleService.createExample(request)
@@ -102,7 +103,7 @@ class ExampleController(private val exampleService: ExampleService) {
             ])
     )
     @Timed(extraTags = ["path", "update"])
-    fun updateExample(@RequestBody request: ExampleDTO): RedirectView {
+    fun updateExample(@RequestBody @Valid request: ExampleDTO): RedirectView {
         LOGGER.info("Updating Example: $request")
 
         val id = exampleService.updateExample(request)
