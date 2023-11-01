@@ -7,7 +7,10 @@ import com.example.metrics.ExceptionMetrics
 import com.example.service.ExampleService
 import io.micrometer.core.instrument.MockClock
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.startsWith
+import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,6 +20,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
@@ -43,6 +47,7 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
             .andExpect(jsonPath("$.id").isNotEmpty)
             .andExpect(jsonPath("$.stackTrace").doesNotExist())
             .andExpect(jsonPath("$.message").value("Could not find Example with id: $id"))
+            .andExpect(jsonPath("$.details").doesNotExist())
     }
 
     @Test
@@ -61,6 +66,7 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
             .andExpect(jsonPath("$.id").isNotEmpty)
             .andExpect(jsonPath("$.stackTrace").isNotEmpty)
             .andExpect(jsonPath("$.message").value("Could not find Example with id: $id"))
+            .andExpect(jsonPath("$.details").doesNotExist())
     }
 
     @Test
@@ -78,6 +84,7 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
             .andExpect(jsonPath("$.id").isNotEmpty)
             .andExpect(jsonPath("$.stackTrace").isNotEmpty)
             .andExpect(jsonPath("$.message").value("Unknown internal server error"))
+            .andExpect(jsonPath("$.details").doesNotExist())
     }
 
     @Test
@@ -94,5 +101,34 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
             .andExpect(jsonPath("$.id").isNotEmpty)
             .andExpect(jsonPath("$.stackTrace").doesNotExist())
             .andExpect(jsonPath("$.message", startsWith("JSON parse error")))
+            .andExpect(jsonPath("$.details").doesNotExist())
+    }
+
+    @Test
+    fun `Create example should return validation errors if content is not valid`() {
+        validatePutAndPost(mockMvc.perform(MockMvcRequestBuilders.post("/example")
+            .content("{ \"name\": \"  \" }")
+            .contentType(MediaType.APPLICATION_JSON)
+        ))
+    }
+
+    @Test
+    fun `Update example should return validation errors if content is not valid`() {
+        validatePutAndPost(mockMvc.perform(
+            MockMvcRequestBuilders.put("/example")
+                .content("{ \"id\": 1, \"name\": \"  \" }")
+                .contentType(MediaType.APPLICATION_JSON)
+        ))
+    }
+
+    private fun validatePutAndPost(action: ResultActions) {
+        action.andExpect(status().isBadRequest)
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").isNotEmpty)
+            .andExpect(jsonPath("$.stackTrace").doesNotExist())
+            .andExpect(jsonPath("$.message", equalTo("Invalid request content.")))
+            .andExpect(jsonPath("$.details.name.length()", `is`(2)))
+            .andExpect(jsonPath("$.details.name[*]",
+                containsInAnyOrder("must not be blank", "must be between 3 and 20 characters")))
     }
 }

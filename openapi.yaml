@@ -119,6 +119,8 @@ components:
     ErrorDTO:
       type: object
       properties:
+        details:
+          type: object
         id:
           type: string
         message:
@@ -139,5 +141,7 @@ components:
           format: int64
         name:
           type: string
+          maxLength: 20
+          minLength: 3
       required:
       - name
