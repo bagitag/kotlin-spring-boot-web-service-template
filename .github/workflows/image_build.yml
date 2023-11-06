@@ -39,7 +39,7 @@ jobs:
           path: web/target
 
       - name: Build with Maven
-        if: failure() && steps.download-artifact.outcome == 'failure'
+        if: steps.download-artifact.outcome == 'failure'
         run: mvn -B package -ntp -DskipTests
 
       - name: Get app version
