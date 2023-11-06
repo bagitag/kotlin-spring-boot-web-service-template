@@ -32,13 +32,14 @@ jobs:
 
       - name: Download artifact
         uses: actions/download-artifact@v3
-#        continue-on-error: true
+        id: download-artifact
+        continue-on-error: true
         with:
           name: ${{ github.ref_name }}-artifact
           path: web/target
 
       - name: Build with Maven
-        if: failure()
+        if: failure() && steps.download-artifact.outcome == 'failure'
         run: mvn -B package -ntp -DskipTests
 
       - name: Get app version
