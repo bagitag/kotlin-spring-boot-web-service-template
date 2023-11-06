@@ -67,11 +67,26 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.13.0
         with:
-          image-ref: '${{ steps.build_image.outputs.image_name }}'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          image-ref: ${{ steps.build_image.outputs.image_name }}
+          format: sarif
+          output: trivy-results.sarif
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: trivy-results.sarif
+          category: trivy
+
+      - name: Run Anchore Grype vulnerability scanner
+        uses: anchore/scan-action@v3.3.6
+        id: grype-scan
+        with:
+          image: ${{ steps.build_image.outputs.image_name }}
+          fail-build: false
+
+      - name: Upload vulnerability report
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ steps.grype-scan.outputs.sarif }}
+          category: grype
+
