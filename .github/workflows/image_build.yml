@@ -76,7 +76,6 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: trivy-results.sarif
-          category: trivy
 
       - name: Run Anchore Grype vulnerability scanner
         uses: anchore/scan-action@v3.3.6
@@ -89,5 +88,4 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: ${{ steps.grype-scan.outputs.sarif }}
-          category: grype
 
