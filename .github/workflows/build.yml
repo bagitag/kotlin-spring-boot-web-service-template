@@ -53,7 +53,7 @@ jobs:
   deploy_report:
     name: Deploy JaCoCo report
 
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && github.actor != 'dependabot[bot]'
     needs: build
 
     runs-on: ubuntu-latest
