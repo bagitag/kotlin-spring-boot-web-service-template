@@ -3,22 +3,18 @@ package com.example
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpMethod
-import org.springframework.test.context.ActiveProfiles
 import org.springframework.util.StreamUtils
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Path
 import kotlin.io.path.readBytes
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ActiveProfiles("test")
-class TemplateApplicationTests(@Autowired val restTemplate: TestRestTemplate) {
+class TemplateApplicationTests(@Autowired val restTemplate: TestRestTemplate): BaseIntegrationTest() {
 
     companion object {
-        private const val ERROR_MSG =  "Run the following command to update it: " +
+        private const val OPEN_API_ERROR_MSG =  "Run the following command to update it: " +
                 "mvnw clean verify -Dmaven.test.skip -Djacoco.skip=true -pl -jacoco-report -Popenapi"
     }
 
@@ -32,7 +28,7 @@ class TemplateApplicationTests(@Autowired val restTemplate: TestRestTemplate) {
         val expected = try {
             file.readBytes()
         } catch (e: java.nio.file.NoSuchFileException) {
-            System.err.println("\nThe openapi.yaml is missing! $ERROR_MSG")
+            System.err.println("\nThe openapi.yaml is missing! $OPEN_API_ERROR_MSG")
             throw e
         }
         val actual = restTemplate.execute("/api-docs.yaml", HttpMethod.GET, null, {
@@ -41,6 +37,6 @@ class TemplateApplicationTests(@Autowired val restTemplate: TestRestTemplate) {
             ret.readBytes()
         })
 
-        Assertions.assertTrue(expected.contentEquals(actual), "The openapi.yaml file is outdated! $ERROR_MSG")
+        Assertions.assertTrue(expected.contentEquals(actual), "The openapi.yaml file is outdated! $OPEN_API_ERROR_MSG")
     }
 }
