@@ -54,6 +54,9 @@
                                 <goals>
                                     <goal>start</goal>
                                 </goals>
+                                <configuration>
+                                    <profiles>test</profiles>
+                                </configuration>
                             </execution>
                             <execution>
                                 <id>stop-application</id>
