@@ -1,6 +1,6 @@
 package com.example
 
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -37,6 +37,6 @@ class TemplateApplicationTests(@Autowired val restTemplate: TestRestTemplate): B
             ret.readBytes()
         })
 
-        Assertions.assertTrue(expected.contentEquals(actual), "The openapi.yaml file is outdated! $OPEN_API_ERROR_MSG")
+        assertTrue(expected.contentEquals(actual), "The openapi.yaml file is outdated! $OPEN_API_ERROR_MSG")
     }
 }
