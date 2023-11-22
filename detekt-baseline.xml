@@ -3,5 +3,6 @@
     <Whitelist>
         <ID>SpreadOperator:TemplateApplication.kt$(*args)</ID>
         <ID>TooGenericExceptionCaught:ExampleExceptionHandler.kt$ExampleExceptionHandler$e: Exception</ID>
+        <ID>UtilityClassWithPublicConstructor:BaseIntegrationTest.kt$BaseIntegrationTest</ID>
     </Whitelist>
 </SmellBaseline>
