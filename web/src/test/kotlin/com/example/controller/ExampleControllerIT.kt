@@ -30,7 +30,7 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
         assertEquals(HttpStatus.OK, actual.statusCode)
         val body = getResponseBody(actual.body!!, List::class.java)
         assertEquals(3, body.size)
-        assertFalse(body.isNullOrEmpty())
+        assertFalse(body.isEmpty())
     }
 
     @Test
