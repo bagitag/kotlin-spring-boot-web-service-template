@@ -1,21 +1,37 @@
-version: '3'
+version: '3.8'
 services:
   server:
+    depends_on:
+      - database
     container_name: example-server
     build:
       dockerfile: Dockerfile
     image: example-server:latest
     environment:
-      - "spring.profiles.active=dev"
+      spring.profiles.active: default
+      spring.datasource.url: jdbc:postgresql://database:5432/example
     ports:
       - "8080:8080"
     networks:
       - example-network
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/up" ]
-      interval: 1m30s
-      timeout: 10s
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
       retries: 3
+
+  database:
+    container_name: example-database
+    image: postgres:latest
+    environment:
+      - POSTGRES_DB=example
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=12345
+    ports:
+      - "5432:5432"
+    networks:
+      - example-network
 
 networks:
   example-network:
