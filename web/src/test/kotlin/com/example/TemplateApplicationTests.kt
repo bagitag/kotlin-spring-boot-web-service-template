@@ -8,6 +8,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.util.StreamUtils
 import java.io.File
 import java.io.FileOutputStream
+import java.nio.charset.Charset
 import java.nio.file.Path
 import kotlin.io.path.readBytes
 
@@ -37,6 +38,13 @@ class TemplateApplicationTests(@Autowired val restTemplate: TestRestTemplate): B
             ret.readBytes()
         })
 
-        assertTrue(expected.contentEquals(actual), "The openapi.yaml file is outdated! $OPEN_API_ERROR_MSG")
+        assertTrue(compareContent(expected, actual), "The openapi.yaml file is outdated! $OPEN_API_ERROR_MSG")
     }
+
+    private fun compareContent(expected: ByteArray, actual: ByteArray): Boolean {
+        return replaceLineEndings(expected) == replaceLineEndings(actual)
+    }
+
+    private fun replaceLineEndings(array: ByteArray) =
+        array.toString(Charset.defaultCharset()).replace("\r\n", "\n")
 }
