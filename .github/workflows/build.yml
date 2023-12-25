@@ -36,7 +36,7 @@ jobs:
           retention-days: 10
 
       - name: Upload JaCoCo coverage report
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           name: jacoco-report
           path: jacoco-report/target/site/jacoco-aggregate/
