@@ -92,6 +92,51 @@ internal class DebugLoggingTurboFilterTest {
     }
 
     @Test
+    fun `Should return DENY if MDC is ok but logger is null`() {
+        // given
+        val value = "value"
+        val key = "key"
+        victim.setValue(value)
+        victim.setMDCKey(key)
+        victim.start()
+
+        MDC.put(key, value)
+
+        // and
+        victim.setPackages("com.my.package")
+
+        // when
+        val actual = victim.decide(null, null, null, null, null, null)
+
+        // then
+        assertEquals(FilterReply.DENY, actual)
+    }
+
+    @Test
+    fun `Should return DENY if MDC is ok but logger name is null`() {
+        // given
+        val value = "value"
+        val key = "key"
+        victim.setValue(value)
+        victim.setMDCKey(key)
+        victim.start()
+
+        MDC.put(key, value)
+
+        val logger: Logger = Mockito.mock(Logger::class.java)
+        `when`(logger.name).thenAnswer { null }
+
+        // and
+        victim.setPackages("com.my.package")
+
+        // when
+        val actual = victim.decide(null, logger, null, null, null, null)
+
+        // then
+        assertEquals(FilterReply.DENY, actual)
+    }
+
+    @Test
     fun `Should return DENY if MDC is ok but package does not match`() {
         // given
         val value = "value"
@@ -113,6 +158,27 @@ internal class DebugLoggingTurboFilterTest {
 
         // then
         assertEquals(FilterReply.DENY, actual)
+    }
+
+    @Test
+    fun `Should return ACCEPT for project base package`() {
+        // given
+        val value = "value"
+        val key = "key"
+        victim.setValue(value)
+        victim.setMDCKey(key)
+        victim.start()
+
+        MDC.put(key, value)
+
+        val logger: Logger = Mockito.mock(Logger::class.java)
+        `when`(logger.name).thenAnswer { "com.example.ClassName" }
+
+        // when
+        val actual = victim.decide(null, logger, null, null, null, null)
+
+        // then
+        assertEquals(FilterReply.ACCEPT, actual)
     }
 
     @Test

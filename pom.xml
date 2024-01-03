@@ -97,7 +97,7 @@
                 <configuration>
                     <excludes>
                         <exclude>com/example/TemplateApplicationKt.class</exclude>
-                        <exclude>com/example/configuration/*.class</exclude>
+                        <exclude>com/example/configuration/JpaConfiguration.class</exclude>
                         <exclude>com/example/exception/BaseException.class</exclude>
                         <exclude>com/example/exception/IdNotFoundException.class</exclude>
                     </excludes>

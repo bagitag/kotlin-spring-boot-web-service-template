@@ -9,7 +9,7 @@ import org.slf4j.Marker
 
 class DebugLoggingTurboFilter : MDCFilter() {
 
-    private lateinit var packages: String
+    private var packages: String? = null
 
     fun setPackages(packages: String) {
         this.packages = packages

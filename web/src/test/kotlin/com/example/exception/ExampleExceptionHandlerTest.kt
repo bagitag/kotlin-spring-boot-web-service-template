@@ -309,14 +309,14 @@ internal class ExampleExceptionHandlerTest {
 
         // then
         val body = actual.body as ErrorDTO
-        val actualMessage = body.details as Map<String, List<String>>
+        val actualDetails = body.details as Map<String, List<String>>
         assertEquals(HttpStatus.BAD_REQUEST, actual.statusCode)
         assertEquals("Invalid request content.", body.message)
-        assertEquals(2, actualMessage.size)
-        assertEquals(2, actualMessage["field1"]!!.size)
-        assertTrue(actualMessage["field1"]!!.contains("errorMsg1"))
-        assertTrue(actualMessage["field1"]!!.contains("errorMsg2"))
-        assertTrue(actualMessage["field2"]!!.contains("errorMsg1"))
+        assertEquals(2, actualDetails.size)
+        assertEquals(2, actualDetails["field1"]!!.size)
+        assertTrue(actualDetails["field1"]!!.contains("errorMsg1"))
+        assertTrue(actualDetails["field1"]!!.contains("errorMsg2"))
+        assertTrue(actualDetails["field2"]!!.contains("errorMsg1"))
         assertEquals(expected, body.id)
         assertTrue(actual.body!!.stackTrace.isNullOrEmpty())
     }
