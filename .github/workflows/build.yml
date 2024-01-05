@@ -24,6 +24,12 @@ jobs:
           distribution: temurin
           cache: maven
 
+      - name: Linting Dockerfile
+        id: hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+
       - name: Build with Maven
         run: mvn -B verify -ntp
 
