@@ -31,6 +31,7 @@ jobs:
           cache: maven
 
       - name: Download artifact
+        if: github.event_name == 'workflow_call'
         uses: actions/download-artifact@v4
         id: download-artifact
         continue-on-error: true
@@ -39,7 +40,7 @@ jobs:
           path: web/target
 
       - name: Build with Maven
-        if: steps.download-artifact.outcome == 'failure'
+        if: steps.download-artifact.outcome == 'failure' || github.event_name == 'workflow_dispatch'
         run: mvn -B package -ntp -DskipTests
 
       - name: Get app version
