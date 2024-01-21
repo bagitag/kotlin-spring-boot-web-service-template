@@ -1,0 +1,51 @@
+version: '3.8'
+name: template-app-dev-setup
+services:
+  database:
+    image: postgres:latest
+    environment:
+      - POSTGRES_DB=example
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=12345
+    ports:
+      - "5432:5432"
+    networks:
+      - example-network
+
+  pgAdmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=12345
+    ports:
+      - "8070:80"
+    networks:
+      - example-network
+
+  prometheus:
+    image: prom/prometheus:latest
+#    volumes:
+#      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    configs:
+      - source: prometheus_config
+        target: /etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - example-network
+
+networks:
+  example-network:
+    driver: bridge
+
+configs:
+  prometheus_config:
+    content: |
+      scrape_configs:
+        - job_name: 'spring-actuator'
+          metrics_path: '/actuator/prometheus'
+          scrape_interval: '10s'
+          static_configs:
+            - targets: ['host.docker.internal:8080']
+              labels:
+                application: 'template-app'
