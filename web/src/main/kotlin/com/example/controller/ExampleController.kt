@@ -81,6 +81,7 @@ class ExampleController(private val exampleService: ExampleService) {
     @Timed(extraTags = ["path", "create"])
     fun createExample(@RequestBody @Valid request: ExampleDTO): RedirectView {
         LOGGER.info("Creating Example: $request")
+        LOGGER.info("$request")
 
         val id = exampleService.createExample(request)
         return RedirectView("/example/$id")
