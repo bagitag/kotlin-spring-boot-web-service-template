@@ -8,9 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpMethod
 import org.springframework.util.StreamUtils
-import java.io.File
 import java.io.FileOutputStream
 import java.nio.charset.Charset
+import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.readBytes
 
@@ -45,9 +45,9 @@ class TemplateApplicationTests(@Autowired val restTemplate: TestRestTemplate) {
             throw e
         }
         val actual = restTemplate.execute("/api-docs.yaml", HttpMethod.GET, null, {
-            val ret = File.createTempFile("download", "tmp")
-            StreamUtils.copy(it.body, FileOutputStream(ret))
-            ret.readBytes()
+            val path = Files.createTempFile("download", ".tmp")
+            StreamUtils.copy(it.body, FileOutputStream(path.toFile()))
+            path.readBytes()
         })
 
         assertTrue(compareContent(expected, actual), "The openapi.yaml file is outdated! $OPEN_API_ERROR_MSG")
