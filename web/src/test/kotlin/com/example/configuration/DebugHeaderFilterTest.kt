@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import io.mockk.verify
 import io.mockk.verifySequence
 import jakarta.servlet.FilterChain
@@ -31,6 +32,7 @@ internal class DebugHeaderFilterTest {
 
     @AfterEach
     fun tearDown() {
+        unmockkStatic(MDC::class)
         MDC.clear()
     }
 
@@ -48,6 +50,7 @@ internal class DebugHeaderFilterTest {
 
         // then
         verify(exactly = 0) { MDC.put(any(), any()) }
+        verify(exactly = 1) { filterChain.doFilter(any(), any()) }
     }
 
     @Test
@@ -65,6 +68,7 @@ internal class DebugHeaderFilterTest {
 
         // then
         verify(exactly = 0) { MDC.put(any(), any()) }
+        verify(exactly = 1) { filterChain.doFilter(any(), any()) }
     }
 
     @Test
@@ -82,6 +86,7 @@ internal class DebugHeaderFilterTest {
 
         // then
         verify(exactly = 0) { MDC.put(any(), any()) }
+        verify(exactly = 1) { filterChain.doFilter(any(), any()) }
     }
 
     @Test
@@ -99,6 +104,7 @@ internal class DebugHeaderFilterTest {
 
         // then
         verify(exactly = 0) { MDC.put(any(), any()) }
+        verify(exactly = 1) { filterChain.doFilter(any(), any()) }
     }
 
     @Test
