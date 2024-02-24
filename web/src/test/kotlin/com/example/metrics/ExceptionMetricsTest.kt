@@ -30,16 +30,18 @@ internal class ExceptionMetricsTest {
     fun `Should increment counter`() {
         // given
         val exceptionId = "hs7sm2df"
+        val exceptionClass = "java.lang.NullPointerException"
 
         every { Counter.builder("app.exception.counter")
             .description("Represents the exception count grouped by the generated id.")
             .tag("exceptionId", exceptionId)
+            .tag("exceptionType", exceptionClass)
             .register(meterRegistry)
         } returns counter
         every { counter.increment() } returns Unit
 
         // when
-        victim.updateExceptionCounter(exceptionId)
+        victim.updateExceptionCounter(exceptionId, exceptionClass)
 
         // then
         verify { counter.increment() }

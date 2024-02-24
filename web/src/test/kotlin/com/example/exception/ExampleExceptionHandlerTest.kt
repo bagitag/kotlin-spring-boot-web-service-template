@@ -44,7 +44,7 @@ internal class ExampleExceptionHandlerTest {
     fun initialize() {
         victim = ExampleExceptionHandler(true, exceptionMetrics)
         every { webRequest.getParameterValues("trace") } returns emptyArray()
-        every { exceptionMetrics.updateExceptionCounter(any()) } returns Unit
+        every { exceptionMetrics.updateExceptionCounter(any(), any()) } returns Unit
     }
 
     @Test
@@ -54,9 +54,9 @@ internal class ExampleExceptionHandlerTest {
         val exception = IdNotFoundException(Example::class, id)
         val exceptionIdString = "com.example.exception.IdNotFoundException" +
                 "com.example.exception.ExampleExceptionHandlerTest" +
-                "Should generate response entity from known exception" +
-                54
-        val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(10)
+                "Should generate response entity from known exception"
+        val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray())
+            .take(ExampleExceptionHandler.exceptionIdLength)
 
         // when
         val actual = victim.handleExceptions(exception, webRequest)
@@ -78,9 +78,9 @@ internal class ExampleExceptionHandlerTest {
         val exception = IdNotFoundException(Example::class, id)
         val exceptionIdString = "com.example.exception.IdNotFoundException" +
                 "com.example.exception.ExampleExceptionHandlerTest" +
-                "Should generate response entity from known exception with stack trace" +
-                78
-        val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(10)
+                "Should generate response entity from known exception with stack trace"
+        val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray())
+            .take(ExampleExceptionHandler.exceptionIdLength)
 
         // and
         every { webRequest.getParameterValues("trace") } returns Array(1) { "true" }
@@ -156,9 +156,9 @@ internal class ExampleExceptionHandlerTest {
         val exception = RuntimeException()
         val exceptionIdString = "java.lang.RuntimeException" +
                 "com.example.exception.ExampleExceptionHandlerTest" +
-                "Should generate response entity from exception" +
-                156
-        val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(10)
+                "Should generate response entity from exception"
+        val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray())
+            .take(ExampleExceptionHandler.exceptionIdLength)
 
         // when
         val actual = victim.handleExceptions(exception, webRequest)
@@ -179,9 +179,9 @@ internal class ExampleExceptionHandlerTest {
         val exception = RuntimeException()
         val exceptionIdString = "java.lang.RuntimeException" +
                 "com.example.exception.ExampleExceptionHandlerTest" +
-                "Should generate response entity from exception with stack trace" +
-                179
-        val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(10)
+                "Should generate response entity from exception with stack trace"
+        val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray())
+            .take(ExampleExceptionHandler.exceptionIdLength)
 
         // and
         every { webRequest.getParameterValues("trace") } returns Array(1) { "true" }
@@ -205,12 +205,13 @@ internal class ExampleExceptionHandlerTest {
         val exception = IdNotFoundException(Example::class, id)
         val exceptionIdString = "com.example.exception.IdNotFoundException" +
                 "com.example.exception.ExampleExceptionHandlerTest" +
-                "Should generate exception id and update the related counter" +
-                205
-        val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(10)
+                "Should generate exception id and update the related counter"
+        val expectedId = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray())
+            .take(ExampleExceptionHandler.exceptionIdLength)
+        val expectedMessage = "Could not find Example with id: $id"
 
         // and
-        every { exceptionMetrics.updateExceptionCounter(expected) } returns Unit
+        every { exceptionMetrics.updateExceptionCounter(expectedId, exception.javaClass.name) } returns Unit
 
         // when
         val actual = victim.handleExceptions(exception, webRequest)
@@ -218,10 +219,10 @@ internal class ExampleExceptionHandlerTest {
         // then
         assertEquals(HttpStatus.NOT_FOUND, actual.statusCode)
         Assertions.assertNotNull(actual.body)
-        assertEquals("Could not find Example with id: $id", actual.body!!.message)
-        assertEquals(expected, actual.body!!.id)
+        assertEquals(expectedMessage, actual.body!!.message)
+        assertEquals(expectedId, actual.body!!.id)
         assertTrue(actual.body!!.stackTrace.isNullOrEmpty())
-        verify { exceptionMetrics.updateExceptionCounter(expected) }
+        verify { exceptionMetrics.updateExceptionCounter(expectedId, exception.javaClass.simpleName) }
     }
 
     @Test
@@ -251,9 +252,9 @@ internal class ExampleExceptionHandlerTest {
         val exception = HttpMediaTypeNotSupportedException(message)
         val exceptionIdString = "org.springframework.web.HttpMediaTypeNotSupportedException" +
                 "com.external.ExampleClass" +
-                "exampleMethod" +
-                100
-        val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(10)
+                "exampleMethod"
+        val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray())
+            .take(ExampleExceptionHandler.exceptionIdLength)
 
         exception.stackTrace = arrayOf(
             StackTraceElement("com.external.ExampleClass", "exampleMethod", "exampleFile", 100))
@@ -297,9 +298,9 @@ internal class ExampleExceptionHandlerTest {
 
         val exceptionIdString = "org.springframework.web.bind.MethodArgumentNotValidException" +
                 "com.external.ExampleClass" +
-                "exampleMethod" +
-                100
-        val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(10)
+                "exampleMethod"
+        val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray())
+            .take(ExampleExceptionHandler.exceptionIdLength)
 
         every { webRequest.getParameterValues("trace") } returns null
 
@@ -308,14 +309,14 @@ internal class ExampleExceptionHandlerTest {
 
         // then
         val body = actual.body as ErrorDTO
-        val actualMessage = body.details as Map<String, List<String>>
+        val actualDetails = body.details as Map<String, List<String>>
         assertEquals(HttpStatus.BAD_REQUEST, actual.statusCode)
         assertEquals("Invalid request content.", body.message)
-        assertEquals(2, actualMessage.size)
-        assertEquals(2, actualMessage["field1"]!!.size)
-        assertTrue(actualMessage["field1"]!!.contains("errorMsg1"))
-        assertTrue(actualMessage["field1"]!!.contains("errorMsg2"))
-        assertTrue(actualMessage["field2"]!!.contains("errorMsg1"))
+        assertEquals(2, actualDetails.size)
+        assertEquals(2, actualDetails["field1"]!!.size)
+        assertTrue(actualDetails["field1"]!!.contains("errorMsg1"))
+        assertTrue(actualDetails["field1"]!!.contains("errorMsg2"))
+        assertTrue(actualDetails["field2"]!!.contains("errorMsg1"))
         assertEquals(expected, body.id)
         assertTrue(actual.body!!.stackTrace.isNullOrEmpty())
     }

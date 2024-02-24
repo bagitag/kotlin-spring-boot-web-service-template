@@ -25,7 +25,7 @@ class ExampleExceptionHandler(
         const val unknownError = "Unknown internal server error"
         const val stackTraceParameter = "trace"
         const val basePackageName = "com.example"
-        const val exceptionIdLength = 10
+        const val exceptionIdLength = 15
     }
 
     public override fun handleExceptionInternal(
@@ -45,7 +45,7 @@ class ExampleExceptionHandler(
         val details = getDetails(exception)
         val exceptionId = generateExceptionId(exception)
 
-        exceptionMetrics.updateExceptionCounter(exceptionId)
+        exceptionMetrics.updateExceptionCounter(exceptionId, exception.javaClass.simpleName)
         logger.error("ExceptionId: $exceptionId - ${exception.message}", exception)
 
         val stackTrace = getStackTrace(exception, request)
@@ -80,7 +80,7 @@ class ExampleExceptionHandler(
                     ?: StackWalker.getInstance().walk { exception.stackTrace }.first()
 
             val exceptionIdString = exception.javaClass.canonicalName +
-                    stackTraceElement.className + stackTraceElement.methodName + stackTraceElement.lineNumber
+                    stackTraceElement.className + stackTraceElement.methodName
             DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(exceptionIdLength)
         } catch (e: Exception) {
             logger.error("Unexpected error while generating exceptionId: $e")

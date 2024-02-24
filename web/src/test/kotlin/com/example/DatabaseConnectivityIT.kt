@@ -19,6 +19,6 @@ class DatabaseConnectivityIT: BaseIntegrationTest() {
     fun verifyDatabaseVendor() {
         val actualDatabaseVersion = jdbcTemplate.queryForObject("SELECT version()", String::class.java)
         assertNotNull(actualDatabaseVersion)
-        assertTrue(SUPPORTED_DATABASES.stream().filter { actualDatabaseVersion.contains(it) }.findFirst().isPresent)
+        assertTrue(SUPPORTED_DATABASES.stream().filter { actualDatabaseVersion!!.contains(it) }.findFirst().isPresent)
     }
 }
