@@ -3,7 +3,6 @@ package com.example.controller
 import com.example.dto.ErrorDTO
 import com.example.dto.ExampleDTO
 import com.example.service.ExampleService
-import io.micrometer.core.annotation.Timed
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
@@ -33,7 +32,6 @@ class ExampleController(private val exampleService: ExampleService) {
     }
 
     @GetMapping
-    @Timed(extraTags = ["path", "list"])
     @Operation(summary = "Gets all Examples.")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "The Example list has been successfully returned.",
@@ -63,7 +61,6 @@ class ExampleController(private val exampleService: ExampleService) {
                 ))
             ])
     )
-    @Timed(extraTags = ["path", "read"])
     fun getExample(@PathVariable id: Long): ExampleDTO {
         LOGGER.info("Returning Example with id: $id")
         return exampleService.getExample(id)
@@ -79,7 +76,6 @@ class ExampleController(private val exampleService: ExampleService) {
                 ))
             ])
     )
-    @Timed(extraTags = ["path", "create"])
     fun createExample(@RequestBody @Valid request: ExampleDTO): RedirectView {
         LOGGER.info("Creating Example: ${StringUtils.trimAllWhitespace(request.toString())}")
 
@@ -103,7 +99,6 @@ class ExampleController(private val exampleService: ExampleService) {
                 ))
             ])
     )
-    @Timed(extraTags = ["path", "update"])
     fun updateExample(@RequestBody @Valid request: ExampleDTO): RedirectView {
         LOGGER.info("Updating Example: ${StringUtils.trimAllWhitespace(request.toString())}")
 
@@ -116,7 +111,6 @@ class ExampleController(private val exampleService: ExampleService) {
     @ApiResponses(
         ApiResponse(responseCode = "204")
     )
-    @Timed(extraTags = ["path", "delete"])
     fun deleteExample(@PathVariable id: Long): ResponseEntity<Void> {
         LOGGER.info("Deleting Example with id: $id")
 
