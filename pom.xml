@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.2</version>
+        <version>3.2.3</version>
         <relativePath/>
     </parent>
 
@@ -30,7 +30,7 @@
         <java.version>17</java.version>
 
         <kotlin.version>1.9.22</kotlin.version>
-        <mockk.version>1.13.9</mockk.version>
+        <mockk.version>1.13.10</mockk.version>
 
         <detekt.version>1.23.5</detekt.version>
         <detekt.config>detekt-config.yml</detekt.config>

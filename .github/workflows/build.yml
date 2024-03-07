@@ -7,20 +7,42 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+env:
+  DEFAULT_JAVA_VERSION: 17
+
 jobs:
-  build:
-    name: Build project
+  init:
+    name: Initialize variables
 
     runs-on: ubuntu-latest
+
+    outputs:
+      default-java-version: ${{ env.DEFAULT_JAVA_VERSION }}
+
+    steps:
+      - name: Dummy step
+        run: echo Needed only for output generation.
+
+  build:
+    name: Build with ${{ matrix.java-version == needs.init.outputs.default-java-version
+      && 'default Java' || format('Java {0}', matrix.java-version) }}
+
+    runs-on: ubuntu-latest
+
+    needs: init
+
+    strategy:
+      matrix:
+        java-version: [ "${{ needs.init.outputs.default-java-version }}", "21" ]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: 17
+          java-version: ${{ matrix.java-version }}
           distribution: temurin
           cache: maven
 
@@ -31,10 +53,11 @@ jobs:
           dockerfile: Dockerfile
 
       - name: Build with Maven
+        continue-on-error: ${{ matrix.java-version != env.DEFAULT_JAVA_VERSION }}
         run: mvn -B verify -ntp
 
       - name: Store JAR as artifact for the main branch
-        if: github.ref == 'refs/heads/main'
+        if: ${{ github.ref == 'refs/heads/main' && matrix.java-version == env.DEFAULT_JAVA_VERSION }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.ref_name }}-artifact
@@ -42,6 +65,7 @@ jobs:
           retention-days: 10
 
       - name: Upload JaCoCo coverage report
+        if: ${{ matrix.java-version == env.DEFAULT_JAVA_VERSION }}
         uses: actions/upload-pages-artifact@v3
         with:
           name: jacoco-report
