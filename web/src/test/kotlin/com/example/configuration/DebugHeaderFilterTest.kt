@@ -24,10 +24,17 @@ internal class DebugHeaderFilterTest {
 
     private lateinit var victim: DebugHeaderFilter
 
+    private val request = mockk<HttpServletRequest>()
+    private val response = mockk<ServletResponse>()
+    private val filterChain = mockk<FilterChain>()
+
     @BeforeEach
     fun initialize() {
         victim = DebugHeaderFilter()
         mockkStatic(MDC::class)
+
+        every { filterChain.doFilter(request, response) } returns mockk()
+        every { request.requestURI }.returns("/example")
     }
 
     @AfterEach
@@ -40,8 +47,6 @@ internal class DebugHeaderFilterTest {
     fun `Should not run logic if request is not HttpServletRequest`() {
         // given
         val request = mockk<ServletRequest>()
-        val response = mockk<ServletResponse>()
-        val filterChain = mockk<FilterChain>()
 
         every { filterChain.doFilter(request, response) } returns mockk()
 
@@ -54,13 +59,21 @@ internal class DebugHeaderFilterTest {
     }
 
     @Test
+    fun `Should not run logic if request path is disabled`() {
+        // given
+        every { request.requestURI }.returns("/actuator/info")
+
+        // when
+        assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
+
+        // then
+        verify(exactly = 0) { MDC.put(any(), any()) }
+        verify(exactly = 1) { filterChain.doFilter(any(), any()) }
+    }
+
+    @Test
     fun `Should not run logic if debug header is null`() {
         // given
-        val request = mockk<HttpServletRequest>()
-        val response = mockk<ServletResponse>()
-        val filterChain = mockk<FilterChain>()
-
-        every { filterChain.doFilter(request, response) } returns mockk()
         every { request.getHeader(DebugHeaderFilter.DEBUG_REQUEST_HEADER_NAME) }.returns(null)
 
         // when
@@ -74,11 +87,6 @@ internal class DebugHeaderFilterTest {
     @Test
     fun `Should not run logic if debug header is empty`() {
         // given
-        val request = mockk<HttpServletRequest>()
-        val response = mockk<ServletResponse>()
-        val filterChain = mockk<FilterChain>()
-
-        every { filterChain.doFilter(request, response) } returns mockk()
         every { request.getHeader(DebugHeaderFilter.DEBUG_REQUEST_HEADER_NAME) }.returns("")
 
         // when
@@ -92,11 +100,6 @@ internal class DebugHeaderFilterTest {
     @Test
     fun `Should not run logic if debug header value does not match`() {
         // given
-        val request = mockk<HttpServletRequest>()
-        val response = mockk<ServletResponse>()
-        val filterChain = mockk<FilterChain>()
-
-        every { filterChain.doFilter(request, response) } returns mockk()
         every { request.getHeader(DebugHeaderFilter.DEBUG_REQUEST_HEADER_NAME) }.returns("test")
 
         // when
@@ -110,11 +113,9 @@ internal class DebugHeaderFilterTest {
     @Test
     fun `Should run logic`() {
         // given
-        val request = mockk<HttpServletRequest>()
         val response = mockk<HttpServletResponse>()
-        val filterChain = mockk<FilterChain>()
-
         every { filterChain.doFilter(request, response) } returns mockk()
+
         every { request.getHeader(DebugHeaderFilter.DEBUG_REQUEST_HEADER_NAME) }
             .returns(DebugHeaderFilter.DEBUG_REQUEST_HEADER_VALUE)
         every { response.addHeader(any(), any()) } returns mockk()
@@ -128,6 +129,7 @@ internal class DebugHeaderFilterTest {
             MDC.put(DebugHeaderFilter.REQUEST_ID, any())
             response.addHeader(DebugHeaderFilter.REQUEST_ID, any())
             MDC.remove(DebugHeaderFilter.MDC_KEY)
+            MDC.remove(DebugHeaderFilter.REQUEST_ID)
         }
     }
 }
