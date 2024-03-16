@@ -24,13 +24,28 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
-#    volumes:
-#      - ./prometheus.yml:/etc/prometheus/prometheus.yml
     configs:
       - source: prometheus_config
         target: /etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    networks:
+      - example-network
+
+  grafana:
+    image: grafana/grafana:latest
+    configs:
+      - source: grafana_datasource_config
+        target: /etc/grafana/provisioning/datasources/datasources.yml
+      - source: grafana_dashboard_config
+        target: /etc/grafana/provisioning/dashboards/main.yaml
+    volumes:
+      - ./.grafana/example-dashboard.json:/var/lib/grafana/dashboards/dashboard.json
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
       - example-network
 
@@ -49,3 +64,24 @@ configs:
             - targets: ['host.docker.internal:8080']
               labels:
                 application: 'template-app'
+
+  grafana_datasource_config:
+    content: |
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          access: proxy
+          url: http://prometheus:9090
+          isDefault: true
+          editable: false
+
+  grafana_dashboard_config:
+    content: |
+      apiVersion: 1
+      providers:
+        - name: Dashboard provider
+          allowUiUpdates: true
+          options:
+            path: /var/lib/grafana/dashboards
+            foldersFromFilesStructure: true
