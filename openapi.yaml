@@ -8,17 +8,36 @@ servers:
 paths:
   /example:
     get:
-      operationId: getAllExamples
+      operationId: getExamples
+      parameters:
+      - description: Zero-based page index (0..N)
+        in: query
+        name: page
+        schema:
+          type: integer
+          default: 0
+      - description: The size of the page to be returned
+        in: query
+        name: size
+        schema:
+          type: integer
+          default: 20
+      - description: "Sorting criteria in the format: property,(asc|desc). Default\
+          \ sort order is ascending. Multiple sort criteria are supported."
+        in: query
+        name: sort
+        schema:
+          type: array
+          items:
+            type: string
       responses:
         "200":
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ExampleDTO'
+                $ref: '#/components/schemas/PageDetailsExampleDTO'
           description: The Example list has been successfully returned.
-      summary: Gets all Examples.
+      summary: Gets paginated and sorted Examples.
       tags:
       - example-controller
     post:
@@ -67,6 +86,48 @@ paths:
                   $ref: '#/components/schemas/ErrorDTO'
           description: The requested Example was not found.
       summary: Update an existing Example.
+      tags:
+      - example-controller
+  /example/search:
+    get:
+      operationId: searchExamples
+      parameters:
+      - in: query
+        name: searchTerms
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+      - description: Zero-based page index (0..N)
+        in: query
+        name: page
+        schema:
+          type: integer
+          default: 0
+      - description: The size of the page to be returned
+        in: query
+        name: size
+        schema:
+          type: integer
+          default: 20
+      - description: "Sorting criteria in the format: property,(asc|desc). Default\
+          \ sort order is ascending. Multiple sort criteria are supported."
+        in: query
+        name: sort
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageDetailsExampleDTO'
+          description: The Example list has been successfully returned based on the
+            search terms.
+      summary: Gets paginated and sorted Examples based the search terms.
       tags:
       - example-controller
   /example/{id}:
@@ -145,3 +206,47 @@ components:
           minLength: 3
       required:
       - name
+    PageDetailsExampleDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExampleDTO'
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        sortOrders:
+          type: array
+          items:
+            $ref: '#/components/schemas/SortOrder'
+          uniqueItems: true
+        sorted:
+          type: boolean
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+      required:
+      - content
+      - pageNumber
+      - pageSize
+      - sortOrders
+      - sorted
+      - totalElements
+      - totalPages
+    SortOrder:
+      type: object
+      properties:
+        direction:
+          type: string
+        property:
+          type: string
+      required:
+      - direction
+      - property

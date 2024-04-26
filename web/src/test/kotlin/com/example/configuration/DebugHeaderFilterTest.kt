@@ -1,5 +1,6 @@
 package com.example.configuration
 
+import com.example.controller.EXAMPLE_ENDPOINT
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
@@ -34,7 +35,7 @@ internal class DebugHeaderFilterTest {
         mockkStatic(MDC::class)
 
         every { filterChain.doFilter(request, response) } returns mockk()
-        every { request.requestURI }.returns("/example")
+        every { request.requestURI }.returns(EXAMPLE_ENDPOINT)
     }
 
     @AfterEach

@@ -1,6 +1,8 @@
 package com.example.controller
 
 import com.example.dto.ExampleDTO
+import com.example.dto.PageDetails
+import com.example.dto.SortOrder
 import com.example.service.ExampleService
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -9,6 +11,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 
 @ExtendWith(MockKExtension::class)
@@ -25,20 +28,48 @@ internal class ExampleControllerTest {
     }
 
     @Test
-    fun `Should return all examples`() {
+    fun `Should return paginated examples`() {
         // given
         val id1 = 10L
-        val example1 = ExampleDTO(id1, "#$id1 example")
+        val exampleDTO1 = ExampleDTO(id1, "#$id1 example")
         val id2 = 20L
-        val example2 = ExampleDTO(id2, "#$id2 example")
+        val exampleDTO2 = ExampleDTO(id2, "#$id2 example")
+        val pageSize = 10
+        val pageRequest = PageRequest.ofSize(pageSize)
 
-        every { exampleService.getAllExamples() } returns listOf(example1, example2)
+        val exampleDTOs = listOf(exampleDTO1, exampleDTO2)
+        val pageDetails = PageDetails(exampleDTOs, 0, pageSize, exampleDTOs.size.toLong(), 1,
+            true, setOf(SortOrder("createdDate", "DESC")))
+        every { exampleService.getExamples(pageRequest) } returns pageDetails
 
         // when
-        val actual = victim.getAllExamples()
+        val actual = victim.getExamples(pageRequest)
 
         // then
-        Assertions.assertEquals(2, actual.size)
+        Assertions.assertEquals(2, actual.content.size)
+    }
+
+    @Test
+    fun `Should return paginated examples based on given search term`() {
+        // given
+        val id1 = 10L
+        val exampleDTO1 = ExampleDTO(id1, "#$id1 example")
+        val id2 = 20L
+        val exampleDTO2 = ExampleDTO(id2, "#$id2 example")
+        val pageSize = 10
+        val pageRequest = PageRequest.ofSize(10)
+        val searchTerm = listOf("exa")
+
+        val exampleDTOs = listOf(exampleDTO1, exampleDTO2)
+        val pageDetails = PageDetails(exampleDTOs, 0, pageSize, exampleDTOs.size.toLong(), 1,
+            true, setOf(SortOrder("createdDate", "DESC")))
+        every { exampleService.searchExamples(searchTerm, pageRequest) } returns pageDetails
+
+        // when
+        val actual = victim.searchExamples(pageRequest, searchTerm)
+
+        // then
+        Assertions.assertEquals(2, actual.content.size)
     }
 
     @Test
