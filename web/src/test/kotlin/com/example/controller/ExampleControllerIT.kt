@@ -4,16 +4,21 @@ import com.example.BaseIntegrationTest
 import com.example.dto.ExampleDTO
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import jakarta.inject.Inject
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.web.servlet.view.RedirectView
 import java.net.URI
 
@@ -47,46 +52,67 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
         assertEquals("#$id example", actual.body!!.name)
     }
 
-    @Test
-    fun testForCreateExample() {
-        // given
-        val name = "New example"
-        val request = ExampleDTO(name = name)
+    @Nested
+    inner class DatabaseManipulatingTests {
 
-        // when
-        val actual = restTemplate.postForLocation("/example", request)
+        @Inject
+        private lateinit var jdbcTemplate: JdbcTemplate
 
-        // then
-        assertTrue(actual.toString().endsWith("/example/4"))
-    }
+        @BeforeEach
+        fun init() {
+            jdbcTemplate.execute("TRUNCATE TABLE example")
+            jdbcTemplate.execute("ALTER SEQUENCE example_id_seq RESTART")
 
-    @Test
-    fun testForUpdateExample() {
-        // given
-        val id = 2L
-        val name = "Updated example"
-        val request = ExampleDTO(id, name)
+            try {
+                val sqlScriptResource = ClassPathResource("data.sql")
+                val sqlScript = sqlScriptResource.inputStream.bufferedReader().use { it.readText() }
+                jdbcTemplate.execute(sqlScript)
+            } catch (ex: Exception) {
+                println("Error executing SQL script: ${ex.message}")
+            }
+        }
 
-        // when
-        val actual =
-            restTemplate.exchange(URI.create("/example"), HttpMethod.PUT, HttpEntity(request), RedirectView::class.java)
+        @Test
+        fun testForCreateExample() {
+            // given
+            val name = "New example"
+            val request = ExampleDTO(name = name)
 
-        // then
-        assertEquals(HttpStatus.FOUND, actual.statusCode)
-        val location = actual.headers.location!!.toString()
-        assertTrue(location.endsWith("/example/$id"))
-    }
+            // when
+            val actual = restTemplate.postForLocation("/example", request)
 
-    @Test
-    fun testForDeleteExample() {
-        // given
-        val id = 3L
+            // then
+            assertTrue(actual.toString().endsWith("/example/4"))
+        }
 
-        // when
-        val actual = restTemplate.exchange("/example/$id", HttpMethod.DELETE, null, ResponseEntity::class.java)
+        @Test
+        fun testForUpdateExample() {
+            // given
+            val id = 2L
+            val name = "Updated example"
+            val request = ExampleDTO(id, name)
 
-        // then
-        assertEquals(HttpStatus.NO_CONTENT, actual.statusCode)
+            // when
+            val actual = restTemplate.exchange(URI.create("/example"), HttpMethod.PUT, HttpEntity(request),
+                RedirectView::class.java)
+
+            // then
+            assertEquals(HttpStatus.FOUND, actual.statusCode)
+            val location = actual.headers.location!!.toString()
+            assertTrue(location.endsWith("/example/$id"))
+        }
+
+        @Test
+        fun testForDeleteExample() {
+            // given
+            val id = 3L
+
+            // when
+            val actual = restTemplate.exchange("/example/$id", HttpMethod.DELETE, null, ResponseEntity::class.java)
+
+            // then
+            assertEquals(HttpStatus.NO_CONTENT, actual.statusCode)
+        }
     }
 
     private fun <T> getResponseBody(body: String, clz: Class<T>): T {

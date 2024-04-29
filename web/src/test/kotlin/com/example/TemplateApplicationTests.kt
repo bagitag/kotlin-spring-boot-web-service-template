@@ -21,7 +21,7 @@ import kotlin.io.path.readBytes
 
     "spring.liquibase.enabled=false",
 
-    "app.debug.logging.package.list=nothing"
+    "app.debug.logging.package.list=UNDEFINED"
 ])
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class TemplateApplicationTests(@Autowired val restTemplate: TestRestTemplate) {
