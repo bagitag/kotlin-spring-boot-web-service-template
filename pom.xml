@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.3</version>
+        <version>3.2.5</version>
         <relativePath/>
     </parent>
 
@@ -36,7 +36,7 @@
         <detekt.config>detekt-config.yml</detekt.config>
         <detekt.baseline>detekt-baseline.xml</detekt.baseline>
 
-        <jacoco.version>0.8.11</jacoco.version>
+        <jacoco.version>0.8.12</jacoco.version>
 
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
@@ -235,6 +235,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <runOrder>random</runOrder>
                     <argLine>${surefire.jacoco.args}</argLine>
                 </configuration>
             </plugin>
@@ -242,6 +243,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
+                    <runOrder>random</runOrder>
                     <argLine>${failsafe.jacoco.args}</argLine>
                 </configuration>
             </plugin>
