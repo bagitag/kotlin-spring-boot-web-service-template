@@ -223,7 +223,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SortOrder'
-          uniqueItems: true
         sorted:
           type: boolean
         totalElements:

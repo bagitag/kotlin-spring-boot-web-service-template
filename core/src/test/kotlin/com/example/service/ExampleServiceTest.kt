@@ -56,7 +56,8 @@ internal class ExampleServiceTest {
         every { exampleMapper.toDTO(example2) } returns exampleDTO2
 
         val exampleDTOs = listOf(exampleDTO1, exampleDTO2)
-        val pageDetails = PageDetails(exampleDTOs, 0, 10, 2, 1, true, setOf(SortOrder("createdDate", "DESC")))
+        val pageDetails = PageDetails(exampleDTOs, 0, 10, 2, 1, true,
+            listOf(SortOrder("createdDate", "DESC"), SortOrder("id", "DESC")))
         every { pageConverter.createPageDetails(any(PageImpl::class)) } returns pageDetails
 
         // when
@@ -72,9 +73,11 @@ internal class ExampleServiceTest {
         assertEquals(10, actual.pageSize)
         assertEquals(0, actual.pageNumber)
         assertTrue(actual.sorted)
-        assertEquals(1, actual.sortOrders.size)
+        assertEquals(2, actual.sortOrders.size)
         assertEquals("createdDate", actual.sortOrders.first().property)
         assertEquals("DESC", actual.sortOrders.first().direction)
+        assertEquals("id", actual.sortOrders.last().property)
+        assertEquals("DESC", actual.sortOrders.last().direction)
         assertEquals(id2, actual.content.last().id)
         assertEquals("$id2. example", actual.content.last().name)
     }
@@ -100,7 +103,7 @@ internal class ExampleServiceTest {
         every { exampleMapper.toDTO(example1) } returns exampleDTO1
 
         val exampleDTOs = listOf(exampleDTO3, exampleDTO2, exampleDTO1)
-        val pageDetails = PageDetails(exampleDTOs, 0, 10, 2, 1, true, setOf(SortOrder("id", "DESC")))
+        val pageDetails = PageDetails(exampleDTOs, 0, 10, 2, 1, true, listOf(SortOrder("id", "DESC")))
         every { pageConverter.createPageDetails(any(PageImpl::class)) } returns pageDetails
 
         // when
@@ -142,7 +145,7 @@ internal class ExampleServiceTest {
         every { exampleMapper.toDTO(example1) } returns exampleDTO1
 
         val exampleDTOs = listOf(exampleDTO1, exampleDTO2)
-        val pageDetails = PageDetails(exampleDTOs, 0, 10, 2, 1, true, setOf(SortOrder("id", "DESC")))
+        val pageDetails = PageDetails(exampleDTOs, 0, 10, 2, 1, true, listOf(SortOrder("id", "DESC")))
         every { pageConverter.createPageDetails(any(PageImpl::class)) } returns pageDetails
 
         // when

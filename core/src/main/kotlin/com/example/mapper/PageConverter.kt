@@ -15,7 +15,7 @@ class PageConverter {
         totalElements = source.totalElements,
         totalPages = source.totalPages,
         sorted = source.sort.isSorted,
-        sortOrders = source.sort.map { createSortOrder(it) }.toSet()
+        sortOrders = source.sort.map { createSortOrder(it) }.toList()
     )
 
     private fun createSortOrder(order: Sort.Order) = SortOrder(order.property, order.direction.name)

@@ -55,11 +55,10 @@ class ExampleService(
     }
 
     private fun getPageable(pageable: Pageable): Pageable {
-        val pageableToUse = if (pageable.sort.isUnsorted) {
+        return if (pageable.sort.isUnsorted) {
             PageRequest.of(pageable.pageNumber, pageable.pageSize, ExampleRepository.DEFAULT_SORT)
         } else {
             pageable
         }
-        return pageableToUse
     }
 }

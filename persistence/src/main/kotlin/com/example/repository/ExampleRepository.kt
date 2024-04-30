@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface ExampleRepository : JpaRepository<Example, Long> {
 
     companion object {
-        val DEFAULT_SORT: Sort = Sort.by(Sort.Direction.DESC,"createdDate")
+        val DEFAULT_SORT: Sort = Sort.by(Sort.Order.desc("createdDate"), Sort.Order.desc("id"))
     }
 
     fun findByNameInIgnoreCase(searchTerms: List<String>, pageable: Pageable): Page<Example>

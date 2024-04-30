@@ -7,7 +7,7 @@ data class PageDetails<T>(
     val totalElements: Long,
     val totalPages: Int,
     val sorted: Boolean,
-    val sortOrders: Set<SortOrder>
+    val sortOrders: List<SortOrder>
 )
 
 data class SortOrder(

@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.core.io.ClassPathResource
 import org.springframework.core.ParameterizedTypeReference
+import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -37,9 +37,11 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
         assertEquals(15, actual.body!!.totalElements)
         assertEquals(2, actual.body!!.totalPages)
         assertTrue(actual.body!!.sorted)
-        assertEquals(1, actual.body!!.sortOrders.size)
+        assertEquals(2, actual.body!!.sortOrders.size)
         assertEquals("createdDate", actual.body!!.sortOrders.first().property)
         assertEquals("DESC", actual.body!!.sortOrders.first().direction)
+        assertEquals("id", actual.body!!.sortOrders.last().property)
+        assertEquals("DESC", actual.body!!.sortOrders.last().direction)
     }
 
     @Test
@@ -57,7 +59,7 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
         assertEquals(HttpStatus.OK, actual.statusCode)
         assertEquals(0, actual.body!!.pageNumber)
         assertEquals(50, actual.body!!.pageSize)
-        assertEquals(16, actual.body!!.totalElements)
+        assertEquals(15, actual.body!!.totalElements)
         assertEquals(1, actual.body!!.totalPages)
         assertTrue(actual.body!!.sorted)
         assertEquals(2, actual.body!!.sortOrders.size)

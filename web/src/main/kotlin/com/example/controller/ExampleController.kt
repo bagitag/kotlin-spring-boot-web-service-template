@@ -65,12 +65,14 @@ class ExampleController(private val exampleService: ExampleService) {
     fun searchExamples(@Parameter(hidden = true) @PageableDefault pageable: Pageable,
                        @RequestParam searchTerms: List<String>
     ): PageDetails<ExampleDTO> {
-        return exampleService.searchExamples(searchTerms, pageable)
+        val sanitizedSearchTerms = searchTerms.map { removeNonAllowedCharacters(it) }.toList()
+
+        return exampleService.searchExamples(sanitizedSearchTerms, pageable)
             .apply { LOGGER.info("Returning ${content.size} out of $totalElements Examples " +
-                    "for the given search terms: $searchTerms") }
+                    "for the given search terms: $sanitizedSearchTerms") }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id:[0-9]*}")
     @Operation(summary = "Gets Example by its id.")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "The requested Example has been successfully returned.",
