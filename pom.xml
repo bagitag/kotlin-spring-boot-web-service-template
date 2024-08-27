@@ -21,6 +21,7 @@
     <modules>
         <module>api</module>
         <module>persistence</module>
+        <module>client</module>
         <module>core</module>
         <module>web</module>
         <module>jacoco-report</module>
