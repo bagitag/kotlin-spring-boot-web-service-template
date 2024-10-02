@@ -130,6 +130,22 @@ paths:
       summary: Gets paginated and sorted Examples based the search terms.
       tags:
       - example-controller
+  /example/statistics:
+    get:
+      operationId: getWordStatistics
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+                  format: int32
+          description: The word count map.
+      summary: Returns the number of words for each user in order of cardinality.
+      tags:
+      - example-controller
   /example/{id}:
     delete:
       operationId: deleteExample
