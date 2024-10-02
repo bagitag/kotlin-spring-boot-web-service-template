@@ -40,9 +40,6 @@ internal class JsonPlaceholderServiceTest {
             User(2, "2", "username2", "email2"),
             User(3, "3", "username3", "email3")
         )
-        val response = ResponseEntity.ok(body)
-
-        every { jsonPlaceholderClient.getUsers() } returns response
 
         every {
             retryableClient.retryForHttpServerError(
@@ -58,6 +55,10 @@ internal class JsonPlaceholderServiceTest {
 
         // then
         assertEquals(body.size, actual.get().size)
+        assertEquals(body[0].id, actual.get()[0].id)
+        assertEquals(body[0].name, actual.get()[0].name)
+        assertEquals(body[0].username, actual.get()[0].username)
+        assertEquals(body[0].email, actual.get()[0].email)
     }
 
     @Test
@@ -90,9 +91,6 @@ internal class JsonPlaceholderServiceTest {
             Post(2, userId, "title2", "body2"),
             Post(3, userId, "title3", "body3")
         )
-        val response = ResponseEntity.ok(body)
-
-        every { jsonPlaceholderClient.getAllPostByUserId(userId) } returns response
 
         every {
             retryableClient.retryForHttpServerError(
@@ -108,6 +106,10 @@ internal class JsonPlaceholderServiceTest {
 
         // then
         assertEquals(body.size, actual.get().size)
+        assertEquals(body[0].id, actual.get()[0].id)
+        assertEquals(body[0].userId, actual.get()[0].userId)
+        assertEquals(body[0].title, actual.get()[0].title)
+        assertEquals(body[0].body, actual.get()[0].body)
     }
 
     @Test
@@ -153,5 +155,4 @@ internal class JsonPlaceholderServiceTest {
         // then
         assertTrue(actual.get().isEmpty())
     }
-
 }

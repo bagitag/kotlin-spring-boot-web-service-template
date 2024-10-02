@@ -8,6 +8,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -142,5 +143,21 @@ internal class ExampleControllerTest {
 
         // then
         assertEquals(HttpStatus.NO_CONTENT, actual.statusCode)
+    }
+
+    @Test
+    fun `Should return word statistics`() {
+        // given
+        val result = mapOf("user1" to 123, "user2" to 323, "user3" to 545)
+
+        every { exampleService.getWordCountForUsers() } returns result
+
+        // when
+        val actual = victim.getWordStatistics()
+
+        // then
+        assertEquals(HttpStatus.OK, actual.statusCode)
+        assertNotNull(actual.body)
+        assertEquals(result.size, actual.body!!.size)
     }
 }

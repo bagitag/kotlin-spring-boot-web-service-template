@@ -5,6 +5,9 @@ import com.example.dto.PageDetails
 import com.example.dto.SortOrder
 import com.example.entity.Example
 import com.example.exception.IdNotFoundException
+import com.example.jsonplaceholder.JsonPlaceholderService
+import com.example.jsonplaceholder.api.Post
+import com.example.jsonplaceholder.api.User
 import com.example.mapper.ExampleMapper
 import com.example.mapper.PageConverter
 import com.example.repository.ExampleRepository
@@ -26,6 +29,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import java.util.Optional
+import java.util.concurrent.CompletableFuture
 
 @ExtendWith(MockKExtension::class)
 internal class ExampleServiceTest {
@@ -35,6 +39,8 @@ internal class ExampleServiceTest {
     private lateinit var exampleMapper: ExampleMapper
     @MockK
     private lateinit var pageConverter: PageConverter
+    @MockK
+    private lateinit var jsonPlaceholderService: JsonPlaceholderService
     @InjectMockKs
     private lateinit var victim: ExampleService
 
@@ -292,5 +298,39 @@ internal class ExampleServiceTest {
         verifySequence {
             exampleRepository.deleteById(id)
         }
+    }
+
+    @Test
+    fun `Should return word count for users`() {
+        // given
+        val userId1 = 1L
+        val user1 = User(userId1, "name1", "username1", "email1")
+        val userId2 = 2L
+        val user2 = User(userId2, "name2", "username2", "email2")
+        val users = listOf(user1, user2)
+        val usersFuture: CompletableFuture<List<User>> = CompletableFuture.completedFuture(users)
+
+        every { jsonPlaceholderService.getUsers() } returns usersFuture
+
+        val posts1 = listOf(
+            Post(1, userId1, "title1", "a b c"),
+            Post(2, userId1, "title2", "a b c"),
+            Post(3, userId1, "title3", "c d e f")
+        )
+        val posts2 = listOf(
+            Post(4, userId2, "title1", "a b c"),
+            Post(5, userId2, "title2", "d e f"),
+            Post(6, userId2, "title3", "g h i j k l")
+        )
+        every { jsonPlaceholderService.getPostsByUserId(userId1) } returns CompletableFuture.completedFuture(posts1)
+        every { jsonPlaceholderService.getPostsByUserId(userId2) } returns CompletableFuture.completedFuture(posts2)
+
+        // when
+        val actual = victim.getWordCountForUsers()
+
+        // then
+        assertEquals(users.size, actual.size)
+        assertEquals(12, actual[user2.username])
+        assertEquals(10, actual[user1.username])
     }
 }
