@@ -148,4 +148,12 @@ class ExampleController(private val exampleService: ExampleService) {
         exampleService.deleteExample(id)
         return ResponseEntity.noContent().build()
     }
+
+    @GetMapping("/statistics", produces = [ "application/json" ])
+    @Operation(summary = "Returns the number of words for each user in order of cardinality.")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "The word count map.",
+            useReturnTypeSchema = true)
+    )
+    fun getWordStatistics() = ResponseEntity.ok(exampleService.getWordCountForUsers())
 }
