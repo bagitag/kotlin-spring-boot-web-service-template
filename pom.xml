@@ -21,6 +21,7 @@
     <modules>
         <module>api</module>
         <module>persistence</module>
+        <module>client</module>
         <module>core</module>
         <module>web</module>
         <module>jacoco-report</module>
@@ -111,13 +112,16 @@
                 <configuration>
                     <excludes>
                         <exclude>com/example/TemplateApplicationKt.class</exclude>
-                        <exclude>com/example/configuration/JpaConfiguration.class</exclude>
+                        <exclude>**/*Configuration.class</exclude>
                         <exclude>com/example/exception/BaseException.class</exclude>
                         <exclude>com/example/exception/IdNotFoundException.class</exclude>
                     </excludes>
                     <rules>
                         <rule>
                             <element>CLASS</element>
+                            <excludes>
+                                <exclude>com.example.jsonplaceholder.JsonPlaceholderService</exclude>
+                            </excludes>
                             <limits>
                                 <limit>
                                     <counter>LINE</counter>
@@ -143,6 +147,20 @@
                                     <counter>BRANCH</counter>
                                     <value>COVEREDRATIO</value>
                                     <minimum>90%</minimum>
+                                </limit>
+                            </limits>
+                        </rule>
+                        <rule>
+                            <element>CLASS</element>
+                            <includes>
+                                <!-- JaCoCo 0.8.12 cannot detect coverage for Kotlin inline functions -->
+                                <include>com.example.jsonplaceholder.JsonPlaceholderService</include>
+                            </includes>
+                            <limits>
+                                <limit>
+                                    <counter>LINE</counter>
+                                    <value>COVEREDRATIO</value>
+                                    <minimum>80%</minimum>
                                 </limit>
                             </limits>
                         </rule>
