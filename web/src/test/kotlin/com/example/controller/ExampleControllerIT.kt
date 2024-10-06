@@ -132,12 +132,12 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
             val name = "New example"
             val request = ExampleDTO(name = name)
 
-        // when
-        val actual = restTemplate.postForLocation(EXAMPLE_ENDPOINT, request)
+            // when
+            val actual = restTemplate.postForLocation(EXAMPLE_ENDPOINT, request)
 
-        // then
-        assertTrue(actual.toString().endsWith("$EXAMPLE_ENDPOINT/16"))
-    }
+            // then
+            assertTrue(actual.toString().endsWith("$EXAMPLE_ENDPOINT/16"))
+        }
 
         @Test
         fun testForUpdateExample() {
@@ -146,23 +146,26 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
             val name = "Updated example"
             val request = ExampleDTO(id, name)
 
-        // when
-        val actual = restTemplate.exchange(URI.create(EXAMPLE_ENDPOINT), HttpMethod.PUT, HttpEntity(request),
-            RedirectView::class.java)
+            // when
+            val actual = restTemplate.exchange(
+                URI.create(EXAMPLE_ENDPOINT), HttpMethod.PUT, HttpEntity(request),
+                RedirectView::class.java
+            )
 
-        // then
-        assertEquals(HttpStatus.FOUND, actual.statusCode)
-        val location = actual.headers.location!!.toString()
-        assertTrue(location.endsWith("$EXAMPLE_ENDPOINT/$id"))
-    }
+            // then
+            assertEquals(HttpStatus.FOUND, actual.statusCode)
+            val location = actual.headers.location!!.toString()
+            assertTrue(location.endsWith("$EXAMPLE_ENDPOINT/$id"))
+        }
 
         @Test
         fun testForDeleteExample() {
             // given
             val id = 3L
 
-        // when
-        val actual = restTemplate.exchange("$EXAMPLE_ENDPOINT/$id", HttpMethod.DELETE, null, ResponseEntity::class.java)
+            // when
+            val actual =
+                restTemplate.exchange("$EXAMPLE_ENDPOINT/$id", HttpMethod.DELETE, null, ResponseEntity::class.java)
 
             // then
             assertEquals(HttpStatus.NO_CONTENT, actual.statusCode)

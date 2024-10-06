@@ -35,7 +35,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PageDetailsExampleDTO'
+                $ref: "#/components/schemas/PageDetailsExampleDTO"
           description: The Example list has been successfully returned.
       summary: Gets paginated and sorted Examples.
       tags:
@@ -46,7 +46,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ExampleDTO'
+              $ref: "#/components/schemas/ExampleDTO"
         required: true
       responses:
         "200":
@@ -55,7 +55,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ExampleDTO'
+                  $ref: "#/components/schemas/ExampleDTO"
           description: Example successfully created.
       summary: Creates a new Example.
       tags:
@@ -66,7 +66,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ExampleDTO'
+              $ref: "#/components/schemas/ExampleDTO"
         required: true
       responses:
         "200":
@@ -75,7 +75,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ExampleDTO'
+                  $ref: "#/components/schemas/ExampleDTO"
           description: Example successfully updated.
         "404":
           content:
@@ -83,7 +83,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ErrorDTO'
+                  $ref: "#/components/schemas/ErrorDTO"
           description: The requested Example was not found.
       summary: Update an existing Example.
       tags:
@@ -124,10 +124,26 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PageDetailsExampleDTO'
+                $ref: "#/components/schemas/PageDetailsExampleDTO"
           description: The Example list has been successfully returned based on the
             search terms.
       summary: Gets paginated and sorted Examples based the search terms.
+      tags:
+      - example-controller
+  /example/statistics:
+    get:
+      operationId: getWordStatistics
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+                  format: int32
+          description: The word count map.
+      summary: Returns the number of words for each user in order of cardinality.
       tags:
       - example-controller
   /example/{id}:
@@ -162,7 +178,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ExampleDTO'
+                  $ref: "#/components/schemas/ExampleDTO"
           description: The requested Example has been successfully returned.
         "404":
           content:
@@ -170,7 +186,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ErrorDTO'
+                  $ref: "#/components/schemas/ErrorDTO"
           description: The requested Example was not found.
       summary: Gets Example by its id.
       tags:
@@ -212,7 +228,7 @@ components:
         content:
           type: array
           items:
-            $ref: '#/components/schemas/ExampleDTO'
+            $ref: "#/components/schemas/ExampleDTO"
         pageNumber:
           type: integer
           format: int32
@@ -222,7 +238,7 @@ components:
         sortOrders:
           type: array
           items:
-            $ref: '#/components/schemas/SortOrder'
+            $ref: "#/components/schemas/SortOrder"
         sorted:
           type: boolean
         totalElements:
