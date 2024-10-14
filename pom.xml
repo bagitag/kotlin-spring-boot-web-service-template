@@ -31,7 +31,7 @@
         <java.version>17</java.version>
 
         <kotlin.version>2.0.20</kotlin.version>
-        <mockk.version>1.13.12</mockk.version>
+        <mockk.version>1.13.13</mockk.version>
 
         <detekt.version>1.23.7</detekt.version>
         <detekt.config>detekt-config.yml</detekt.config>
