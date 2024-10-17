@@ -23,11 +23,12 @@ class DebugHeaderFilter : Filter {
         const val MDC_KEY = "debugLevel"
         const val MDC_VALUE = "on"
         const val REQUEST_ID = "requestId"
+        private val DISABLED_REQUEST_PATHS = listOf("/actuator")
         private const val REQUEST_ID_LENGTH = 15
     }
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-        if (request is HttpServletRequest) {
+        if (request is HttpServletRequest && validateRequestPath(request.requestURI)) {
             val debugHeader = request.getHeader(DEBUG_REQUEST_HEADER_NAME)
 
             if (!debugHeader.isNullOrEmpty() && debugHeader == DEBUG_REQUEST_HEADER_VALUE) {
@@ -44,8 +45,12 @@ class DebugHeaderFilter : Filter {
             chain.doFilter(request, response)
 
             MDC.remove(MDC_KEY)
+            MDC.remove(REQUEST_ID)
         } else {
             chain.doFilter(request, response)
         }
     }
+
+    private fun validateRequestPath(requestURI: String) =
+        DISABLED_REQUEST_PATHS.stream().anyMatch { !requestURI.contains(it) }
 }

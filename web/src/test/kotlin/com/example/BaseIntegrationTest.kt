@@ -1,27 +1,19 @@
 package com.example
 
-import org.junit.jupiter.api.BeforeAll
+import com.maciejwalkowiak.wiremock.spring.ConfigureWireMock
+import com.maciejwalkowiak.wiremock.spring.EnableWireMock
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Testcontainers
 
-@Testcontainers
 @ActiveProfiles("test")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(TestcontainersConfig::class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-abstract class BaseIntegrationTest {
-
-    companion object {
-        @ServiceConnection
-        private val databaseContainer = PostgreSQLContainer<Nothing>("postgres:latest")
-
-        @JvmStatic
-        @BeforeAll
-        fun beforeAll() {
-            databaseContainer.start()
-        }
-    }
-}
+@AutoConfigureMockMvc
+@EnableWireMock(
+    ConfigureWireMock(name = "json-placeholder", property = "client.jsonplaceholder.base-url", port = 1234)
+)
+abstract class BaseIntegrationTest

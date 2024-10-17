@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version='1.0' encoding='UTF-8'?>
 <SmellBaseline>
     <Whitelist>
         <ID>SpreadOperator:TemplateApplication.kt$(*args)</ID>
+        <ID>SpreadOperator:ExampleService.kt$ExampleService$(*futureArray)</ID>
         <ID>TooGenericExceptionCaught:ExampleExceptionHandler.kt$ExampleExceptionHandler$e: Exception</ID>
         <ID>UtilityClassWithPublicConstructor:BaseIntegrationTest.kt$BaseIntegrationTest</ID>
     </Whitelist>

@@ -20,7 +20,7 @@ internal class ExampleMapperTest {
 
         // then
         assertEquals(id, actual.id)
-        assertEquals("#$id example", actual.name)
+        assertEquals("$id. example", actual.name)
     }
 
     @Test
@@ -34,6 +34,6 @@ internal class ExampleMapperTest {
 
         // then
         assertEquals(id, actual.id)
-        assertEquals("#$id example", actual.name)
+        assertEquals("$id. example", actual.name)
     }
 }
