@@ -1,6 +1,7 @@
 package com.example.configuration
 
 import com.example.BaseIntegrationTest
+import com.example.controller.EXAMPLE_ENDPOINT
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -22,7 +23,8 @@ class DebugHeaderFilterIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
         // when
         val headers = HttpHeaders()
         headers.add(DebugHeaderFilter.DEBUG_REQUEST_HEADER_NAME, DebugHeaderFilter.DEBUG_REQUEST_HEADER_VALUE)
-        val response = restTemplate.exchange("/example", HttpMethod.GET, HttpEntity<Any>(headers), String::class.java)
+        val response =
+            restTemplate.exchange(EXAMPLE_ENDPOINT, HttpMethod.GET, HttpEntity<Any>(headers), String::class.java)
 
         // then
         assertEquals(HttpStatus.OK, response.statusCode)

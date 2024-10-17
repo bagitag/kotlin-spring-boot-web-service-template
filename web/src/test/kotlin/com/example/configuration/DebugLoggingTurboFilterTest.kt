@@ -92,7 +92,7 @@ internal class DebugLoggingTurboFilterTest {
     }
 
     @Test
-    fun `Should return DENY if MDC is ok but logger is null`() {
+    fun `Should return NEUTRAL if MDC is ok but logger is null`() {
         // given
         val value = "value"
         val key = "key"
@@ -109,11 +109,11 @@ internal class DebugLoggingTurboFilterTest {
         val actual = victim.decide(null, null, null, null, null, null)
 
         // then
-        assertEquals(FilterReply.DENY, actual)
+        assertEquals(FilterReply.NEUTRAL, actual)
     }
 
     @Test
-    fun `Should return DENY if MDC is ok but logger name is null`() {
+    fun `Should return NEUTRAL if MDC is ok but logger name is null`() {
         // given
         val value = "value"
         val key = "key"
@@ -133,11 +133,11 @@ internal class DebugLoggingTurboFilterTest {
         val actual = victim.decide(null, logger, null, null, null, null)
 
         // then
-        assertEquals(FilterReply.DENY, actual)
+        assertEquals(FilterReply.NEUTRAL, actual)
     }
 
     @Test
-    fun `Should return DENY if MDC is ok but package does not match`() {
+    fun `Should return NEUTRAL if MDC is ok but package does not match`() {
         // given
         val value = "value"
         val key = "key"
@@ -157,7 +157,7 @@ internal class DebugLoggingTurboFilterTest {
         val actual = victim.decide(null, logger, null, null, null, null)
 
         // then
-        assertEquals(FilterReply.DENY, actual)
+        assertEquals(FilterReply.NEUTRAL, actual)
     }
 
     @Test

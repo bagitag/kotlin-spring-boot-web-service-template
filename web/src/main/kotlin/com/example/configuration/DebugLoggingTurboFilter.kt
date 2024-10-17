@@ -29,7 +29,7 @@ class DebugLoggingTurboFilter : MDCFilter() {
                 .filter { e -> logger?.name?.startsWith(e) ?: false }
                 .map { FilterReply.ACCEPT }
                 .findAny()
-                .orElse(FilterReply.DENY)
+                .orElse(FilterReply.NEUTRAL)
         }
         return filterReply
     }

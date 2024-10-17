@@ -1,19 +1,44 @@
 package com.example.service
 
 import com.example.dto.ExampleDTO
+import com.example.dto.PageDetails
 import com.example.entity.Example
 import com.example.exception.IdNotFoundException
+import com.example.jsonplaceholder.JsonPlaceholderService
 import com.example.mapper.ExampleMapper
+import com.example.mapper.PageConverter
 import com.example.repository.ExampleRepository
+import org.slf4j.LoggerFactory
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class ExampleService(
     private val exampleRepository: ExampleRepository,
-    private val exampleMapper: ExampleMapper
+    private val exampleMapper: ExampleMapper,
+    private val pageConverter: PageConverter,
+    private val jsonPlaceholderService: JsonPlaceholderService
 ) {
+    companion object {
+        private val LOGGER = LoggerFactory.getLogger(ExampleService::class.java)
+    }
 
-    fun getAllExamples(): List<ExampleDTO> = exampleRepository.findAll().map { exampleMapper.toDTO(it) }
+    fun getExamples(pageable: Pageable): PageDetails<ExampleDTO> {
+        val pageableToUse = getPageable(pageable)
+        return exampleRepository.findAll(pageableToUse)
+            .map { exampleMapper.toDTO(it) }
+            .let { pageConverter.createPageDetails(it) }
+    }
+
+    fun searchExamples(searchTerms: List<String>, pageable: Pageable): PageDetails<ExampleDTO> {
+        val pageableToUse = getPageable(pageable)
+        return exampleRepository.findByNameInIgnoreCase(searchTerms, pageableToUse)
+            .map { exampleMapper.toDTO(it) }
+            .let { pageConverter.createPageDetails(it) }
+    }
 
     fun getExample(id: Long): ExampleDTO =
         exampleRepository.findById(id).map { exampleMapper.toDTO(it) }
@@ -35,5 +60,37 @@ class ExampleService(
 
     fun deleteExample(id: Long) {
         exampleRepository.deleteById(id)
+    }
+
+    fun getWordCountForUsers(): Map<String, Int> {
+        val userNameWordCountMap = ConcurrentHashMap<String, Int>()
+
+        jsonPlaceholderService.getUsers().thenComposeAsync {
+            val futures = mutableListOf<CompletableFuture<Void>>()
+
+            it.forEach { user ->
+                val future = jsonPlaceholderService.getPostsByUserId(user.id).thenAccept { posts ->
+                    posts.forEach { post ->
+                        val wordCount = post.body.split("\\s+".toRegex()).size
+                        userNameWordCountMap.merge(user.username, wordCount, Integer::sum)
+                    }
+                }
+                futures.add(future)
+            }
+            val futureArray = futures.toTypedArray()
+            CompletableFuture.allOf(*futureArray)
+        }.thenApply {
+            LOGGER.info("Calculated word count for users: {}", userNameWordCountMap)
+        }.get()
+
+        return userNameWordCountMap.entries.sortedByDescending { it.value }.associateBy({ it.key }, { it.value })
+    }
+
+    private fun getPageable(pageable: Pageable): Pageable {
+        return if (pageable.sort.isUnsorted) {
+            PageRequest.of(pageable.pageNumber, pageable.pageSize, ExampleRepository.DEFAULT_SORT)
+        } else {
+            pageable
+        }
     }
 }

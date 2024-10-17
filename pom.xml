@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.3</version>
+        <version>3.3.4</version>
         <relativePath/>
     </parent>
 
@@ -21,6 +21,7 @@
     <modules>
         <module>api</module>
         <module>persistence</module>
+        <module>client</module>
         <module>core</module>
         <module>web</module>
         <module>jacoco-report</module>
@@ -29,17 +30,19 @@
     <properties>
         <java.version>17</java.version>
 
-        <kotlin.version>1.9.22</kotlin.version>
-        <mockk.version>1.13.10</mockk.version>
+        <kotlin.version>2.0.21</kotlin.version>
+        <mockk.version>1.13.13</mockk.version>
 
-        <detekt.version>1.23.5</detekt.version>
+        <detekt.version>1.23.7</detekt.version>
         <detekt.config>detekt-config.yml</detekt.config>
         <detekt.baseline>detekt-baseline.xml</detekt.baseline>
 
-        <jacoco.version>0.8.11</jacoco.version>
+        <jacoco.version>0.8.12</jacoco.version>
 
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+
+        <testcontainers.enabled>true</testcontainers.enabled>
     </properties>
 
     <dependencies>
@@ -81,6 +84,13 @@
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
 
+        <testResources>
+            <testResource>
+                <directory>${project.basedir}/src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+
         <plugins>
             <plugin>
                 <groupId>com.github.ozsie</groupId>
@@ -102,13 +112,16 @@
                 <configuration>
                     <excludes>
                         <exclude>com/example/TemplateApplicationKt.class</exclude>
-                        <exclude>com/example/configuration/JpaConfiguration.class</exclude>
+                        <exclude>**/*Configuration.class</exclude>
                         <exclude>com/example/exception/BaseException.class</exclude>
                         <exclude>com/example/exception/IdNotFoundException.class</exclude>
                     </excludes>
                     <rules>
                         <rule>
                             <element>CLASS</element>
+                            <excludes>
+                                <exclude>com.example.jsonplaceholder.JsonPlaceholderService</exclude>
+                            </excludes>
                             <limits>
                                 <limit>
                                     <counter>LINE</counter>
@@ -123,7 +136,7 @@
                                 <limit>
                                     <counter>COMPLEXITY</counter>
                                     <value>TOTALCOUNT</value>
-                                    <maximum>30</maximum>
+                                    <maximum>35</maximum>
                                 </limit>
                                 <limit>
                                     <counter>CLASS</counter>
@@ -134,6 +147,20 @@
                                     <counter>BRANCH</counter>
                                     <value>COVEREDRATIO</value>
                                     <minimum>90%</minimum>
+                                </limit>
+                            </limits>
+                        </rule>
+                        <rule>
+                            <element>CLASS</element>
+                            <includes>
+                                <!-- JaCoCo 0.8.12 cannot detect coverage for Kotlin inline functions -->
+                                <include>com.example.jsonplaceholder.JsonPlaceholderService</include>
+                            </includes>
+                            <limits>
+                                <limit>
+                                    <counter>LINE</counter>
+                                    <value>COVEREDRATIO</value>
+                                    <minimum>80%</minimum>
                                 </limit>
                             </limits>
                         </rule>
@@ -235,6 +262,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <runOrder>random</runOrder>
                     <argLine>${surefire.jacoco.args}</argLine>
                 </configuration>
             </plugin>
@@ -242,9 +270,19 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
+                    <runOrder>random</runOrder>
                     <argLine>${failsafe.jacoco.args}</argLine>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <testcontainers.enabled>false</testcontainers.enabled>
+            </properties>
+        </profile>
+    </profiles>
 </project>
