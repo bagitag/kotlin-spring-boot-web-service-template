@@ -40,7 +40,6 @@ class ExampleController(private val exampleService: ExampleService) {
     }
 
     @GetMapping(produces = [ "application/json" ])
-    @Timed(extraTags = ["path", "list"])
     @Operation(summary = "Gets paginated and sorted Examples.")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "The Example list has been successfully returned.",
@@ -53,7 +52,6 @@ class ExampleController(private val exampleService: ExampleService) {
     }
 
     @GetMapping(path =  [ "search" ], produces = [ "application/json" ])
-    @Timed(extraTags = ["path", "search"])
     @Operation(summary = "Gets paginated and sorted Examples based the search terms.")
     @ApiResponses(
         ApiResponse(responseCode = "200",
