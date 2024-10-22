@@ -1,5 +1,6 @@
 package com.example.exception
 
+import com.example.TemplateApplication
 import com.example.dto.ErrorDTO
 import com.example.metrics.ExceptionMetrics
 import org.springframework.beans.factory.annotation.Value
@@ -18,13 +19,14 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 class ExampleExceptionHandler(
     @Value("\${app.stack.trace.enabled:false}") val printStackTraceEnabled: Boolean,
-    val exceptionMetrics: ExceptionMetrics
+    private val exceptionMetrics: ExceptionMetrics
 ) : ResponseEntityExceptionHandler() {
+
+    val basePackageName: String = TemplateApplication::class.java.`package`.name
 
     companion object {
         const val unknownError = "Unknown internal server error"
         const val stackTraceParameter = "trace"
-        const val basePackageName = "com.example"
         const val exceptionIdLength = 15
     }
 
