@@ -1,5 +1,6 @@
 package com.example.jsonplaceholder
 
+import com.example.exception.ExternalServiceException
 import com.example.jsonplaceholder.api.Post
 import com.example.jsonplaceholder.api.User
 import org.slf4j.LoggerFactory
@@ -18,7 +19,8 @@ class JsonPlaceholderService(
 
     companion object {
         private val LOGGER = LoggerFactory.getLogger(JsonPlaceholderService::class.java)
-        private const val LOG_PREFIX = "[JSON_PLACEHOLDER]"
+        private const val SERVICE_NAME = "JSON_PLACEHOLDER"
+        private const val LOG_PREFIX = "[$SERVICE_NAME]"
     }
 
     fun getUsers(): CompletableFuture<List<User>> {
@@ -47,12 +49,17 @@ class JsonPlaceholderService(
     private fun handleException(ex: Throwable) {
         val cause = ex.cause
 
-        if (cause is HttpClientErrorException) {
-            val oneLineBody =
-                cause.responseBodyAsString.lines().stream().map(String::trim).collect(Collectors.joining())
-            LOGGER.error("$LOG_PREFIX - Client side error: {} - Response body: {}", cause.statusText, oneLineBody)
-        } else {
-            LOGGER.error("$LOG_PREFIX - An exception occurred during communication:", cause)
+        when (cause) {
+            is HttpClientErrorException -> {
+                val oneLineBody =
+                    cause.responseBodyAsString.lines().stream().map(String::trim).collect(Collectors.joining())
+                LOGGER.error(
+                    "$LOG_PREFIX - Client side error: {} - Response body: {}",
+                    cause.statusText,
+                    oneLineBody
+                )
+            }
         }
+        throw ExternalServiceException(cause!!, cause.message!!, SERVICE_NAME)
     }
 }

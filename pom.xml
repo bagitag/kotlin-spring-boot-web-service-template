@@ -113,8 +113,7 @@
                     <excludes>
                         <exclude>com/example/TemplateApplicationKt.class</exclude>
                         <exclude>**/*Configuration.class</exclude>
-                        <exclude>com/example/exception/BaseException.class</exclude>
-                        <exclude>com/example/exception/IdNotFoundException.class</exclude>
+                        <exclude>com/example/exception/*Exception.class</exclude>
                     </excludes>
                     <rules>
                         <rule>

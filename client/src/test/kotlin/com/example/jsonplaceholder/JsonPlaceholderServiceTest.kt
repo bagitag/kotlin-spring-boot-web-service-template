@@ -1,5 +1,6 @@
 package com.example.jsonplaceholder
 
+import com.example.exception.ExternalServiceException
 import com.example.jsonplaceholder.api.Post
 import com.example.jsonplaceholder.api.User
 import io.mockk.every
@@ -9,14 +10,18 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.boot.test.system.CapturedOutput
+import org.springframework.boot.test.system.OutputCaptureExtension
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
+import java.util.concurrent.ExecutionException
 import java.util.function.Supplier
 
-@ExtendWith(MockKExtension::class)
+@ExtendWith(value = [ MockKExtension::class, OutputCaptureExtension::class ])
 internal class JsonPlaceholderServiceTest {
 
     @MockK
@@ -62,7 +67,7 @@ internal class JsonPlaceholderServiceTest {
     }
 
     @Test
-    fun `Get users should return default response in case of error`() {
+    fun `Get users should thrown exception in case of communication error`() {
         // given
         every { jsonPlaceholderClient.getUsers() } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
 
@@ -76,10 +81,10 @@ internal class JsonPlaceholderServiceTest {
         } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
 
         // when
-        val actual = victim.getUsers()
+        val actual = assertThrows<ExecutionException> {  victim.getUsers().get() }
 
         // then
-        assertTrue(actual.get().isEmpty())
+        assertTrue(actual.cause is ExternalServiceException)
     }
 
     @Test
@@ -113,7 +118,7 @@ internal class JsonPlaceholderServiceTest {
     }
 
     @Test
-    fun `Get posts by user id should return default response in case of error`() {
+    fun `Get posts by user id should throw exception in case of error`() {
         // given
         val userId = 1L
         every { jsonPlaceholderClient.getAllPostByUserId(userId) } throws
@@ -129,14 +134,14 @@ internal class JsonPlaceholderServiceTest {
         } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
 
         // when
-        val actual = victim.getPostsByUserId(userId)
+        val actual = assertThrows<ExecutionException> {  victim.getUsers().get() }
 
         // then
-        assertTrue(actual.get().isEmpty())
+        assertTrue(actual.cause is ExternalServiceException)
     }
 
     @Test
-    fun `Should return default response in case of HttpClientErrorException`() {
+    fun `Should return log details in case of HttpClientErrorException`(output: CapturedOutput) {
         // given
         every { jsonPlaceholderClient.getUsers() } throws HttpClientErrorException(HttpStatus.BAD_REQUEST)
 
@@ -150,9 +155,10 @@ internal class JsonPlaceholderServiceTest {
         } throws HttpClientErrorException(HttpStatus.BAD_REQUEST)
 
         // when
-        val actual = victim.getUsers()
+        val actual = assertThrows<ExecutionException> {  victim.getUsers().get() }
 
         // then
-        assertTrue(actual.get().isEmpty())
+        assertTrue(actual.cause is ExternalServiceException)
+        assertTrue(output.out.contains("[JSON_PLACEHOLDER] - Client side error: "))
     }
 }

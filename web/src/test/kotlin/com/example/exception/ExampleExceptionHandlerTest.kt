@@ -29,6 +29,8 @@ import org.springframework.validation.FieldError
 import org.springframework.web.HttpMediaTypeNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.context.request.WebRequest
+import java.net.SocketTimeoutException
+import java.util.concurrent.ExecutionException
 
 @ExtendWith(MockKExtension::class)
 internal class ExampleExceptionHandlerTest {
@@ -319,5 +321,30 @@ internal class ExampleExceptionHandlerTest {
         assertTrue(actualDetails["field2"]!!.contains("errorMsg1"))
         assertEquals(expected, body.id)
         assertTrue(actual.body!!.stackTrace.isNullOrEmpty())
+    }
+
+    @Test
+    fun `Should unwrap ExecutionException`() {
+        // given
+        val errorMessage = "timeout error"
+        val exception = ExternalServiceException(SocketTimeoutException(errorMessage), errorMessage, "MY-SERVICE")
+        val originalException = ExecutionException(exception)
+        val exceptionIdString = "com.example.exception.ExternalServiceException" +
+                "com.example.exception.ExampleExceptionHandlerTest" +
+                "Should unwrap ExecutionException"
+        val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray())
+            .take(ExampleExceptionHandler.exceptionIdLength)
+
+        // when
+        val actual = victim.handleExceptions(exception, webRequest)
+
+        // then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actual.statusCode)
+        Assertions.assertNotNull(actual.body)
+        val body = actual.body!!
+        assertEquals(errorMessage, body.message)
+        assertEquals(expected, body.id)
+        assertNull(body.details)
+        assertTrue(body.stackTrace.isNullOrEmpty())
     }
 }

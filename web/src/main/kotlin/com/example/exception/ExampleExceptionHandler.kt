@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
+import java.util.concurrent.ExecutionException
 
 @ControllerAdvice
 class ExampleExceptionHandler(
@@ -42,13 +43,15 @@ class ExampleExceptionHandler(
     }
 
     @ExceptionHandler(value = [Exception::class])
-    fun handleExceptions(exception: Exception, request: WebRequest): ResponseEntity<ErrorDTO> {
+    fun handleExceptions(originalException: Exception, request: WebRequest): ResponseEntity<ErrorDTO> {
+        val exception = unwrapException(originalException)
         val message = getMessage(exception)
         val details = getDetails(exception)
         val exceptionId = generateExceptionId(exception)
+        val logPrefix = generateLogPrefix(exception)
 
         exceptionMetrics.updateExceptionCounter(exceptionId, exception.javaClass.simpleName)
-        logger.error("ExceptionId: $exceptionId - ${exception.message}", exception)
+        logger.error("${logPrefix}ExceptionId: $exceptionId - ${exception.message}", exception)
 
         val stackTrace = getStackTrace(exception, request)
         val body = ErrorDTO(exceptionId, message, details, stackTrace)
@@ -56,21 +59,28 @@ class ExampleExceptionHandler(
         return ResponseEntity(body, httpStatus)
     }
 
+    private fun unwrapException(originalException: Exception) =
+        when (originalException) {
+            is ExecutionException -> originalException.cause as Exception
+            else -> originalException
+        }
+
     private fun getMessage(exception: Exception): String {
-        return when(exception) {
+        return when (exception) {
             is MethodArgumentNotValidException -> "Invalid request content."
             else -> exception.message ?: unknownError
         }
     }
 
     private fun getDetails(exception: Exception): Any? {
-        return when(exception) {
+        return when (exception) {
             is MethodArgumentNotValidException -> {
-                val errors : Map<String, List<String>> = exception.bindingResult.allErrors
+                val errors: Map<String, List<String>> = exception.bindingResult.allErrors
                     .groupBy { (it as FieldError).field }
                     .mapValues { (_, groupedErrors) -> groupedErrors.map { it.defaultMessage!! } }
                 errors
             }
+
             else -> null
         }
     }
@@ -87,6 +97,13 @@ class ExampleExceptionHandler(
         } catch (e: Exception) {
             logger.error("Unexpected error while generating exceptionId: $e")
             "unknown"
+        }
+    }
+
+    private fun generateLogPrefix(exception: Exception): String {
+        return when (exception) {
+            is ExternalServiceException -> "[${exception.serviceName}] - "
+            else -> ""
         }
     }
 

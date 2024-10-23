@@ -6,6 +6,7 @@ import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpServerErrorException
+import org.springframework.web.client.ResourceAccessException
 import java.util.function.Supplier
 
 @Component
@@ -16,8 +17,8 @@ class RetryableHttpClient {
     }
 
     @Retryable(
-        retryFor = [ HttpServerErrorException::class ],
-        maxAttempts = 3,
+        retryFor = [ HttpServerErrorException::class, ResourceAccessException::class ],
+        maxAttempts = 2,
         backoff = Backoff(delay = 500)
     )
     fun <RESPONSE> retryForHttpServerError(
