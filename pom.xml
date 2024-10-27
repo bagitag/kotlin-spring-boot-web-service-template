@@ -115,6 +115,8 @@
                         <exclude>**/*Configuration.class</exclude>
                         <exclude>com/example/exception/BaseException.class</exclude>
                         <exclude>com/example/exception/IdNotFoundException.class</exclude>
+                        <exclude>com/example/**/*CircuitBreaker.class</exclude>
+                        <exclude>com/example/jsonplaceholder/RetryableHttpRequestDecorator.class</exclude>
                     </excludes>
                     <rules>
                         <rule>

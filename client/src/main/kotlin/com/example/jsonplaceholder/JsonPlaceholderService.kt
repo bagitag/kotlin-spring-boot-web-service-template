@@ -7,18 +7,20 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 import java.util.concurrent.CompletableFuture
-import java.util.function.Supplier
 import java.util.stream.Collectors
 
 @Service
 class JsonPlaceholderService(
     private var jsonPlaceholderClient: JsonPlaceholderClient,
-    private var retryableClient: RetryableHttpClient
+    private var httpClient: GenericHttpClient,
+    private var retryDecorator: RetryableHttpRequestDecorator,
+    private var circuitBreaker: JsonPlaceholderCircuitBreaker
 ) {
 
     companion object {
         private val LOGGER = LoggerFactory.getLogger(JsonPlaceholderService::class.java)
-        private const val LOG_PREFIX = "[JSON_PLACEHOLDER]"
+        private const val SERVICE_NAME = "JSON_PLACEHOLDER"
+        private const val LOG_PREFIX = "[$SERVICE_NAME]"
     }
 
     fun getUsers(): CompletableFuture<List<User>> {
@@ -34,10 +36,14 @@ class JsonPlaceholderService(
     private fun <T> execute(
         request: Any,
         defaultResponse: T,
-        httpCall: Supplier<ResponseEntity<T>>
+        httpCall: () -> ResponseEntity<T>
     ): CompletableFuture<T> {
         return CompletableFuture.supplyAsync {
-            retryableClient.retryForHttpServerError(LOG_PREFIX, request, defaultResponse, httpCall)
+            retryDecorator.retryForHttpServerError(request) {
+                circuitBreaker.decorate {
+                    httpClient.perform(LOG_PREFIX, request, defaultResponse, httpCall)
+                }
+            }
         }.exceptionally { ex ->
             handleException(ex)
             defaultResponse
@@ -45,14 +51,19 @@ class JsonPlaceholderService(
     }
 
     private fun handleException(ex: Throwable) {
-        val cause = ex.cause
+        val cause = ex.cause!!
 
-        if (cause is HttpClientErrorException) {
-            val oneLineBody =
-                cause.responseBodyAsString.lines().stream().map(String::trim).collect(Collectors.joining())
-            LOGGER.error("$LOG_PREFIX - Client side error: {} - Response body: {}", cause.statusText, oneLineBody)
-        } else {
-            LOGGER.error("$LOG_PREFIX - An exception occurred during communication:", cause)
+        when (cause) {
+            is HttpClientErrorException -> {
+                val oneLineBody =
+                    cause.responseBodyAsString.lines().stream().map(String::trim).collect(Collectors.joining())
+                LOGGER.error(
+                    "$LOG_PREFIX - Client side error: {} - Response body: {}",
+                    cause.statusText,
+                    oneLineBody
+                )
+            }
         }
+        throw cause
     }
 }
