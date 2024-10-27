@@ -5,14 +5,12 @@ import org.springframework.boot.web.client.ClientHttpRequestFactories
 import org.springframework.boot.web.client.ClientHttpRequestFactorySettings
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.retry.annotation.EnableRetry
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.support.RestClientAdapter
 import org.springframework.web.service.invoker.HttpServiceProxyFactory
 import java.time.Duration
 
 @Configuration
-@EnableRetry
 class JsonPlaceholderConfiguration(
     @Value("\${client.jsonplaceholder.base-url}") private var baseUrl: String,
     @Value("\${client.jsonplaceholder.api-key}") private var apiKey: String,
