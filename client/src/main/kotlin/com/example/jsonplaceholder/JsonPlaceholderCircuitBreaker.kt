@@ -22,7 +22,7 @@ class JsonPlaceholderCircuitBreaker {
 
     @Recover
     private fun <T> recover(ex: Exception): T {
-        LOGGER.debug("[JSON_PLACEHOLDER] - JSON_PLACEHOLDER_CB circuit breaker error: ${ex.message}")
+        LOGGER.debug("[JSON_PLACEHOLDER] - Circuit breaker error: ${ex.message}")
         throw ex
     }
 }

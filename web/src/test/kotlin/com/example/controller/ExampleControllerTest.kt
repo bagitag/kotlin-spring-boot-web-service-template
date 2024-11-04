@@ -5,12 +5,12 @@ import com.example.dto.PageDetails
 import com.example.dto.SortOrder
 import com.example.service.ExampleService
 import io.mockk.every
+import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.domain.PageRequest
@@ -21,13 +21,8 @@ internal class ExampleControllerTest {
 
     @MockK
     private lateinit var exampleService: ExampleService
-
+    @InjectMockKs
     private lateinit var victim: ExampleController
-
-    @BeforeEach
-    fun initialize() {
-        victim = ExampleController(exampleService)
-    }
 
     @Test
     fun `Should return paginated examples`() {

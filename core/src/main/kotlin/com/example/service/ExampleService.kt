@@ -1,5 +1,6 @@
 package com.example.service
 
+import com.example.configuration.DatabaseCacheConfiguration
 import com.example.dto.ExampleDTO
 import com.example.dto.PageDetails
 import com.example.entity.Example
@@ -9,6 +10,9 @@ import com.example.mapper.ExampleMapper
 import com.example.mapper.PageConverter
 import com.example.repository.ExampleRepository
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -17,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class ExampleService(
+    @Value("\${client.database.cache.enabled}") val cacheEnabled: Boolean,
     private val exampleRepository: ExampleRepository,
     private val exampleMapper: ExampleMapper,
     private val pageConverter: PageConverter,
@@ -26,6 +31,10 @@ class ExampleService(
         private val LOGGER = LoggerFactory.getLogger(ExampleService::class.java)
     }
 
+    @Cacheable(
+        DatabaseCacheConfiguration.EXAMPLES_CACHE_NAME,
+        condition = "#root.target.cacheEnabled"
+    )
     fun getExamples(pageable: Pageable): PageDetails<ExampleDTO> {
         val pageableToUse = getPageable(pageable)
         return exampleRepository.findAll(pageableToUse)
@@ -44,12 +53,22 @@ class ExampleService(
         exampleRepository.findById(id).map { exampleMapper.toDTO(it) }
             .orElseThrow { IdNotFoundException(Example::class, id) }
 
+    @CacheEvict(
+        value = [ DatabaseCacheConfiguration.EXAMPLES_CACHE_NAME ],
+        beforeInvocation = false,
+        allEntries = true
+    )
     fun createExample(dto: ExampleDTO): Long {
         return exampleMapper.fromDTO(dto)
             .let { exampleRepository.save(it) }
             .id!!
     }
 
+    @CacheEvict(
+        value = [ DatabaseCacheConfiguration.EXAMPLES_CACHE_NAME ],
+        beforeInvocation = false,
+        allEntries = true
+    )
     fun updateExample(dto: ExampleDTO): Long {
         return exampleRepository.findById(dto.id!!)
             .map { exampleMapper.fromDTO(dto) }
@@ -58,6 +77,11 @@ class ExampleService(
             .orElseThrow { IdNotFoundException(Example::class, dto.id!!) }
     }
 
+    @CacheEvict(
+        value = [ DatabaseCacheConfiguration.EXAMPLES_CACHE_NAME ],
+        beforeInvocation = false,
+        allEntries = true
+    )
     fun deleteExample(id: Long) {
         exampleRepository.deleteById(id)
     }

@@ -14,14 +14,15 @@ import com.example.repository.ExampleRepository
 import com.example.util.anExample
 import com.example.util.anExampleDTOFromEntity
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifySequence
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -41,8 +42,13 @@ internal class ExampleServiceTest {
     private lateinit var pageConverter: PageConverter
     @MockK
     private lateinit var jsonPlaceholderService: JsonPlaceholderService
-    @InjectMockKs
+
     private lateinit var victim: ExampleService
+
+    @BeforeEach
+    fun initialize() {
+        victim = ExampleService(false, exampleRepository, exampleMapper, pageConverter, jsonPlaceholderService)
+    }
 
     @Test
     fun `Should return paginated examples with default sort`() {
@@ -86,6 +92,7 @@ internal class ExampleServiceTest {
         assertEquals("DESC", actual.sortOrders.last().direction)
         assertEquals(id2, actual.content.last().id)
         assertEquals("$id2. example", actual.content.last().name)
+        assertFalse(victim.cacheEnabled)
     }
 
     @Test
@@ -131,6 +138,7 @@ internal class ExampleServiceTest {
         assertEquals("DESC", actual.sortOrders.first().direction)
         assertEquals(id1, actual.content.last().id)
         assertEquals("$id1. example", actual.content.last().name)
+        assertFalse(victim.cacheEnabled)
     }
 
     @Test
@@ -172,6 +180,7 @@ internal class ExampleServiceTest {
         assertEquals("DESC", actual.sortOrders.first().direction)
         assertEquals(id1, actual.content.first().id)
         assertEquals("$id1. example", actual.content.first().name)
+        assertFalse(victim.cacheEnabled)
     }
 
     @Test
@@ -332,5 +341,6 @@ internal class ExampleServiceTest {
         assertEquals(users.size, actual.size)
         assertEquals(12, actual[user2.username])
         assertEquals(10, actual[user1.username])
+        assertFalse(victim.cacheEnabled)
     }
 }
