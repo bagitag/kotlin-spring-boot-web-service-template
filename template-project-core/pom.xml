@@ -9,22 +9,22 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>core</artifactId>
+    <artifactId>template-project-core</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.example</groupId>
-            <artifactId>api</artifactId>
+            <artifactId>template-project-api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.example</groupId>
-            <artifactId>persistence</artifactId>
+            <artifactId>template-project-persistence</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.example</groupId>
-            <artifactId>client</artifactId>
+            <artifactId>template-project-client</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>

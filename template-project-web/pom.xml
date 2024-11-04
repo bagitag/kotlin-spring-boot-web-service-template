@@ -9,7 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>web</artifactId>
+    <artifactId>template-project-web</artifactId>
 
     <properties>
         <start-class>com.example.TemplateApplicationKt</start-class>
@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>com.example</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>template-project-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
