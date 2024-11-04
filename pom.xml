@@ -19,12 +19,12 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>api</module>
-        <module>persistence</module>
-        <module>client</module>
-        <module>core</module>
-        <module>web</module>
-        <module>jacoco-report</module>
+        <module>template-project-api</module>
+        <module>template-project-persistence</module>
+        <module>template-project-client</module>
+        <module>template-project-core</module>
+        <module>template-project-web</module>
+        <module>template-project-jacoco-report</module>
     </modules>
 
     <properties>
@@ -120,18 +120,17 @@
                 <version>${jacoco.version}</version>
                 <configuration>
                     <excludes>
-                        <exclude>com/example/TemplateApplicationKt.class</exclude>
+                        <exclude>com/example/templateproject/TemplateApplicationKt.class</exclude>
                         <exclude>**/*Configuration.class</exclude>
-                        <exclude>com/example/exception/BaseException.class</exclude>
-                        <exclude>com/example/exception/IdNotFoundException.class</exclude>
+                        <exclude>com/example/templateproject/core/exception/*Exception.class</exclude>
                         <exclude>com/example/**/*CircuitBreaker.class</exclude>
-                        <exclude>com/example/jsonplaceholder/RetryableHttpRequestDecorator.class</exclude>
+                        <exclude>com/example/templateproject/client/RetryableHttpRequestDecorator.class</exclude>
                     </excludes>
                     <rules>
                         <rule>
                             <element>CLASS</element>
                             <excludes>
-                                <exclude>com.example.jsonplaceholder.JsonPlaceholderService</exclude>
+                                <exclude>com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService</exclude>
                             </excludes>
                             <limits>
                                 <limit>
@@ -165,7 +164,7 @@
                             <element>CLASS</element>
                             <includes>
                                 <!-- JaCoCo 0.8.12 cannot detect coverage for Kotlin inline functions -->
-                                <include>com.example.jsonplaceholder.JsonPlaceholderService</include>
+                                <include>com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService</include>
                             </includes>
                             <limits>
                                 <limit>
