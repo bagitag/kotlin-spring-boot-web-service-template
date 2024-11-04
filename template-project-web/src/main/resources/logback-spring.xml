@@ -12,7 +12,7 @@
 
     <if condition='!"${packages}".contains("UNDEFINED")'>
         <then>
-            <turboFilter class="com.example.configuration.DebugLoggingTurboFilter">
+            <turboFilter class="com.example.templateproject.web.configuration.DebugLoggingTurboFilter">
                 <packages>${packages}</packages>
                 <MDCKey>debugLevel</MDCKey>
                 <Value>on</Value>
