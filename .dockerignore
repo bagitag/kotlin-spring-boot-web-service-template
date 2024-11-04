@@ -2,4 +2,4 @@
 *
 
 # Allow only the necessary file
-!web/target/*-exec.jar
+!template-project-web/target/*-exec.jar

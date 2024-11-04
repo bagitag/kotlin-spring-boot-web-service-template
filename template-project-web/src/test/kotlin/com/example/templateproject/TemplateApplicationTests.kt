@@ -37,7 +37,7 @@ class TemplateApplicationTests(@Autowired val restTemplate: TestRestTemplate) {
 
     companion object {
         private const val OPEN_API_ERROR_MSG =  "Run the following command to update it: " +
-                "mvnw clean verify -Dmaven.test.skip -Djacoco.skip=true -pl -jacoco-report -Popenapi"
+                "mvnw clean verify -Dmaven.test.skip -Djacoco.skip=true -pl !template-project-jacoco-report -Popenapi"
     }
 
     @Test
