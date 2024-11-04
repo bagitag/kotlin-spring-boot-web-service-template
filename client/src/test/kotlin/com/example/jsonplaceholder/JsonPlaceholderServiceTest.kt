@@ -6,6 +6,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,7 +34,7 @@ internal class JsonPlaceholderServiceTest {
 
     @BeforeEach
     fun initialize() {
-        victim = JsonPlaceholderService(jsonPlaceholderClient, httpClient, retryDecorator, circuitBreaker)
+        victim = JsonPlaceholderService(false, jsonPlaceholderClient, httpClient, retryDecorator, circuitBreaker)
     }
 
     @Test
@@ -68,6 +69,7 @@ internal class JsonPlaceholderServiceTest {
         assertEquals(body[0].name, actual.get()[0].name)
         assertEquals(body[0].username, actual.get()[0].username)
         assertEquals(body[0].email, actual.get()[0].email)
+        assertFalse(victim.cacheEnabled)
     }
 
     @Test
@@ -131,6 +133,7 @@ internal class JsonPlaceholderServiceTest {
         assertEquals(body[0].userId, actual.get()[0].userId)
         assertEquals(body[0].title, actual.get()[0].title)
         assertEquals(body[0].body, actual.get()[0].body)
+        assertFalse(victim.cacheEnabled)
     }
 
     @Test

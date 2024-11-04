@@ -21,6 +21,15 @@ import kotlin.io.path.readBytes
 
     "spring.liquibase.enabled=false",
 
+    "client.jsonplaceholder.cache.enabled=false",
+    "client.jsonplaceholder.cache.expiration.minutes=10",
+    "client.jsonplaceholder.cache.users.maxSize=1",
+    "client.jsonplaceholder.connection.timeout.millis=10000",
+    "client.jsonplaceholder.read.timeout.millis=10000",
+
+    "client.database.cache.enabled=false",
+    "client.database.cache.expiration.minutes=10",
+
     "app.debug.logging.package.list=UNDEFINED"
 ])
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)

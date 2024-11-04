@@ -3,6 +3,8 @@ package com.example.jsonplaceholder
 import com.example.jsonplaceholder.api.Post
 import com.example.jsonplaceholder.api.User
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
@@ -11,10 +13,11 @@ import java.util.stream.Collectors
 
 @Service
 class JsonPlaceholderService(
-    private var jsonPlaceholderClient: JsonPlaceholderClient,
-    private var httpClient: GenericHttpClient,
-    private var retryDecorator: RetryableHttpRequestDecorator,
-    private var circuitBreaker: JsonPlaceholderCircuitBreaker
+    @Value("\${client.jsonplaceholder.cache.enabled}") val cacheEnabled: Boolean,
+    private val jsonPlaceholderClient: JsonPlaceholderClient,
+    private val httpClient: GenericHttpClient,
+    private val retryDecorator: RetryableHttpRequestDecorator,
+    private val circuitBreaker: JsonPlaceholderCircuitBreaker,
 ) {
 
     companion object {
@@ -23,6 +26,10 @@ class JsonPlaceholderService(
         private const val LOG_PREFIX = "[$SERVICE_NAME]"
     }
 
+    @Cacheable(
+        JsonPlaceholderCacheConfiguration.USERS_CACHE_NAME,
+        condition = "#root.target.cacheEnabled"
+    )
     fun getUsers(): CompletableFuture<List<User>> {
         val request = USERS_ENDPOINT
         return execute(request, listOf()) { jsonPlaceholderClient.getUsers() }

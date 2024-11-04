@@ -12,10 +12,10 @@ import java.time.Duration
 
 @Configuration
 class JsonPlaceholderConfiguration(
-    @Value("\${client.jsonplaceholder.base-url}") private var baseUrl: String,
-    @Value("\${client.jsonplaceholder.api-key}") private var apiKey: String,
-    @Value("\${client.jsonplaceholder.connection.timeout.millis:1000}") private var connectionTimeoutMillis: Long,
-    @Value("\${client.jsonplaceholder.read.timeout.millis:5000}") private var readTimeoutMillis: Long
+    @Value("\${client.jsonplaceholder.base-url}") private val baseUrl: String,
+    @Value("\${client.jsonplaceholder.api-key}") private val apiKey: String,
+    @Value("\${client.jsonplaceholder.connection.timeout.millis:1000}") private val connectionTimeoutMillis: Long,
+    @Value("\${client.jsonplaceholder.read.timeout.millis:5000}") private val readTimeoutMillis: Long
 ) {
 
     companion object {
