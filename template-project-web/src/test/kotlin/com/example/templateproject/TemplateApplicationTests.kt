@@ -15,20 +15,8 @@ import java.nio.file.Path
 import kotlin.io.path.readBytes
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, properties = [
-    "spring.datasource.url=jdbc:h2:mem:testdb",
-    "spring.datasource.username=test",
-    "spring.datasource.password=12345",
-
-    "spring.liquibase.enabled=false",
-
-    "client.jsonplaceholder.cache.enabled=false",
-    "client.jsonplaceholder.cache.expiration.minutes=10",
-    "client.jsonplaceholder.cache.users.maxSize=1",
-    "client.jsonplaceholder.connection.timeout.millis=10000",
-    "client.jsonplaceholder.read.timeout.millis=10000",
-
-    "client.database.cache.enabled=false",
-    "client.database.cache.expiration.minutes=10",
+    "spring.config.import=classpath:client-openapi.properties,classpath:core-openapi.properties," +
+            "classpath:persistence-openapi.properties",
 
     "app.debug.logging.package.list=UNDEFINED"
 ])
