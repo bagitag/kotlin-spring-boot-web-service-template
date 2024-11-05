@@ -24,7 +24,7 @@
     </changeSet>
 
     <changeSet id="1.0.0-insert-test-data" author="system" failOnError="false">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <changeLogPropertyDefined property="insert.data" value="true"/>
         </preConditions>
         <sqlFile path="../../data.sql" relativeToChangelogFile="true"/>

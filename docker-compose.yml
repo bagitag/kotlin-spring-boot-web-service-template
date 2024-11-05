@@ -7,8 +7,24 @@ services:
       dockerfile: Dockerfile
     image: example-server:latest
     environment:
-      spring.profiles.active: default
       spring.datasource.url: jdbc:postgresql://database:5432/example
+      spring.datasource.username: test
+      spring.datasource.password: 12345
+      spring.liquibase.change-log: classpath:liquibase/changelog-root.xml
+
+      client.database.cache.enabled: true
+      client.database.cache.expiration.minutes: 10
+
+      client.jsonplaceholder.cache.enabled: true
+      client.jsonplaceholder.cache.expiration.minutes: 10
+
+      client.jsonplaceholder.base-url: https://jsonplaceholder.typicode.com
+      client.jsonplaceholder.api-key: api-key
+
+      client.jsonplaceholder.circuitbreaker.failure.rate: 10
+
+      max.retry.attempts: 2
+
     ports:
       - "8080:8080"
     networks:
