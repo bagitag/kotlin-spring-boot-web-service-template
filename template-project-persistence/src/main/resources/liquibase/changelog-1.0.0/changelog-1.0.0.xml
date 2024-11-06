@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="1.0.0-create-table-example" author="system">
+        <preConditions onFail="HALT">
+            <not>
+                <tableExists tableName="example"/>
+            </not>
+        </preConditions>
+        <createTable tableName="example">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(20)"/>
+            <column name="created_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createSequence sequenceName="example_id_seq"/>
+    </changeSet>
+
+    <changeSet id="1.0.0-insert-test-data" author="system" failOnError="false">
+        <preConditions onFail="MARK_RAN">
+            <changeLogPropertyDefined property="insert.data" value="true"/>
+        </preConditions>
+        <sqlFile path="../../data.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+</databaseChangeLog>

@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.4</version>
+        <version>3.3.5</version>
         <relativePath/>
     </parent>
 
@@ -19,12 +19,12 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>api</module>
-        <module>persistence</module>
-        <module>client</module>
-        <module>core</module>
-        <module>web</module>
-        <module>jacoco-report</module>
+        <module>template-project-api</module>
+        <module>template-project-persistence</module>
+        <module>template-project-client</module>
+        <module>template-project-core</module>
+        <module>template-project-web</module>
+        <module>template-project-jacoco-report</module>
     </modules>
 
     <properties>
@@ -49,6 +49,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -78,6 +82,11 @@
             <groupId>org.codehaus.janino</groupId>
             <artifactId>janino</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -92,6 +101,13 @@
         </testResources>
 
         <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>com.github.ozsie</groupId>
                 <artifactId>detekt-maven-plugin</artifactId>
@@ -111,15 +127,17 @@
                 <version>${jacoco.version}</version>
                 <configuration>
                     <excludes>
-                        <exclude>com/example/TemplateApplicationKt.class</exclude>
+                        <exclude>com/example/templateproject/TemplateApplicationKt.class</exclude>
                         <exclude>**/*Configuration.class</exclude>
-                        <exclude>com/example/exception/*Exception.class</exclude>
+                        <exclude>com/example/templateproject/core/exception/*Exception.class</exclude>
+                        <exclude>com/example/**/*CircuitBreaker.class</exclude>
+                        <exclude>com/example/templateproject/client/RetryableHttpRequestDecorator.class</exclude>
                     </excludes>
                     <rules>
                         <rule>
                             <element>CLASS</element>
                             <excludes>
-                                <exclude>com.example.jsonplaceholder.JsonPlaceholderService</exclude>
+                                <exclude>com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService</exclude>
                             </excludes>
                             <limits>
                                 <limit>
@@ -153,7 +171,7 @@
                             <element>CLASS</element>
                             <includes>
                                 <!-- JaCoCo 0.8.12 cannot detect coverage for Kotlin inline functions -->
-                                <include>com.example.jsonplaceholder.JsonPlaceholderService</include>
+                                <include>com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService</include>
                             </includes>
                             <limits>
                                 <limit>
