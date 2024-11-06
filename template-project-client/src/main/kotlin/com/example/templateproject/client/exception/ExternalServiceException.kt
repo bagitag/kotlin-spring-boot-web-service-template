@@ -1,4 +1,4 @@
-package com.example.exception
+package com.example.templateproject.client.exception
 
 data class ExternalServiceException(
     override val cause: Throwable,

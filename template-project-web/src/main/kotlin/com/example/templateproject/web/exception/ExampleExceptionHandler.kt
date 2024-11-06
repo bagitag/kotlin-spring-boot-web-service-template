@@ -2,6 +2,7 @@ package com.example.templateproject.web.exception
 
 import com.example.templateproject.TemplateApplication
 import com.example.templateproject.api.dto.ErrorDTO
+import com.example.templateproject.client.exception.ExternalServiceException
 import com.example.templateproject.core.exception.BaseException
 import com.example.templateproject.web.metrics.ExceptionMetrics
 import org.springframework.beans.factory.annotation.Value

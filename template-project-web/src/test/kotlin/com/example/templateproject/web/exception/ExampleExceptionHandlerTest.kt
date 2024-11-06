@@ -1,6 +1,7 @@
 package com.example.templateproject.web.exception
 
 import com.example.templateproject.api.dto.ErrorDTO
+import com.example.templateproject.client.exception.ExternalServiceException
 import com.example.templateproject.core.exception.IdNotFoundException
 import com.example.templateproject.persistence.entity.Example
 import com.example.templateproject.web.metrics.ExceptionMetrics
@@ -330,14 +331,14 @@ internal class ExampleExceptionHandlerTest {
         val errorMessage = "timeout error"
         val exception = ExternalServiceException(SocketTimeoutException(errorMessage), errorMessage, "MY-SERVICE")
         val originalException = ExecutionException(exception)
-        val exceptionIdString = "com.example.exception.ExternalServiceException" +
-                "com.example.exception.ExampleExceptionHandlerTest" +
+        val exceptionIdString = "com.example.templateproject.client.exception.ExternalServiceException" +
+                "com.example.templateproject.web.exception.ExampleExceptionHandlerTest" +
                 "Should unwrap ExecutionException"
         val expected = DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray())
             .take(ExampleExceptionHandler.exceptionIdLength)
 
         // when
-        val actual = victim.handleExceptions(exception, webRequest)
+        val actual = victim.handleExceptions(originalException, webRequest)
 
         // then
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actual.statusCode)
