@@ -1,0 +1,104 @@
+name: CI build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  DEFAULT_JAVA_VERSION: 21
+
+jobs:
+  init:
+    name: Initialize variables
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      default-java-version: ${{ env.DEFAULT_JAVA_VERSION }}
+
+    steps:
+      - name: Dummy step
+        run: echo Needed only for output generation.
+
+  build:
+    name: Build with ${{ matrix.java-version == needs.init.outputs.default-java-version
+      && 'default Java' || format('Java {0}', matrix.java-version) }}
+
+    runs-on: ubuntu-latest
+
+    needs: init
+
+    strategy:
+      matrix:
+        java-version: [ "${{ needs.init.outputs.default-java-version }}", "23" ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: temurin
+          cache: maven
+
+      - name: Linting Dockerfile
+        id: hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+
+      - name: Build with Maven
+        continue-on-error: ${{ matrix.java-version != env.DEFAULT_JAVA_VERSION }}
+        run: mvn -B verify -ntp
+
+      - name: Store JAR as artifact for the main branch
+        if: ${{ github.ref == 'refs/heads/main' && matrix.java-version == env.DEFAULT_JAVA_VERSION }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.ref_name }}-artifact
+          path: template-project-web/target/*-exec.jar
+          retention-days: 10
+
+      - name: Upload JaCoCo coverage report
+        if: ${{ matrix.java-version == env.DEFAULT_JAVA_VERSION }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          name: jacoco-report
+          path: template-project-jacoco-report/target/site/jacoco-aggregate/
+          retention-days: 10
+
+  build_image:
+    name: Trigger workflow
+
+    if: github.ref == 'refs/heads/main'
+    needs: build
+
+    uses: ./.github/workflows/image_build.yml
+
+  deploy_report:
+    name: Deploy JaCoCo report
+
+    if: github.ref == 'refs/heads/main' && github.actor != 'dependabot[bot]'
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: jacoco-report

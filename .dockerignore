@@ -1,0 +1,5 @@
+# Ignore everything
+*
+
+# Allow only the necessary file
+!template-project-web/target/*-exec.jar

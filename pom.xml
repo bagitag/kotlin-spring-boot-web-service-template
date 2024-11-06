@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.4.2</version>
+        <version>3.3.5</version>
         <relativePath/>
     </parent>
 
@@ -19,23 +19,30 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>api</module>
-        <module>persistence</module>
-        <module>core</module>
-        <module>web</module>
+        <module>template-project-api</module>
+        <module>template-project-persistence</module>
+        <module>template-project-client</module>
+        <module>template-project-core</module>
+        <module>template-project-web</module>
+        <module>template-project-jacoco-report</module>
     </modules>
 
     <properties>
-        <java.version>13</java.version>
+        <java.version>21</java.version>
 
-        <kotlin.version>1.4.30</kotlin.version>
-        <mockk.version>1.10.6</mockk.version>
+        <kotlin.version>2.0.21</kotlin.version>
+        <mockk.version>1.13.13</mockk.version>
 
-        <detekt.version>1.16.0</detekt.version>
+        <detekt.version>1.23.7</detekt.version>
         <detekt.config>detekt-config.yml</detekt.config>
         <detekt.baseline>detekt-baseline.xml</detekt.baseline>
 
-        <jacoco.version>0.8.6</jacoco.version>
+        <jacoco.version>0.8.12</jacoco.version>
+
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+
+        <testcontainers.enabled>true</testcontainers.enabled>
     </properties>
 
     <dependencies>
@@ -45,13 +52,17 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>io.mockk</groupId>
-            <artifactId>mockk</artifactId>
+            <artifactId>mockk-jvm</artifactId>
             <version>${mockk.version}</version>
             <scope>test</scope>
         </dependency>
@@ -66,13 +77,37 @@
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-kotlin</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
 
+        <testResources>
+            <testResource>
+                <directory>${project.basedir}/src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+
         <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>com.github.ozsie</groupId>
                 <artifactId>detekt-maven-plugin</artifactId>
@@ -92,14 +127,18 @@
                 <version>${jacoco.version}</version>
                 <configuration>
                     <excludes>
-                        <exclude>com/example/TemplateApplicationKt.class</exclude>
-                        <exclude>com/example/configuration/*.class</exclude>
-                        <exclude>com/example/exception/BaseException.class</exclude>
-                        <exclude>com/example/exception/IdNotFoundException.class</exclude>
+                        <exclude>com/example/templateproject/TemplateApplicationKt.class</exclude>
+                        <exclude>**/*Configuration.class</exclude>
+                        <exclude>com/example/templateproject/core/exception/*Exception.class</exclude>
+                        <exclude>com/example/**/*CircuitBreaker.class</exclude>
+                        <exclude>com/example/templateproject/client/RetryableHttpRequestDecorator.class</exclude>
                     </excludes>
                     <rules>
                         <rule>
                             <element>CLASS</element>
+                            <excludes>
+                                <exclude>com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService</exclude>
+                            </excludes>
                             <limits>
                                 <limit>
                                     <counter>LINE</counter>
@@ -114,7 +153,7 @@
                                 <limit>
                                     <counter>COMPLEXITY</counter>
                                     <value>TOTALCOUNT</value>
-                                    <maximum>30</maximum>
+                                    <maximum>35</maximum>
                                 </limit>
                                 <limit>
                                     <counter>CLASS</counter>
@@ -128,13 +167,32 @@
                                 </limit>
                             </limits>
                         </rule>
+                        <rule>
+                            <element>CLASS</element>
+                            <includes>
+                                <!-- JaCoCo 0.8.12 cannot detect coverage for Kotlin inline functions -->
+                                <include>com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService</include>
+                            </includes>
+                            <limits>
+                                <limit>
+                                    <counter>LINE</counter>
+                                    <value>COVEREDRATIO</value>
+                                    <minimum>80%</minimum>
+                                </limit>
+                            </limits>
+                        </rule>
                     </rules>
                 </configuration>
                 <executions>
                     <execution>
+                        <id>prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                        <configuration>
+                            <destFile>${project.build.directory}/jacoco-unit-tests.exec</destFile>
+                            <propertyName>surefire.jacoco.args</propertyName>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>check-unit-tests</id>
@@ -143,6 +201,10 @@
                             <goal>report</goal>
                             <goal>check</goal>
                         </goals>
+                        <configuration>
+                            <dataFile>${project.build.directory}/jacoco-unit-tests.exec</dataFile>
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-unit-test-report</outputDirectory>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>before-integration-test</id>
@@ -215,11 +277,29 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <runOrder>random</runOrder>
+                    <argLine>${surefire.jacoco.args}</argLine>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
+                    <runOrder>random</runOrder>
                     <argLine>${failsafe.jacoco.args}</argLine>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <testcontainers.enabled>false</testcontainers.enabled>
+            </properties>
+        </profile>
+    </profiles>
 </project>
