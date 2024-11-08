@@ -17,4 +17,8 @@ class ExampleMapper {
         name = source.name,
         createdDate = source.createdDate
     )
+
+    fun test(number: Int): String {
+        return "#$number Test"
+    }
 }

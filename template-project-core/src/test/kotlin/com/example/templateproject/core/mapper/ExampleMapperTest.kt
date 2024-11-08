@@ -36,4 +36,13 @@ internal class ExampleMapperTest {
         assertEquals(id, actual.id)
         assertEquals("$id. example", actual.name)
     }
+
+    @Test
+    fun `Test for test function`() {
+        // when
+        val actual = victim.test(1)
+
+        // then
+        assertEquals("#1 Test", actual)
+    }
 }

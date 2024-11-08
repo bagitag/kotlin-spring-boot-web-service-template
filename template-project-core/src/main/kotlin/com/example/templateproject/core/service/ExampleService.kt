@@ -117,4 +117,8 @@ class ExampleService(
             pageable
         }
     }
+
+    fun test() {
+        LOGGER.info("Test")
+    }
 }
