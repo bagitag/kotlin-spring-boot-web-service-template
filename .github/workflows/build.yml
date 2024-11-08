@@ -77,7 +77,6 @@ jobs:
         uses: madrapps/jacoco-report@v1.7.1
         with:
           paths: |
-#            ${{ github.workspace }}/**/target/site/jacoco-unit-test-report/jacoco.xml
             ${{ github.workspace }}/**/target/site/jacoco-aggregate/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           skip-if-no-changes: true
