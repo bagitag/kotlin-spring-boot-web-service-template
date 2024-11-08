@@ -79,7 +79,7 @@ jobs:
           paths: |
             ${{ github.workspace }}/**/target/jacoco/site/jacoco-unit-test-report/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
-          skip-if-no-changes: true
+#          skip-if-no-changes: true
           min-coverage-overall: 100
           min-coverage-changed-files: 100
           pass-emoji: ':green_circle:'
