@@ -15,6 +15,7 @@ import java.util.stream.Collectors
 
 @Service
 class JsonPlaceholderService(
+    @Value("\${client.jsonplaceholder.id}") val clientId: String,
     @Value("\${client.jsonplaceholder.cache.enabled}") val cacheEnabled: Boolean,
     private val jsonPlaceholderClient: JsonPlaceholderClient,
     private val httpClient: GenericHttpClient,
@@ -24,8 +25,6 @@ class JsonPlaceholderService(
 
     companion object {
         private val LOGGER = LoggerFactory.getLogger(JsonPlaceholderService::class.java)
-        private const val SERVICE_NAME = "JSON_PLACEHOLDER"
-        private const val LOG_PREFIX = "[$SERVICE_NAME]"
     }
 
     @Cacheable(
@@ -50,7 +49,7 @@ class JsonPlaceholderService(
         return CompletableFuture.supplyAsync {
             retryDecorator.retryForHttpServerError(request) {
                 circuitBreaker.decorate {
-                    httpClient.perform(LOG_PREFIX, request, defaultResponse, httpCall)
+                    httpClient.perform("[$clientId]", request, defaultResponse, httpCall)
                 }
             }
         }.exceptionally { ex ->
@@ -67,7 +66,7 @@ class JsonPlaceholderService(
                 val oneLineBody =
                     cause.responseBodyAsString.lines().stream().map(String::trim).collect(Collectors.joining())
                 LOGGER.error(
-                    "$LOG_PREFIX - Client side error: {} - Response body: {}",
+                    "$[$clientId] - Client side error: {} - Response body: {}",
                     cause.statusText,
                     oneLineBody
                 )

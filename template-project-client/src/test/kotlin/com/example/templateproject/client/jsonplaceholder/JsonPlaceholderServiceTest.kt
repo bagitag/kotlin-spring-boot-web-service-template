@@ -36,7 +36,8 @@ internal class JsonPlaceholderServiceTest {
 
     @BeforeEach
     fun initialize() {
-        victim = JsonPlaceholderService(false, jsonPlaceholderClient, httpClient, retryDecorator, circuitBreaker)
+        victim =
+            JsonPlaceholderService("clientId", false, jsonPlaceholderClient, httpClient, retryDecorator, circuitBreaker)
     }
 
     @Test

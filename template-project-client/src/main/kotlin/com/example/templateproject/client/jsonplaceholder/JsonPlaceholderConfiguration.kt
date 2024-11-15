@@ -1,5 +1,7 @@
 package com.example.templateproject.client.jsonplaceholder
 
+import com.example.templateproject.client.CustomClientRequestObservationConvention
+import io.micrometer.observation.ObservationRegistry
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.ClientHttpRequestFactories
 import org.springframework.boot.web.client.ClientHttpRequestFactorySettings
@@ -12,6 +14,7 @@ import java.time.Duration
 
 @Configuration
 class JsonPlaceholderConfiguration(
+    @Value("\${client.jsonplaceholder.id}") private val clientId: String,
     @Value("\${client.jsonplaceholder.base-url}") private val baseUrl: String,
     @Value("\${client.jsonplaceholder.api-key}") private val apiKey: String,
     @Value("\${client.jsonplaceholder.connection.timeout.millis:1000}") private val connectionTimeoutMillis: Long,
@@ -23,15 +26,19 @@ class JsonPlaceholderConfiguration(
     }
 
     @Bean
-    fun jsonPlaceholderClient(): JsonPlaceholderClient {
+    fun jsonPlaceholderClient(observationRegistry: ObservationRegistry): JsonPlaceholderClient {
         val restClient = RestClient.builder()
             .baseUrl(baseUrl)
             .defaultHeader(API_KEY_HEADER, apiKey)
             .requestFactory(clientHttpRequestFactory())
+            .observationRegistry(observationRegistry)
+            .observationConvention(observationConvention())
             .build()
         val factory = HttpServiceProxyFactory.builderFor(RestClientAdapter.create(restClient)).build()
         return factory.createClient(JsonPlaceholderClient::class.java)
     }
+
+    private fun observationConvention() = CustomClientRequestObservationConvention(clientId)
 
     private fun clientHttpRequestFactory() = ClientHttpRequestFactories.get(
         ClientHttpRequestFactorySettings.DEFAULTS
