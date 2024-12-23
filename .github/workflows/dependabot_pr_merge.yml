@@ -22,7 +22,7 @@ jobs:
         uses: dependabot/fetch-metadata@v2.2.0
 
       - name: Approve PR & enable auto-merge
-        if: ${{ contains(steps.dependabot-metadata.outputs.dependency-names, 'actions/checkout') 
+        if: ${{ contains(steps.metadata.outputs.dependency-names, 'actions/checkout') 
           && steps.metadata.package-ecosystem == 'github-actions'
           && steps.metadata.outputs.update-type != 'version-update:semver-major' }}
         run: |
