@@ -55,6 +55,10 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-otlp</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
@@ -130,8 +134,11 @@
                         <exclude>com/example/templateproject/TemplateApplicationKt.class</exclude>
                         <exclude>**/*Configuration.class</exclude>
                         <exclude>com/example/templateproject/core/exception/*Exception.class</exclude>
+                        <exclude>com/example/templateproject/client/exception/*Exception.class</exclude>
                         <exclude>com/example/**/*CircuitBreaker.class</exclude>
                         <exclude>com/example/templateproject/client/RetryableHttpRequestDecorator.class</exclude>
+                        <exclude>com/example/templateproject/client/CustomClientRequestObservationConvention.class</exclude>
+                        <exclude>com/example/templateproject/web/controller/MetricsController.class</exclude>
                     </excludes>
                     <rules>
                         <rule>

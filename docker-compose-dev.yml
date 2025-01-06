@@ -21,6 +21,19 @@ services:
     networks:
       - example-network
 
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    configs:
+      - source: otel_config
+        target: /etc/otelcol/config.yaml
+    ports:
+      - "4318:4318"
+      - "8889:8889" # Prometheus metrics exposed by the Collector: http://localhost:8889/metrics
+      - "55679:55679" # zpages extension (http://localhost:55679/debug/servicez, http://localhost:55679/debug/tracez)
+      - "13133:13133" # health_check extension (http://localhost:13133/healthz)
+    networks:
+      - example-network
+
   prometheus:
     image: prom/prometheus:latest
     configs:
@@ -71,11 +84,10 @@ configs:
   prometheus_config:
     content: |
       scrape_configs:
-        - job_name: 'spring-actuator'
-          metrics_path: '/actuator/prometheus'
+        - job_name: 'otel-collector'
           scrape_interval: '10s'
           static_configs:
-            - targets: ['host.docker.internal:8080']
+            - targets: ['otel-collector:8889']
               labels:
                 application: 'template-app'
 
@@ -99,6 +111,48 @@ configs:
           options:
             path: /var/lib/grafana/dashboards
             foldersFromFilesStructure: true
+
+  otel_config:
+    content: |
+      receivers:
+        otlp:
+          protocols:
+            http:
+              endpoint: 0.0.0.0:4318
+
+      processors:
+        batch:
+        memory_limiter:
+            check_interval: 5s
+            limit_mib: 1024
+            limit_percentage: 90
+        attributes:
+          actions:
+            - action: upsert
+              key: collector.name
+              value: otel-collector
+      
+      exporters:
+        debug:
+          verbosity: detailed
+        prometheus:
+          endpoint: 0.0.0.0:8889
+          const_labels:
+            label1: value1
+      
+      extensions:
+        health_check:
+          endpoint: 0.0.0.0:13133
+        zpages:
+          endpoint: 0.0.0.0:55679
+      
+      service:
+        extensions: [health_check, zpages]
+        pipelines:
+          metrics:
+            receivers: [otlp]
+            processors: [memory_limiter, attributes, batch]
+            exporters: [prometheus, debug]
 
   service_config:
     content: |
