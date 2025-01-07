@@ -58,22 +58,21 @@ class ExampleService(
         beforeInvocation = false,
         allEntries = true
     )
-    fun createExample(dto: ExampleDTO): Long {
-        return exampleMapper.fromDTO(dto)
+    fun createExample(dto: ExampleDTO): ExampleDTO =
+        exampleMapper.fromDTO(dto)
             .let { exampleRepository.save(it) }
-            .id!!
-    }
+            .let { exampleMapper.toDTO(it) }
 
     @CacheEvict(
         value = [ DatabaseCacheConfiguration.EXAMPLES_CACHE_NAME ],
         beforeInvocation = false,
         allEntries = true
     )
-    fun updateExample(dto: ExampleDTO): Long {
+    fun updateExample(dto: ExampleDTO): ExampleDTO {
         return exampleRepository.findById(dto.id!!)
             .map { exampleMapper.fromDTO(dto) }
             .map { exampleRepository.save(it) }
-            .map { it.id!! }
+            .map { exampleMapper.toDTO(it) }
             .orElseThrow { IdNotFoundException(Example::class, dto.id!!) }
     }
 
