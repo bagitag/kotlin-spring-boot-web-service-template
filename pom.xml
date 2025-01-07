@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.5</version>
+        <version>3.4.1</version>
         <relativePath/>
     </parent>
 
@@ -290,6 +290,23 @@
                     <runOrder>random</runOrder>
                     <argLine>${failsafe.jacoco.args}</argLine>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.github.mfoo</groupId>
+                <artifactId>libyear-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <id>libyear-analysis</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>analyze</goal>
+                        </goals>
+                        <configuration>
+                            <maxLibYears>2</maxLibYears>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

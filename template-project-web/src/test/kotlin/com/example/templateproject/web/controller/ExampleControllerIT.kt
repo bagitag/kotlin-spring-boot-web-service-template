@@ -18,7 +18,6 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
@@ -133,10 +132,13 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
             val request = ExampleDTO(name = name)
 
             // when
-            val actual = restTemplate.postForLocation(EXAMPLE_ENDPOINT, request)
+            val actual =
+                restTemplate.postForEntity<ExampleDTO>(URI.create(EXAMPLE_ENDPOINT), request, ExampleDTO::class.java)
 
             // then
-            assertTrue(actual.toString().endsWith("$EXAMPLE_ENDPOINT/16"))
+            assertEquals(HttpStatus.CREATED, actual.statusCode)
+            assertEquals(name, actual.body!!.name)
+            assertEquals(16, actual.body!!.id)
         }
 
         @Test
@@ -149,13 +151,13 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
             // when
             val actual = restTemplate.exchange(
                 URI.create(EXAMPLE_ENDPOINT), HttpMethod.PUT, HttpEntity(request),
-                RedirectView::class.java
+                ExampleDTO::class.java
             )
 
             // then
-            assertEquals(HttpStatus.FOUND, actual.statusCode)
-            val location = actual.headers.location!!.toString()
-            assertTrue(location.endsWith("$EXAMPLE_ENDPOINT/$id"))
+            assertEquals(HttpStatus.OK, actual.statusCode)
+            assertEquals(id, actual.body!!.id)
+            assertEquals(name, actual.body!!.name)
         }
 
         @Test

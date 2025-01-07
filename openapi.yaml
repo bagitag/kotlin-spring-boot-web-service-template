@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.1.0
 info:
   title: OpenAPI definition
   version: v0
@@ -14,28 +14,31 @@ paths:
         in: query
         name: page
         schema:
-          type: integer
           default: 0
+          example: null
       - description: The size of the page to be returned
         in: query
         name: size
         schema:
-          type: integer
           default: 20
+          example: null
       - description: "Sorting criteria in the format: property,(asc|desc). Default\
           \ sort order is ascending. Multiple sort criteria are supported."
         in: query
         name: sort
         schema:
-          type: array
+          type:
+          - array
+          example: null
           items:
-            type: string
+            example: null
       responses:
         "200":
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PageDetailsExampleDTO"
+                example: null
           description: The Example list has been successfully returned.
       summary: Gets paginated and sorted Examples.
       tags:
@@ -47,15 +50,19 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/ExampleDTO"
+              example: null
         required: true
       responses:
-        "200":
+        "201":
           content:
             application/json:
               schema:
-                type: array
+                type:
+                - array
+                example: null
                 items:
                   $ref: "#/components/schemas/ExampleDTO"
+                  example: null
           description: Example successfully created.
       summary: Creates a new Example.
       tags:
@@ -67,23 +74,30 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/ExampleDTO"
+              example: null
         required: true
       responses:
         "200":
           content:
             application/json:
               schema:
-                type: array
+                type:
+                - array
+                example: null
                 items:
                   $ref: "#/components/schemas/ExampleDTO"
+                  example: null
           description: Example successfully updated.
         "404":
           content:
             application/json:
               schema:
-                type: array
+                type:
+                - array
+                example: null
                 items:
                   $ref: "#/components/schemas/ErrorDTO"
+                  example: null
           description: The requested Example was not found.
       summary: Update an existing Example.
       tags:
@@ -96,35 +110,42 @@ paths:
         name: searchTerms
         required: true
         schema:
-          type: array
+          type:
+          - array
+          example: null
           items:
-            type: string
+            type:
+            - string
+            example: null
       - description: Zero-based page index (0..N)
         in: query
         name: page
         schema:
-          type: integer
           default: 0
+          example: null
       - description: The size of the page to be returned
         in: query
         name: size
         schema:
-          type: integer
           default: 20
+          example: null
       - description: "Sorting criteria in the format: property,(asc|desc). Default\
           \ sort order is ascending. Multiple sort criteria are supported."
         in: query
         name: sort
         schema:
-          type: array
+          type:
+          - array
+          example: null
           items:
-            type: string
+            example: null
       responses:
         "200":
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PageDetailsExampleDTO"
+                example: null
           description: The Example list has been successfully returned based on the
             search terms.
       summary: Gets paginated and sorted Examples based the search terms.
@@ -138,10 +159,14 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                type:
+                - object
                 additionalProperties:
-                  type: integer
+                  type:
+                  - integer
                   format: int32
+                  example: null
+                example: null
           description: The word count map.
       summary: Returns the number of words for each user in order of cardinality.
       tags:
@@ -154,8 +179,10 @@ paths:
         name: id
         required: true
         schema:
-          type: integer
+          type:
+          - integer
           format: int64
+          example: null
       responses:
         "204":
           description: No Content
@@ -169,24 +196,32 @@ paths:
         name: id
         required: true
         schema:
-          type: integer
+          type:
+          - integer
           format: int64
+          example: null
       responses:
         "200":
           content:
             application/json:
               schema:
-                type: array
+                type:
+                - array
+                example: null
                 items:
                   $ref: "#/components/schemas/ExampleDTO"
+                  example: null
           description: The requested Example has been successfully returned.
         "404":
           content:
             application/json:
               schema:
-                type: array
+                type:
+                - array
+                example: null
                 items:
                   $ref: "#/components/schemas/ErrorDTO"
+                  example: null
           description: The requested Example was not found.
       summary: Gets Example by its id.
       tags:
@@ -194,59 +229,93 @@ paths:
 components:
   schemas:
     ErrorDTO:
-      type: object
+      type:
+      - object
+      example: null
       properties:
         details:
-          type: object
+          example: null
         id:
-          type: string
+          type:
+          - string
+          example: null
         message:
-          type: string
+          type:
+          - string
+          example: null
         stackTrace:
-          type: string
+          type:
+          - string
+          example: null
       required:
       - id
       - message
     ExampleDTO:
-      type: object
+      type:
+      - object
+      example: null
       properties:
         createdDate:
-          type: string
+          type:
+          - string
           format: date-time
+          example: null
         id:
-          type: integer
+          type:
+          - integer
           format: int64
+          example: null
         name:
-          type: string
+          type:
+          - string
+          example: null
           maxLength: 20
           minLength: 3
       required:
       - name
     PageDetailsExampleDTO:
-      type: object
+      type:
+      - object
+      example: null
       properties:
         content:
-          type: array
+          type:
+          - array
+          example: null
           items:
             $ref: "#/components/schemas/ExampleDTO"
+            example: null
         pageNumber:
-          type: integer
+          type:
+          - integer
           format: int32
+          example: null
         pageSize:
-          type: integer
+          type:
+          - integer
           format: int32
+          example: null
         sortOrders:
-          type: array
+          type:
+          - array
+          example: null
           items:
             $ref: "#/components/schemas/SortOrder"
+            example: null
         sorted:
-          type: boolean
+          type:
+          - boolean
+          example: null
         totalElements:
-          type: integer
+          type:
+          - integer
           format: int64
+          example: null
         totalPages:
-          type: integer
+          type:
+          - integer
           format: int32
+          example: null
       required:
       - content
       - pageNumber
@@ -256,12 +325,18 @@ components:
       - totalElements
       - totalPages
     SortOrder:
-      type: object
+      type:
+      - object
+      example: null
       properties:
         direction:
-          type: string
+          type:
+          - string
+          example: null
         property:
-          type: string
+          type:
+          - string
+          example: null
       required:
       - direction
       - property
