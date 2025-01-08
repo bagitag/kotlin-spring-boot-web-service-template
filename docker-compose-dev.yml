@@ -12,12 +12,17 @@ services:
       - example-network
 
   pgAdmin:
+    depends_on:
+      - database
     image: dpage/pgadmin4:latest
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@admin.com
       - PGADMIN_DEFAULT_PASSWORD=12345
     ports:
       - "8070:80"
+    configs:
+      - source: pgadmin_config
+        target: /pgadmin4/servers.json
     networks:
       - example-network
 
@@ -53,6 +58,22 @@ networks:
     driver: bridge
 
 configs:
+  pgadmin_config:
+    content: |
+      {
+        "Servers": {
+          "1": {
+            "Name": "PostgreSQL",
+            "Group": "Servers",
+            "Host": "database",
+            "Port": 5432,
+            "Username": "test",
+            "MaintenanceDB": "postgres",
+            "SSLMode": "prefer"
+          }
+        }
+      }
+
   prometheus_config:
     content: |
       scrape_configs:

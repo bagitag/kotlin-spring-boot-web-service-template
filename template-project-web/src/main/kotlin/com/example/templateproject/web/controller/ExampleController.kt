@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory
 import org.springdoc.core.converters.models.PageableAsQueryParam
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.util.StringUtils
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -28,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.servlet.view.RedirectView
 
 const val EXAMPLE_ENDPOINT = "/example"
 
@@ -97,7 +97,7 @@ class ExampleController(private val exampleService: ExampleService) {
     @PostMapping(consumes = [ "application/json" ])
     @Operation(summary = "Creates a new Example.")
     @ApiResponses(
-        ApiResponse(responseCode = "200", description = "Example successfully created.",
+        ApiResponse(responseCode = "201", description = "Example successfully created.",
             content = [
                 (Content(mediaType = "application/json", array = (
                         ArraySchema(schema = Schema(implementation = ExampleDTO::class)))
@@ -105,11 +105,10 @@ class ExampleController(private val exampleService: ExampleService) {
             ])
     )
     @Timed(extraTags = ["path", "create"])
-    fun createExample(@RequestBody @Valid request: ExampleDTO): RedirectView {
+    fun createExample(@RequestBody @Valid request: ExampleDTO): ResponseEntity<ExampleDTO> {
         LOGGER.info("Creating Example: ${StringUtils.trimAllWhitespace(request.toString())}")
-
-        val id = exampleService.createExample(request)
-        return RedirectView("/example/$id")
+        val createdEntity = exampleService.createExample(request)
+        return ResponseEntity.status(HttpStatus.CREATED).body<ExampleDTO>(createdEntity)
     }
 
     @PutMapping
@@ -129,11 +128,9 @@ class ExampleController(private val exampleService: ExampleService) {
             ])
     )
     @Timed(extraTags = ["path", "update"])
-    fun updateExample(@RequestBody @Valid request: ExampleDTO): RedirectView {
+    fun updateExample(@RequestBody @Valid request: ExampleDTO): ExampleDTO {
         LOGGER.info("Updating Example: ${StringUtils.trimAllWhitespace(request.toString())}")
-
-        val id = exampleService.updateExample(request)
-        return RedirectView("/example/$id")
+        return exampleService.updateExample(request)
     }
 
     @DeleteMapping("/{id}")

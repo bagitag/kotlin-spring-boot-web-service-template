@@ -220,49 +220,55 @@ internal class ExampleServiceTest {
     }
 
     @Test
-    fun `Should create new example and return id`() {
+    fun `Should create new example and return it`() {
         // given
         val id = 99L
         val name = "test example"
-        val exampleDTO = ExampleDTO(id, name)
+        val requestExampleDTO = ExampleDTO(name = name)
         val example = Example(id, name)
+        val responseExampleDTO = ExampleDTO(id, name)
 
-        every { exampleMapper.fromDTO(exampleDTO) } returns example
+        every { exampleMapper.fromDTO(requestExampleDTO) } returns example
         every { exampleRepository.save(example) } returns example
+        every { exampleMapper.toDTO(example) } returns responseExampleDTO
 
         // when
-        val actual = victim.createExample(exampleDTO)
+        val actual = victim.createExample(requestExampleDTO)
 
         // then
         verifySequence {
-            exampleMapper.fromDTO(exampleDTO)
+            exampleMapper.fromDTO(requestExampleDTO)
             exampleRepository.save(example)
+            exampleMapper.toDTO(example)
         }
-        assertEquals(example.id, actual)
+        assertEquals(responseExampleDTO, actual)
     }
 
     @Test
-    fun `Should update existing example and return id`() {
+    fun `Should update existing example and return it`() {
         // given
         val id = 99L
         val name = "test example"
-        val exampleDTO = ExampleDTO(id, name)
+        val requestExampleDTO = ExampleDTO(id, name)
         val example = Example(id, name)
+        val responseExampleDTO = ExampleDTO(id, name)
 
         every { exampleRepository.findById(id) } returns Optional.of(example)
-        every { exampleMapper.fromDTO(exampleDTO) } returns example
+        every { exampleMapper.fromDTO(requestExampleDTO) } returns example
         every { exampleRepository.save(example) } returns example
+        every { exampleMapper.toDTO(example) } returns responseExampleDTO
 
         // when
-        val actual = victim.updateExample(exampleDTO)
+        val actual = victim.updateExample(requestExampleDTO)
 
         // then
         verifySequence {
             exampleRepository.findById(id)
-            exampleMapper.fromDTO(exampleDTO)
+            exampleMapper.fromDTO(requestExampleDTO)
             exampleRepository.save(example)
+            exampleMapper.toDTO(example)
         }
-        assertEquals(example.id, actual)
+        assertEquals(responseExampleDTO, actual)
     }
 
     @Test

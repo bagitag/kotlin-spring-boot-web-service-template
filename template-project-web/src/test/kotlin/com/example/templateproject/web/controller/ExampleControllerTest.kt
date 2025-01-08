@@ -98,32 +98,35 @@ internal class ExampleControllerTest {
     }
 
     @Test
-    fun `Should create example and redirect`() {
+    fun `Should create example`() {
         // given
-        val exampleDTO = ExampleDTO(name = "new example")
+        val id = 33L
+        val requestExampleDTO = ExampleDTO(name = "new example")
+        val responseExampleDTO = ExampleDTO(id, "new example")
 
-        every { exampleService.createExample(exampleDTO) } returns 33L
+        every { exampleService.createExample(requestExampleDTO) } returns responseExampleDTO
 
         // when
-        val actual = victim.createExample(exampleDTO)
+        val actual = victim.createExample(requestExampleDTO)
 
         // then
-        assertEquals("/example/33", actual.url)
+        assertEquals(responseExampleDTO, actual.body)
+        assertEquals(id, actual.body!!.id)
     }
 
     @Test
-    fun `Should update example and redirect`() {
+    fun `Should update example`() {
         // given
         val id = 10L
         val exampleDTO = ExampleDTO(id, "updated example")
 
-        every { exampleService.updateExample(exampleDTO) } returns id
+        every { exampleService.updateExample(exampleDTO) } returns exampleDTO
 
         // when
         val actual = victim.updateExample(exampleDTO)
 
         // then
-        assertEquals("/example/10", actual.url)
+        assertEquals(exampleDTO, actual)
     }
 
     @Test
