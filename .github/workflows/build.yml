@@ -72,6 +72,13 @@ jobs:
           path: template-project-jacoco-report/target/site/jacoco-aggregate/
           retention-days: 10
 
+      - name: Generate JaCoCo Badge
+        if: ${{ github.ref == 'refs/heads/main' && matrix.java-version == env.DEFAULT_JAVA_VERSION }}
+        uses: cicirello/jacoco-badge-generator@v2.11.0
+        with:
+          jacoco-csv-file: template-project-jacoco-report/target/site/jacoco-aggregate/jacoco.csv
+          generate-branches-badge: true
+
       - name: Add JaCoCo coverage to PR
         if: ${{ matrix.java-version == env.DEFAULT_JAVA_VERSION && github.event_name == 'pull_request' }}
         uses: madrapps/jacoco-report@v1.7.1

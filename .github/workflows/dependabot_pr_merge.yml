@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Get Dependabot metadata
         id: metadata
-        uses: dependabot/fetch-metadata@v2.2.0
+        uses: dependabot/fetch-metadata@v2.3.0
 
       - name: Approve PR & enable auto-merge
         if: ${{ contains(steps.metadata.outputs.dependency-names, 'actions/checkout') 
