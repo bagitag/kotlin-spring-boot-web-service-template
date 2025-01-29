@@ -37,7 +37,9 @@ jobs:
           queries: security-extended
 
       - name: Build with Maven
-        run: ./mvnw verify -B -V -ntp -DskipTests -Dmaven.javadoc.skip -Ddetekt.skip=true
+        run: |
+          chmod +x mvnw
+          ./mvnw verify -B -V -ntp -DskipTests -Dmaven.javadoc.skip -Ddetekt.skip=true
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3

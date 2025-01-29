@@ -54,7 +54,9 @@ jobs:
 
       - name: Build with Maven
         continue-on-error: ${{ matrix.java-version != env.DEFAULT_JAVA_VERSION }}
-        run: ./mvnw -B -V verify -ntp
+        run: |
+          chmod +x mvnw
+          ./mvnw -B -V verify -ntp
 
       - name: Store JAR as artifact for the main branch
         if: ${{ github.ref == 'refs/heads/main' && matrix.java-version == env.DEFAULT_JAVA_VERSION }}
