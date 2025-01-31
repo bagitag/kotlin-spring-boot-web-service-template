@@ -32,7 +32,7 @@ The project contains a lot of useful features and configurations that are common
 
 ### Prerequisites
 
-The application needs to connect to a database to be able to run the integration tests. By default, [Testcontainers](https://github.com/testcontainers/) is used to start a database in a Docker container. If you do not have Docker installed please enable the development Maven profile, to use an in-memory database, by adding the following profile to the Maven command:
+The application needs to connect to a database to be able to run the integration tests. By default, [Testcontainers](https://github.com/testcontainers/) is used to start a database in a Docker container. If you do not have Docker installed please enable the development Maven profile, to use an in-memory database, by adding the following to the Maven command:
 
 ```-Pdev```
 
@@ -90,13 +90,17 @@ For development purposes, please see the [Development](#development) section.
 
 The project is structured into the following Maven modules:
 
-- **api**: Contains the REST API of the application.
-- **client**: Contains the client of the application.
-- **core**: Contains the core functionality of the application.
-- **persistence**: Contains the data access layer of the application.
+- **api**: Defines the request and response structures for the service.
+- **client**: Contains other service integrations. See details: [here](template-project-client/CLIENT.md)
+- **core**: Contains the core functionality of the application. It acts as a bridge between the web and persistence layers.
+- **persistence**: Contains the data access layer of the application. See the details: [here](template-project-persistence/PERSISTENCE.md)
 - **web**: Contains the web layer of the application.
+- **jacoco-report**: Used for generating the aggregated JaCoCo coverage report.
 
 ## Configuration
 
+By default 
+
 ## Development
 
+### 
