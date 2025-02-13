@@ -3,8 +3,8 @@ package com.example.templateproject.core.service
 import com.example.templateproject.api.dto.ExampleDTO
 import com.example.templateproject.api.dto.PageDetails
 import com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService
-import com.example.templateproject.core.configuration.DatabaseCacheConfiguration
-import com.example.templateproject.core.exception.IdNotFoundException
+import com.example.templateproject.core.exception.BadRequestErrorMessages
+import com.example.templateproject.core.exception.BadRequestException
 import com.example.templateproject.core.mapper.ExampleMapper
 import com.example.templateproject.core.mapper.PageConverter
 import com.example.templateproject.persistence.entity.Example
@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
@@ -26,20 +26,19 @@ class ExampleService(
     private val exampleMapper: ExampleMapper,
     private val pageConverter: PageConverter,
     private val jsonPlaceholderService: JsonPlaceholderService
-) {
+) : AbstractService<Example, ExampleDTO>(exampleRepository, exampleMapper, pageConverter, Example::class) {
+
     companion object {
         private val LOGGER = LoggerFactory.getLogger(ExampleService::class.java)
+        const val EXAMPLES_CACHE_NAME = "database-examples"
     }
 
-    @Cacheable(
-        DatabaseCacheConfiguration.EXAMPLES_CACHE_NAME,
-        condition = "#root.target.cacheEnabled"
-    )
-    fun getExamples(pageable: Pageable): PageDetails<ExampleDTO> {
-        val pageableToUse = getPageable(pageable)
-        return exampleRepository.findAll(pageableToUse)
-            .map { exampleMapper.toDTO(it) }
-            .let { pageConverter.createPageDetails(it) }
+    override fun validateEntity(entity: Example) {
+        entity.name.let {
+            if (!it.matches("\\d.*".toRegex())) {
+                throw BadRequestException(BadRequestErrorMessages.NAME_MUST_START_WITH_A_NUMBER)
+            }
+        }
     }
 
     fun searchExamples(searchTerms: List<String>, pageable: Pageable): PageDetails<ExampleDTO> {
@@ -49,41 +48,32 @@ class ExampleService(
             .let { pageConverter.createPageDetails(it) }
     }
 
-    fun getExample(id: Long): ExampleDTO =
-        exampleRepository.findById(id).map { exampleMapper.toDTO(it) }
-            .orElseThrow { IdNotFoundException(Example::class, id) }
+    @Cacheable(
+        EXAMPLES_CACHE_NAME,
+        condition = "#root.target.cacheEnabled"
+    )
+    override fun getEntities(pageable: Pageable) = super.getEntities(pageable)
 
     @CacheEvict(
-        value = [ DatabaseCacheConfiguration.EXAMPLES_CACHE_NAME ],
+        value = [ EXAMPLES_CACHE_NAME ],
         beforeInvocation = false,
         allEntries = true
     )
-    fun createExample(dto: ExampleDTO): ExampleDTO =
-        exampleMapper.fromDTO(dto)
-            .let { exampleRepository.save(it) }
-            .let { exampleMapper.toDTO(it) }
+    override fun createEntity(dto: ExampleDTO) = super.createEntity(dto)
 
     @CacheEvict(
-        value = [ DatabaseCacheConfiguration.EXAMPLES_CACHE_NAME ],
+        value = [ EXAMPLES_CACHE_NAME ],
         beforeInvocation = false,
         allEntries = true
     )
-    fun updateExample(dto: ExampleDTO): ExampleDTO {
-        return exampleRepository.findById(dto.id!!)
-            .map { exampleMapper.fromDTO(dto) }
-            .map { exampleRepository.save(it) }
-            .map { exampleMapper.toDTO(it) }
-            .orElseThrow { IdNotFoundException(Example::class, dto.id!!) }
-    }
+    override fun updateEntity(dto: ExampleDTO) = super.updateEntity(dto)
 
     @CacheEvict(
-        value = [ DatabaseCacheConfiguration.EXAMPLES_CACHE_NAME ],
+        value = [ EXAMPLES_CACHE_NAME ],
         beforeInvocation = false,
         allEntries = true
     )
-    fun deleteExample(id: Long) {
-        exampleRepository.deleteById(id)
-    }
+    override fun deleteEntity(id: Long) = super.deleteEntity(id)
 
     fun getWordCountForUsers(): Map<String, Int> {
         val userNameWordCountMap = ConcurrentHashMap<String, Int>()
@@ -107,13 +97,5 @@ class ExampleService(
         }.get()
 
         return userNameWordCountMap.entries.sortedByDescending { it.value }.associateBy({ it.key }, { it.value })
-    }
-
-    private fun getPageable(pageable: Pageable): Pageable {
-        return if (pageable.sort.isUnsorted) {
-            PageRequest.of(pageable.pageNumber, pageable.pageSize, ExampleRepository.DEFAULT_SORT)
-        } else {
-            pageable
-        }
     }
 }

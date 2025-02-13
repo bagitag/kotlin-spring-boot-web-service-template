@@ -1,5 +1,6 @@
 package com.example.templateproject.core.configuration
 
+import com.example.templateproject.core.service.ExampleService
 import com.github.benmanes.caffeine.cache.AsyncCache
 import com.github.benmanes.caffeine.cache.Caffeine
 import jakarta.annotation.PostConstruct
@@ -17,13 +18,9 @@ class DatabaseCacheConfiguration(
     val cacheManager: CaffeineCacheManager
 ) {
 
-    companion object {
-        const val EXAMPLES_CACHE_NAME = "database-examples"
-    }
-
     @PostConstruct
     fun registerCaches() {
-        registerCache(EXAMPLES_CACHE_NAME, examplesCacheMaxSize, expirationMinutes)
+        registerCache(ExampleService.EXAMPLES_CACHE_NAME, examplesCacheMaxSize, expirationMinutes)
     }
 
     private fun registerCache(name: String, maximumSize: Long, expirationMinutes: Long) {
