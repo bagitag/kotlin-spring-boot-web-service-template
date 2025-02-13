@@ -16,10 +16,10 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -32,7 +32,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @Import(MockClock::class, SimpleMeterRegistry::class, ExceptionMetrics::class)
 class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
 
-    @MockBean
+    @MockitoBean
     private lateinit var exampleService: ExampleService
 
     @Test
@@ -40,7 +40,7 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
         // given
         val id = 10L
 
-        `when`(exampleService.getExample(id)).thenThrow(IdNotFoundException(Example::class, id))
+        `when`(exampleService.getEntityById(id)).thenThrow(IdNotFoundException(Example::class, id))
 
         // when - then
         mockMvc.perform(MockMvcRequestBuilders.get("/example/$id").contentType(MediaType.APPLICATION_JSON))
@@ -56,8 +56,8 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
         // given
         val id = 10L
         val name = "New name"
-
-        `when`(exampleService.updateExample(ExampleDTO(id, name))).thenThrow(IdNotFoundException(Example::class, id))
+        val dto = ExampleDTO(name).apply { this.id = id }
+        `when`(exampleService.updateEntity(dto)).thenThrow(IdNotFoundException(Example::class, id))
 
         // when - then
         mockMvc.perform(MockMvcRequestBuilders.put("/example?trace=true")
@@ -75,7 +75,7 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
         // given
         val id = 10L
 
-        `when`(exampleService.getExample(id)).thenThrow(RuntimeException())
+        `when`(exampleService.getEntityById(id)).thenThrow(RuntimeException())
 
         // when - then
         mockMvc.perform(MockMvcRequestBuilders.get("/example/$id")

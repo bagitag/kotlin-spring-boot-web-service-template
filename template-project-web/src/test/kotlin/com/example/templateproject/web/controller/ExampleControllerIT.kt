@@ -128,7 +128,7 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
         @Test
         fun testForCreateExample() {
             // given
-            val name = "New example"
+            val name = "1. new example"
             val request = ExampleDTO(name = name)
 
             // when
@@ -145,8 +145,8 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
         fun testForUpdateExample() {
             // given
             val id = 2L
-            val name = "Updated example"
-            val request = ExampleDTO(id, name)
+            val name = "$id updated example"
+            val request = ExampleDTO(name).apply { this.id = id }
 
             // when
             val actual = restTemplate.exchange(
