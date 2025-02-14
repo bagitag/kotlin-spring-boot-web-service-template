@@ -28,19 +28,19 @@ internal class ExampleControllerTest {
     fun `Should return paginated examples`() {
         // given
         val id1 = 10L
-        val exampleDTO1 = ExampleDTO(id1, "#$id1 example")
+        val exampleDTO1 = ExampleDTO("#$id1 example").apply { id = id1 }
         val id2 = 20L
-        val exampleDTO2 = ExampleDTO(id2, "#$id2 example")
+        val exampleDTO2 = ExampleDTO("#$id2 example").apply { id = id2 }
         val pageSize = 10
         val pageRequest = PageRequest.ofSize(pageSize)
 
         val exampleDTOs = listOf(exampleDTO1, exampleDTO2)
         val sortOrders = listOf(SortOrder("createdDate", "DESC"), SortOrder("id", "DESC"))
         val pageDetails = PageDetails(exampleDTOs, 0, pageSize, exampleDTOs.size.toLong(), 1, true, sortOrders)
-        every { exampleService.getExamples(pageRequest) } returns pageDetails
+        every { exampleService.getEntities(pageRequest) } returns pageDetails
 
         // when
-        val actual = victim.getExamples(pageRequest)
+        val actual = victim.getEntities(pageRequest)
 
         // then
         assertEquals(2, actual.content.size)
@@ -56,9 +56,9 @@ internal class ExampleControllerTest {
     fun `Should return paginated examples based on given search term`() {
         // given
         val id1 = 10L
-        val exampleDTO1 = ExampleDTO(id1, "#$id1 example")
+        val exampleDTO1 = ExampleDTO("#$id1 example").apply { id = id1 }
         val id2 = 20L
-        val exampleDTO2 = ExampleDTO(id2, "#$id2 example")
+        val exampleDTO2 = ExampleDTO("#$id2 example").apply { id = id2 }
         val pageSize = 10
         val pageRequest = PageRequest.ofSize(10)
         val searchTerm = listOf("exa")
@@ -85,12 +85,12 @@ internal class ExampleControllerTest {
     fun `Should return example by given id`() {
         // given
         val id = 10L
-        val example = ExampleDTO(id, "#$id example")
+        val example = ExampleDTO("#$id example").apply { this.id = id }
 
-        every { exampleService.getExample(id) } returns example
+        every { exampleService.getEntityById(id) } returns example
 
         // when
-        val actual = victim.getExample(id)
+        val actual = victim.getEntityById(id)
 
         // then
         assertEquals(id, actual.id)
@@ -102,12 +102,12 @@ internal class ExampleControllerTest {
         // given
         val id = 33L
         val requestExampleDTO = ExampleDTO(name = "new example")
-        val responseExampleDTO = ExampleDTO(id, "new example")
+        val responseExampleDTO = ExampleDTO("new example").apply { this.id = id }
 
-        every { exampleService.createExample(requestExampleDTO) } returns responseExampleDTO
+        every { exampleService.createEntity(requestExampleDTO) } returns responseExampleDTO
 
         // when
-        val actual = victim.createExample(requestExampleDTO)
+        val actual = victim.createEntity(requestExampleDTO)
 
         // then
         assertEquals(responseExampleDTO, actual.body)
@@ -118,12 +118,12 @@ internal class ExampleControllerTest {
     fun `Should update example`() {
         // given
         val id = 10L
-        val exampleDTO = ExampleDTO(id, "updated example")
+        val exampleDTO = ExampleDTO("updated example").apply { this.id = id }
 
-        every { exampleService.updateExample(exampleDTO) } returns exampleDTO
+        every { exampleService.updateEntity(exampleDTO) } returns exampleDTO
 
         // when
-        val actual = victim.updateExample(exampleDTO)
+        val actual = victim.updateEntity(exampleDTO)
 
         // then
         assertEquals(exampleDTO, actual)
@@ -134,10 +134,10 @@ internal class ExampleControllerTest {
         // given
         val id = 10L
 
-        every { exampleService.deleteExample(id) } returns Unit
+        every { exampleService.deleteEntity(id) } returns Unit
 
         // when
-        val actual = victim.deleteExample(id)
+        val actual = victim.deleteEntity(id)
 
         // then
         assertEquals(HttpStatus.NO_CONTENT, actual.statusCode)
