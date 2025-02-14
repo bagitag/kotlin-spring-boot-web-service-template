@@ -20,7 +20,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import io.mockk.verify
 import io.mockk.verifySequence
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -287,31 +286,12 @@ internal class ExampleServiceTest {
     }
 
     @Test
-    fun `Updating entity should throw IdNotFoundException if entity does not exist`() {
-        // given
-        val id = 100L
-        val name = "test example"
-        val exampleDTO = ExampleDTO(name).apply { this.id = id }
-
-        every { exampleRepository.existsById(id) } returns false
-
-        // when
-        assertThrows<IdNotFoundException> { victim.updateEntity(exampleDTO) }
-
-        // then
-        verify {
-            exampleRepository.existsById(id)
-        }
-    }
-
-    @Test
     fun `Updating entity should throw IdNotFoundException`() {
         // given
         val id = 100L
         val name = "test example"
         val exampleDTO = ExampleDTO(name).apply { this.id = id }
 
-        every { exampleRepository.existsById(id) } returns true
         every { exampleRepository.findById(id) } returns Optional.empty()
 
         // when
@@ -319,7 +299,6 @@ internal class ExampleServiceTest {
 
         // then
         verifySequence {
-            exampleRepository.existsById(id)
             exampleRepository.findById(id)
         }
     }
@@ -333,7 +312,6 @@ internal class ExampleServiceTest {
         val example = Example(name)
         val responseExampleDTO = ExampleDTO(name).apply { this.id = id }
 
-        every { exampleRepository.existsById(id) } returns true
         every { exampleRepository.findById(id) } returns Optional.of(example)
         every { exampleMapper.toEntity(requestExampleDTO) } returns example
         every { exampleRepository.save(example) } returns example
@@ -344,7 +322,6 @@ internal class ExampleServiceTest {
 
         // then
         verifySequence {
-            exampleRepository.existsById(id)
             exampleRepository.findById(id)
             exampleMapper.toEntity(requestExampleDTO)
             exampleRepository.save(example)

@@ -58,8 +58,6 @@ abstract class AbstractService<E : BaseEntity, D : BaseDTO>(
             throw BadRequestException(BadRequestErrorMessages.ID_MUST_NOT_BE_NULL)
         }
 
-        checkIfEntityExists(id)
-
         return repository.findById(dto.id!!)
             .map { mapper.toEntity(dto) }
             .map { saveEntity(it) }
@@ -75,12 +73,6 @@ abstract class AbstractService<E : BaseEntity, D : BaseDTO>(
         validateEntity(entity)
 
         return repository.save(entity)
-    }
-
-    private fun checkIfEntityExists(id: Long) {
-        if (!repository.existsById(id)) {
-            throw IdNotFoundException(clazz, id)
-        }
     }
 
     protected fun getPageable(pageable: Pageable): Pageable {
