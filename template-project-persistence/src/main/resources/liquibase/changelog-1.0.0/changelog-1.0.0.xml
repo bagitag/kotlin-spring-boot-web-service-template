@@ -5,12 +5,13 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="1.0.0-create-table-example" author="system">
+    <changeSet id="1-create-table-example" author="system" labels="1.0.0">
         <preConditions onFail="HALT">
             <not>
                 <tableExists tableName="example"/>
             </not>
         </preConditions>
+        <createSequence sequenceName="example_id_seq"/>
         <createTable tableName="example">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -21,13 +22,37 @@
             </column>
             <column name="last_modified_date" type="timestamp"/>
         </createTable>
-        <createSequence sequenceName="example_id_seq"/>
+    </changeSet>
+    <changeSet id="2-create-table-example-history" author="system" labels="1.0.0">
+        <preConditions onFail="HALT">
+            <not>
+                <tableExists tableName="example_history"/>
+            </not>
+        </preConditions>
+        <createSequence sequenceName="example_history_id_seq"/>
+        <createTable tableName="example_history">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(20)"/>
+            <column name="event" type="varchar(6)"/>
+            <column name="entity_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
     </changeSet>
 
-    <changeSet id="1.0.0-insert-test-data" author="system" failOnError="false">
+    <changeSet id="3-insert-test-data" author="system" failOnError="false" labels="1.0.0">
         <preConditions onFail="MARK_RAN">
             <changeLogPropertyDefined property="insert.data" value="true"/>
         </preConditions>
-        <sqlFile path="../../data.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="data.sql"/>
+        <rollback>
+            TRUNCATE TABLE example;
+            TRUNCATE TABLE example_history;
+        </rollback>
     </changeSet>
 </databaseChangeLog>
