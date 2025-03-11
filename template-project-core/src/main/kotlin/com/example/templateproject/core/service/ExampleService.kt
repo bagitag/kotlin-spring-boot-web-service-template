@@ -17,10 +17,13 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 @Service
 class ExampleService(
     @Value("\${client.database.cache.enabled}") val cacheEnabled: Boolean,
+    @Value("\${core.wordcountcalculation.timeout.millis}") val wordCountTimeout: Long,
     private val exampleRepository: ExampleRepository,
     private val exampleMapper: ExampleMapper,
     private val pageConverter: PageConverter,
@@ -77,23 +80,24 @@ class ExampleService(
     fun getWordCountForUsers(): Map<String, Int> {
         val userNameWordCountMap = ConcurrentHashMap<String, Int>()
 
-        jsonPlaceholderService.getUsers().thenComposeAsync {
-            val futures = mutableListOf<CompletableFuture<Void>>()
-
-            it.forEach { user ->
-                val future = jsonPlaceholderService.getPostsByUserId(user.id).thenAccept { posts ->
-                    posts.forEach { post ->
-                        val wordCount = post.body.split("\\s+".toRegex()).size
-                        userNameWordCountMap.merge(user.username, wordCount, Integer::sum)
+        try {
+            jsonPlaceholderService.getUsers().thenComposeAsync { users ->
+                val futureArray = users.map { user ->
+                    jsonPlaceholderService.getPostsByUserId(user.id).thenAccept { posts ->
+                        posts.forEach { post ->
+                            val wordCount = post.body.split("\\s+".toRegex()).size
+                            userNameWordCountMap.merge(user.username, wordCount, Integer::sum)
+                        }
                     }
-                }
-                futures.add(future)
-            }
-            val futureArray = futures.toTypedArray()
-            CompletableFuture.allOf(*futureArray)
-        }.thenApply {
-            LOGGER.info("Calculated word count for users: {}", userNameWordCountMap)
-        }.get()
+                }.toTypedArray()
+                CompletableFuture.allOf(*futureArray)
+            }.thenApply {
+                LOGGER.info("Calculated word count for users: {}", userNameWordCountMap)
+            }.get(wordCountTimeout, TimeUnit.MILLISECONDS)
+        } catch (e: TimeoutException) {
+            LOGGER.error("Timeout while calculating word count for users", e)
+            throw e
+        }
 
         return userNameWordCountMap.entries.sortedByDescending { it.value }.associateBy({ it.key }, { it.value })
     }
