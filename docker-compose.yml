@@ -12,8 +12,8 @@ services:
       spring.datasource.password: 12345
       spring.liquibase.change-log: classpath:liquibase/changelog-root.xml
 
-      client.database.cache.enabled: true
-      client.database.cache.expiration.minutes: 10
+      core.database.cache.enabled: true
+      core.database.cache.expiration.minutes: 10
 
       client.jsonplaceholder.cache.enabled: true
       client.jsonplaceholder.cache.expiration.minutes: 10
