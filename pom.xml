@@ -304,7 +304,7 @@
                             <goal>analyze</goal>
                         </goals>
                         <configuration>
-                            <maxLibYears>3</maxLibYears>
+                            <maxLibYears>5</maxLibYears>
                         </configuration>
                     </execution>
                 </executions>

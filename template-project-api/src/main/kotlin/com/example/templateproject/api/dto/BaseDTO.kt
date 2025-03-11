@@ -8,4 +8,6 @@ abstract class BaseDTO(
     var id: Long? = null,
     var createdDate: LocalDateTime? = null,
     var modifiedDate: LocalDateTime? = null
-)
+) {
+    override fun toString() = "id=$id, createdDate=$createdDate, modifiedDate=$modifiedDate"
+}
