@@ -33,6 +33,8 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import java.util.Optional
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 @ExtendWith(MockKExtension::class)
 internal class ExampleServiceTest {
@@ -49,7 +51,7 @@ internal class ExampleServiceTest {
 
     @BeforeEach
     fun initialize() {
-        victim = ExampleService(false, exampleRepository, exampleMapper, pageConverter, jsonPlaceholderService)
+        victim = ExampleService(false, 10000L, exampleRepository, exampleMapper, pageConverter, jsonPlaceholderService)
     }
 
     @Test
@@ -70,8 +72,10 @@ internal class ExampleServiceTest {
         every { exampleMapper.toDTO(example2) } returns exampleDTO2
 
         val exampleDTOs = listOf(exampleDTO1, exampleDTO2)
-        val pageDetails = PageDetails(exampleDTOs, 0, 10, 2, 1, true,
-            listOf(SortOrder("createdDate", "DESC"), SortOrder("id", "DESC")))
+        val pageDetails = PageDetails(
+            exampleDTOs, 0, 10, 2, 1, true,
+            listOf(SortOrder("createdDate", "DESC"), SortOrder("id", "DESC"))
+        )
         every { pageConverter.createPageDetails(any<PageImpl<ExampleDTO>>()) } returns pageDetails
 
         // when
@@ -151,7 +155,7 @@ internal class ExampleServiceTest {
         val example1 = aMockExample(id1)
         val example2 = aMockExample(id2)
         val examples = PageImpl(listOf(example2, example1))
-        val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC,"id"))
+        val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "id"))
         val searchTerm = listOf("99")
 
         every { exampleRepository.findByNameInIgnoreCase(searchTerm, pageable) } returns examples
@@ -344,6 +348,18 @@ internal class ExampleServiceTest {
         verifySequence {
             exampleRepository.deleteById(id)
         }
+    }
+
+    @Test
+    fun `Should throw timeout exception`() {
+        // given
+        victim = ExampleService(false, 1000L, exampleRepository, exampleMapper, pageConverter, jsonPlaceholderService)
+
+        every { jsonPlaceholderService.getUsers() } returns
+                CompletableFuture.supplyAsync({ listOf() }, CompletableFuture.delayedExecutor(2L, TimeUnit.SECONDS))
+
+        // when - then
+        assertThrows<TimeoutException> { victim.getWordCountForUsers() }
     }
 
     @Test

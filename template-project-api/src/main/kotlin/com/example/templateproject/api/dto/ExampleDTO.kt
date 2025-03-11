@@ -7,4 +7,6 @@ data class ExampleDTO(
     @field:NotBlank
     @field:Size(min = 3, max = 20, message = "must be between 3 and 20 characters")
     val name: String
-) : BaseDTO()
+) : BaseDTO() {
+    override fun toString() = "ExampleDTO(name='$name', ${super.toString()})"
+}
