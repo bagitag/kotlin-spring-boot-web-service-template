@@ -2,9 +2,13 @@ package com.example.templateproject.web.controller
 
 import com.example.templateproject.api.dto.ExampleDTO
 import com.example.templateproject.api.dto.PageDetails
+import com.example.templateproject.persistence.entity.history.ExampleHistory
+import com.example.templateproject.persistence.entity.history.HistoryEvent
+import com.example.templateproject.persistence.repository.history.ExampleHistoryRepository
 import com.example.templateproject.web.BaseIntegrationTest
 import jakarta.inject.Inject
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -109,12 +113,16 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
     inner class DatabaseManipulatingTests {
 
         @Inject
+        private lateinit var historyRepository: ExampleHistoryRepository
+        @Inject
         private lateinit var jdbcTemplate: JdbcTemplate
 
         @BeforeEach
         fun init() {
             jdbcTemplate.execute("TRUNCATE TABLE example")
             jdbcTemplate.execute("ALTER SEQUENCE example_id_seq RESTART")
+            jdbcTemplate.execute("TRUNCATE TABLE example_history")
+            jdbcTemplate.execute("ALTER SEQUENCE example_history_id_seq RESTART")
 
             try {
                 val sqlScriptResource = ClassPathResource("data.sql")
@@ -137,8 +145,14 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
 
             // then
             assertEquals(HttpStatus.CREATED, actual.statusCode)
-            assertEquals(name, actual.body!!.name)
-            assertEquals(16, actual.body!!.id)
+            val entity = actual.body!!
+            assertEquals(name, entity.name)
+            assertEquals(16, entity.id)
+
+            val historyEntityList = historyRepository.findByEntityId(entity.id!!)
+            assertEquals(1, historyEntityList.size)
+            val historyEntity = historyEntityList.first()
+            validateHistoryEntity(entity, historyEntity, HistoryEvent.CREATE)
         }
 
         @Test
@@ -156,8 +170,14 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
 
             // then
             assertEquals(HttpStatus.OK, actual.statusCode)
-            assertEquals(id, actual.body!!.id)
-            assertEquals(name, actual.body!!.name)
+            val entity = actual.body!!
+            assertEquals(id, entity.id)
+            assertEquals(name, entity.name)
+
+            val historyEntityList = historyRepository.findByEntityIdAndEvent(entity.id!!, HistoryEvent.UPDATE)
+            assertEquals(1, historyEntityList.size)
+            val historyEntity = historyEntityList.first()
+            validateHistoryEntity(entity, historyEntity, HistoryEvent.UPDATE)
         }
 
         @Test
@@ -171,6 +191,19 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
 
             // then
             assertEquals(HttpStatus.NO_CONTENT, actual.statusCode)
+
+            val historyEntityList = historyRepository.findByEntityIdAndEvent(id, HistoryEvent.DELETE)
+            assertEquals(1, historyEntityList.size)
+            val historyEntity = historyEntityList.first()
+            assertEquals(HistoryEvent.DELETE, historyEntity.event)
+        }
+
+        private fun validateHistoryEntity(entity: ExampleDTO, historyEntity: ExampleHistory, event: HistoryEvent) {
+            assertEquals(16, historyEntity.id)
+            assertEquals(entity.id, historyEntity.entityId)
+            assertEquals(entity.name, historyEntity.name)
+            assertEquals(event, historyEntity.event)
+            assertNotNull(historyEntity.createdAt)
         }
     }
 }

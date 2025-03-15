@@ -2,13 +2,10 @@ package com.example.templateproject.persistence.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.EntityListeners
 import jakarta.persistence.SequenceGenerator
 import org.hibernate.Hibernate
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
 @Entity
-@EntityListeners(AuditingEntityListener::class)
 @SequenceGenerator(name = "sequenceGenerator", sequenceName = "example_id_seq", allocationSize = 1)
 data class Example(
     @Column(length = 20)
