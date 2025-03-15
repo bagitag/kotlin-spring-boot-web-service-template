@@ -1,5 +1,6 @@
 package com.example.templateproject.persistence.entity
 
+import com.example.templateproject.persistence.configuration.EntityChangeListener
 import jakarta.persistence.Column
 import jakarta.persistence.EntityListeners
 import jakarta.persistence.GeneratedValue
@@ -12,7 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.Instant
 
 @MappedSuperclass
-@EntityListeners(AuditingEntityListener::class)
+@EntityListeners(AuditingEntityListener::class, EntityChangeListener::class)
 abstract class BaseEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")

@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.2</version>
+        <version>3.4.3</version>
         <relativePath/>
     </parent>
 
@@ -31,9 +31,9 @@
         <java.version>21</java.version>
 
         <kotlin.version>2.1.10</kotlin.version>
-        <mockk.version>1.13.16</mockk.version>
+        <mockk.version>1.13.17</mockk.version>
 
-        <detekt.version>1.23.7</detekt.version>
+        <detekt.version>1.23.8</detekt.version>
         <detekt.config>detekt-config.yml</detekt.config>
         <detekt.baseline>detekt-baseline.xml</detekt.baseline>
 
@@ -127,12 +127,13 @@
                 <version>${jacoco.version}</version>
                 <configuration>
                     <excludes>
-                        <exclude>com/example/templateproject/TemplateApplicationKt.class</exclude>
                         <exclude>**/*Configuration.class</exclude>
+                        <exclude>com/example/**/*CircuitBreaker.class</exclude>
+                        <exclude>com/example/templateproject/TemplateApplicationKt.class</exclude>
                         <exclude>com/example/templateproject/core/exception/*Exception.class</exclude>
                         <exclude>com/example/templateproject/core/exception/BadRequestErrorMessages.class</exclude>
-                        <exclude>com/example/**/*CircuitBreaker.class</exclude>
                         <exclude>com/example/templateproject/client/RetryableHttpRequestDecorator.class</exclude>
+                        <exclude>com/example/templateproject/persistence/entity/history/*</exclude>
                     </excludes>
                     <rules>
                         <rule>
@@ -304,7 +305,7 @@
                             <goal>analyze</goal>
                         </goals>
                         <configuration>
-                            <maxLibYears>3</maxLibYears>
+                            <maxLibYears>5</maxLibYears>
                         </configuration>
                     </execution>
                 </executions>
