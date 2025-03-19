@@ -3,6 +3,7 @@ package com.example.templateproject.web.controller
 import com.example.templateproject.client.jsonplaceholder.api.Post
 import com.example.templateproject.client.jsonplaceholder.api.User
 import com.example.templateproject.web.BaseIntegrationTest
+import com.example.templateproject.web.configuration.API_BASE_PATH
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
@@ -38,6 +39,8 @@ class JsonPlaceholderIT(
     @Value("\${client.jsonplaceholder.base-url}") private val baseUrl: String,
     @Value("\${client.jsonplaceholder.api-key}") private val apiKey: String
 ) : BaseIntegrationTest() {
+
+    private val path = "$API_BASE_PATH/$EXAMPLE_ENDPOINT/statistics"
 
     @InjectWireMock("json-placeholder")
     private lateinit var wiremock: WireMockServer
@@ -76,7 +79,7 @@ class JsonPlaceholderIT(
         )
 
         // when
-        val actual = mockMvc.perform(MockMvcRequestBuilders.get("/example/statistics"))
+        val actual = mockMvc.perform(MockMvcRequestBuilders.get(path))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andReturn()
@@ -119,7 +122,7 @@ class JsonPlaceholderIT(
         )
 
         // when
-        val actual = mockMvc.perform(MockMvcRequestBuilders.get("/example/statistics"))
+        val actual = mockMvc.perform(MockMvcRequestBuilders.get(path))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andReturn()
@@ -147,12 +150,12 @@ class JsonPlaceholderIT(
         )
 
         // when
-        val actual1 = mockMvc.perform(MockMvcRequestBuilders.get("/example/statistics"))
+        val actual1 = mockMvc.perform(MockMvcRequestBuilders.get(path))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andReturn()
 
-        val actual2 = mockMvc.perform(MockMvcRequestBuilders.get("/example/statistics"))
+        val actual2 = mockMvc.perform(MockMvcRequestBuilders.get(path))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andReturn()

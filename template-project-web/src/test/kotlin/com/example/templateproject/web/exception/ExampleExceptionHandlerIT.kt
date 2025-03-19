@@ -4,6 +4,8 @@ import com.example.templateproject.api.dto.ExampleDTO
 import com.example.templateproject.core.exception.IdNotFoundException
 import com.example.templateproject.core.service.ExampleService
 import com.example.templateproject.persistence.entity.Example
+import com.example.templateproject.web.configuration.API_BASE_PATH
+import com.example.templateproject.web.controller.EXAMPLE_ENDPOINT
 import com.example.templateproject.web.controller.ExampleController
 import com.example.templateproject.web.metrics.ExceptionMetrics
 import io.micrometer.core.instrument.MockClock
@@ -32,6 +34,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @Import(MockClock::class, SimpleMeterRegistry::class, ExceptionMetrics::class)
 class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
 
+    private val path = "$API_BASE_PATH/$EXAMPLE_ENDPOINT"
+
     @MockitoBean
     private lateinit var exampleService: ExampleService
 
@@ -43,7 +47,7 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
         `when`(exampleService.getEntityById(id)).thenThrow(IdNotFoundException(Example::class, id))
 
         // when - then
-        mockMvc.perform(MockMvcRequestBuilders.get("/example/$id").contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(MockMvcRequestBuilders.get("$path/$id").contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound)
             .andExpect(jsonPath("$.id").isNotEmpty)
             .andExpect(jsonPath("$.stackTrace").doesNotExist())
@@ -60,7 +64,7 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
         `when`(exampleService.updateEntity(dto)).thenThrow(IdNotFoundException(Example::class, id))
 
         // when - then
-        mockMvc.perform(MockMvcRequestBuilders.put("/example?trace=true")
+        mockMvc.perform(MockMvcRequestBuilders.put("$path?trace=true")
             .content("{ \"id\": $id, \"name\":\"$name\"}")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound)
@@ -78,7 +82,7 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
         `when`(exampleService.getEntityById(id)).thenThrow(RuntimeException())
 
         // when - then
-        mockMvc.perform(MockMvcRequestBuilders.get("/example/$id")
+        mockMvc.perform(MockMvcRequestBuilders.get("$path/$id")
             .param(ExampleExceptionHandler.stackTraceParameter, "true")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isInternalServerError)
@@ -94,7 +98,7 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
         val id = 10L
 
         // when - then
-        mockMvc.perform(MockMvcRequestBuilders.post("/example")
+        mockMvc.perform(MockMvcRequestBuilders.post(path)
             .content("{ \"id\": $id }")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest)
@@ -107,7 +111,7 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Create example should return validation errors if content is not valid`() {
-        validatePutAndPost(mockMvc.perform(MockMvcRequestBuilders.post("/example")
+        validatePutAndPost(mockMvc.perform(MockMvcRequestBuilders.post(path)
             .content("{ \"name\": \"  \" }")
             .contentType(MediaType.APPLICATION_JSON)
         ))
@@ -116,7 +120,7 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Update example should return validation errors if content is not valid`() {
         validatePutAndPost(mockMvc.perform(
-            MockMvcRequestBuilders.put("/example")
+            MockMvcRequestBuilders.put(path)
                 .content("{ \"id\": 1, \"name\": \"  \" }")
                 .contentType(MediaType.APPLICATION_JSON)
         ))
