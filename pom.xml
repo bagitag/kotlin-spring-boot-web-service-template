@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.5</version>
+        <version>3.4.3</version>
         <relativePath/>
     </parent>
 
@@ -30,10 +30,10 @@
     <properties>
         <java.version>21</java.version>
 
-        <kotlin.version>2.0.21</kotlin.version>
-        <mockk.version>1.13.13</mockk.version>
+        <kotlin.version>2.1.10</kotlin.version>
+        <mockk.version>1.13.17</mockk.version>
 
-        <detekt.version>1.23.7</detekt.version>
+        <detekt.version>1.23.8</detekt.version>
         <detekt.config>detekt-config.yml</detekt.config>
         <detekt.baseline>detekt-baseline.xml</detekt.baseline>
 
@@ -131,13 +131,15 @@
                 <version>${jacoco.version}</version>
                 <configuration>
                     <excludes>
-                        <exclude>com/example/templateproject/TemplateApplicationKt.class</exclude>
                         <exclude>**/*Configuration.class</exclude>
-                        <exclude>com/example/templateproject/core/exception/*Exception.class</exclude>
-                        <exclude>com/example/templateproject/client/exception/*Exception.class</exclude>
                         <exclude>com/example/**/*CircuitBreaker.class</exclude>
+                        <exclude>com/example/templateproject/TemplateApplicationKt.class</exclude>
+                        <exclude>com/example/templateproject/core/exception/*Exception.class</exclude>
+                        <exclude>com/example/templateproject/core/exception/BadRequestErrorMessages.class</exclude>
                         <exclude>com/example/templateproject/client/RetryableHttpRequestDecorator.class</exclude>
+                        <exclude>com/example/templateproject/client/exception/*Exception.class</exclude>
                         <exclude>com/example/templateproject/client/CustomClientRequestObservationConvention.class</exclude>
+                        <exclude>com/example/templateproject/persistence/entity/history/*</exclude>
                         <exclude>com/example/templateproject/web/controller/MetricsController.class</exclude>
                     </excludes>
                     <rules>
@@ -297,6 +299,23 @@
                     <runOrder>random</runOrder>
                     <argLine>${failsafe.jacoco.args}</argLine>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.github.mfoo</groupId>
+                <artifactId>libyear-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <id>libyear-analysis</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>analyze</goal>
+                        </goals>
+                        <configuration>
+                            <maxLibYears>5</maxLibYears>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

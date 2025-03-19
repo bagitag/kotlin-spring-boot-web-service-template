@@ -1,5 +1,6 @@
 package com.example.templateproject.core.mapper
 
+import com.example.templateproject.api.dto.BaseDTO
 import com.example.templateproject.api.dto.PageDetails
 import com.example.templateproject.api.dto.SortOrder
 import org.springframework.data.domain.Sort
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Service
 @Service
 class PageConverter {
 
-    fun <T> createPageDetails(source: org.springframework.data.domain.Page<T>) = PageDetails<T>(
+    fun <D : BaseDTO> createPageDetails(source: org.springframework.data.domain.Page<D>) = PageDetails<D>(
         content = source.content,
         pageNumber = source.pageable.pageNumber,
         pageSize = source.pageable.pageSize,

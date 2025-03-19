@@ -1,7 +1,7 @@
 package com.example.templateproject.core.mapper
 
+import com.example.templateproject.core.service.AbstractService
 import com.example.templateproject.core.util.anExampleDTO
-import com.example.templateproject.persistence.repository.ExampleRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -16,7 +16,7 @@ internal class PageConverterTest {
     fun `Should convert Spring's Page object to PageDetails`() {
         // given
         val exampleDTOs = listOf(anExampleDTO(1L), anExampleDTO(2L), anExampleDTO(3L), anExampleDTO(4L))
-        val pageable = PageRequest.of(1, 2, ExampleRepository.DEFAULT_SORT)
+        val pageable = PageRequest.of(1, 2, AbstractService.DEFAULT_SORT)
         val page = PageImpl(exampleDTOs, pageable, exampleDTOs.size.toLong())
 
         // when

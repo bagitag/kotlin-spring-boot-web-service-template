@@ -1,14 +1,17 @@
-openapi: 3.0.1
+openapi: 3.1.0
 info:
   title: OpenAPI definition
   version: v0
 servers:
 - description: Generated server url
   url: http://localhost:8080
+tags:
+- description: Operations for Examples.
+  name: Example
 paths:
-  /example:
+  /api/v1/example:
     get:
-      operationId: getExamples
+      operationId: getEntities
       parameters:
       - description: Zero-based page index (0..N)
         in: query
@@ -36,12 +39,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PageDetailsExampleDTO"
-          description: The Example list has been successfully returned.
-      summary: Gets paginated and sorted Examples.
+          description: The entity list has been successfully returned.
+      summary: Gets paginated and sorted entities.
       tags:
-      - example-controller
+      - Example
     post:
-      operationId: createExample
+      operationId: createEntity
       requestBody:
         content:
           application/json:
@@ -49,19 +52,23 @@ paths:
               $ref: "#/components/schemas/ExampleDTO"
         required: true
       responses:
-        "200":
+        "201":
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ExampleDTO"
-          description: Example successfully created.
-      summary: Creates a new Example.
+                $ref: "#/components/schemas/ExampleDTO"
+          description: Entity successfully created.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDTO"
+          description: The request body is invalid.
+      summary: Creates a new entity.
       tags:
-      - example-controller
+      - Example
     put:
-      operationId: updateExample
+      operationId: updateEntity
       requestBody:
         content:
           application/json:
@@ -73,22 +80,24 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ExampleDTO"
-          description: Example successfully updated.
+                $ref: "#/components/schemas/ExampleDTO"
+          description: Entity successfully updated.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDTO"
+          description: The request body is invalid.
         "404":
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ErrorDTO"
-          description: The requested Example was not found.
-      summary: Update an existing Example.
+                $ref: "#/components/schemas/ErrorDTO"
+          description: The requested entity was not found.
+      summary: Update an existing entity.
       tags:
-      - example-controller
-  /example/search:
+      - Example
+  /api/v1/example/search:
     get:
       operationId: searchExamples
       parameters:
@@ -129,8 +138,8 @@ paths:
             search terms.
       summary: Gets paginated and sorted Examples based the search terms.
       tags:
-      - example-controller
-  /example/statistics:
+      - Example
+  /api/v1/example/statistics:
     get:
       operationId: getWordStatistics
       responses:
@@ -145,10 +154,10 @@ paths:
           description: The word count map.
       summary: Returns the number of words for each user in order of cardinality.
       tags:
-      - example-controller
-  /example/{id}:
+      - Example
+  /api/v1/example/{id}:
     delete:
-      operationId: deleteExample
+      operationId: deleteEntity
       parameters:
       - in: path
         name: id
@@ -159,11 +168,11 @@ paths:
       responses:
         "204":
           description: No Content
-      summary: Deletes an Example by its id.
+      summary: Deletes an entity by its id.
       tags:
-      - example-controller
+      - Example
     get:
-      operationId: getExample
+      operationId: getEntityById
       parameters:
       - in: path
         name: id
@@ -176,21 +185,17 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ExampleDTO"
-          description: The requested Example has been successfully returned.
+                $ref: "#/components/schemas/ExampleDTO"
+          description: The requested entity has been successfully returned.
         "404":
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ErrorDTO"
-          description: The requested Example was not found.
-      summary: Gets Example by its id.
+                $ref: "#/components/schemas/ErrorDTO"
+          description: The requested entity was not found.
+      summary: Gets entity by its id.
       tags:
-      - example-controller
+      - Example
 components:
   schemas:
     ErrorDTO:
@@ -216,6 +221,9 @@ components:
         id:
           type: integer
           format: int64
+        modifiedDate:
+          type: string
+          format: date-time
         name:
           type: string
           maxLength: 20

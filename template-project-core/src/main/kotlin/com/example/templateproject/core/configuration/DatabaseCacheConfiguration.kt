@@ -1,5 +1,6 @@
 package com.example.templateproject.core.configuration
 
+import com.example.templateproject.core.service.ExampleService
 import com.github.benmanes.caffeine.cache.AsyncCache
 import com.github.benmanes.caffeine.cache.Caffeine
 import jakarta.annotation.PostConstruct
@@ -10,20 +11,16 @@ import org.springframework.context.annotation.Configuration
 import java.util.concurrent.TimeUnit
 
 @Configuration
-@ConditionalOnProperty(value = [ "client.database.cache.enabled" ], havingValue = "true")
+@ConditionalOnProperty(value = [ "core.database.cache.enabled" ], havingValue = "true")
 class DatabaseCacheConfiguration(
-    @Value("\${client.database.cache.expiration.minutes}") private val expirationMinutes: Long,
-    @Value("\${client.database.cache.examples.maxSize:1}") private val examplesCacheMaxSize: Long,
+    @Value("\${core.database.cache.expiration.minutes}") private val expirationMinutes: Long,
+    @Value("\${core.database.cache.examples.maxSize:1}") private val examplesCacheMaxSize: Long,
     val cacheManager: CaffeineCacheManager
 ) {
 
-    companion object {
-        const val EXAMPLES_CACHE_NAME = "database-examples"
-    }
-
     @PostConstruct
     fun registerCaches() {
-        registerCache(EXAMPLES_CACHE_NAME, examplesCacheMaxSize, expirationMinutes)
+        registerCache(ExampleService.EXAMPLES_CACHE_NAME, examplesCacheMaxSize, expirationMinutes)
     }
 
     private fun registerCache(name: String, maximumSize: Long, expirationMinutes: Long) {
