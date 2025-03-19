@@ -6,6 +6,7 @@ import com.example.templateproject.persistence.entity.history.ExampleHistory
 import com.example.templateproject.persistence.entity.history.HistoryEvent
 import com.example.templateproject.persistence.repository.history.ExampleHistoryRepository
 import com.example.templateproject.web.BaseIntegrationTest
+import com.example.templateproject.web.configuration.API_BASE_PATH
 import jakarta.inject.Inject
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -25,13 +26,15 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
-class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIntegrationTest() {
+class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate) : BaseIntegrationTest() {
+
+    private val path = "$API_BASE_PATH/$EXAMPLE_ENDPOINT"
 
     @Test
     fun testForGetPaginatedExamples() {
         // when
         val pageDetailsTypeReference = object : ParameterizedTypeReference<PageDetails<ExampleDTO>>() {}
-        val actual = restTemplate.exchange(EXAMPLE_ENDPOINT, HttpMethod.GET, null, pageDetailsTypeReference)
+        val actual = restTemplate.exchange(path, HttpMethod.GET, null, pageDetailsTypeReference)
 
         // then
         assertEquals(HttpStatus.OK, actual.statusCode)
@@ -50,7 +53,7 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
     @Test
     fun testForGetAllPaginatedAndSortedExamples() {
         // when
-        val uriBuilder = UriComponentsBuilder.fromUri(URI.create(EXAMPLE_ENDPOINT))
+        val uriBuilder = UriComponentsBuilder.fromUri(URI.create(path))
             .queryParam("page", 0)
             .queryParam("size", 50)
             .queryParam("sort", "id,asc", "name,desc")
@@ -77,7 +80,7 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
         // when
         val searchTerms1 = "4. example"
         val searchTerms2 = "14. example"
-        val uriBuilder = UriComponentsBuilder.fromUri(URI.create("$EXAMPLE_ENDPOINT/search"))
+        val uriBuilder = UriComponentsBuilder.fromUri(URI.create("$path/search"))
             .queryParam("searchTerms", searchTerms1, searchTerms2)
             .build(false)
         val pageTypeReference = object : ParameterizedTypeReference<PageDetails<ExampleDTO>>() {}
@@ -101,7 +104,7 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
         val id = 1L
 
         // when
-        val actual = restTemplate.getForEntity(URI.create("$EXAMPLE_ENDPOINT/$id"), ExampleDTO::class.java)
+        val actual = restTemplate.getForEntity("$path/$id", ExampleDTO::class.java)
 
         // then
         assertEquals(HttpStatus.OK, actual.statusCode)
@@ -114,6 +117,7 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
 
         @Inject
         private lateinit var historyRepository: ExampleHistoryRepository
+
         @Inject
         private lateinit var jdbcTemplate: JdbcTemplate
 
@@ -140,8 +144,7 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
             val request = ExampleDTO(name = name)
 
             // when
-            val actual =
-                restTemplate.postForEntity<ExampleDTO>(URI.create(EXAMPLE_ENDPOINT), request, ExampleDTO::class.java)
+            val actual = restTemplate.postForEntity<ExampleDTO>(path, request, ExampleDTO::class.java)
 
             // then
             assertEquals(HttpStatus.CREATED, actual.statusCode)
@@ -163,10 +166,7 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
             val request = ExampleDTO(name).apply { this.id = id }
 
             // when
-            val actual = restTemplate.exchange(
-                URI.create(EXAMPLE_ENDPOINT), HttpMethod.PUT, HttpEntity(request),
-                ExampleDTO::class.java
-            )
+            val actual = restTemplate.exchange(path, HttpMethod.PUT, HttpEntity(request), ExampleDTO::class.java)
 
             // then
             assertEquals(HttpStatus.OK, actual.statusCode)
@@ -187,7 +187,7 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
 
             // when
             val actual =
-                restTemplate.exchange("$EXAMPLE_ENDPOINT/$id", HttpMethod.DELETE, null, ResponseEntity::class.java)
+                restTemplate.exchange("$path/$id", HttpMethod.DELETE, null, ResponseEntity::class.java)
 
             // then
             assertEquals(HttpStatus.NO_CONTENT, actual.statusCode)

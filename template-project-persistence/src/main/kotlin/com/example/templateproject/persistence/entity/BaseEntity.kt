@@ -17,11 +17,11 @@ import java.time.Instant
 abstract class BaseEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    open val id: Long? = null,
+    val id: Long? = null,
     @CreatedDate
     @Column(name = "created_date", updatable = false, nullable = false)
-    open var createdDate: Instant? = null,
+    var createdDate: Instant? = null,
     @LastModifiedDate
     @Column(name = "last_modified_date")
-    open var modifiedDate: Instant? = null
+    var modifiedDate: Instant? = null
 )

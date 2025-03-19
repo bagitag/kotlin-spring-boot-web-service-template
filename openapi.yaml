@@ -9,7 +9,7 @@ tags:
 - description: Operations for Examples.
   name: Example
 paths:
-  /example:
+  /api/v1/example:
     get:
       operationId: getEntities
       parameters:
@@ -97,7 +97,7 @@ paths:
       summary: Update an existing entity.
       tags:
       - Example
-  /example/search:
+  /api/v1/example/search:
     get:
       operationId: searchExamples
       parameters:
@@ -139,7 +139,7 @@ paths:
       summary: Gets paginated and sorted Examples based the search terms.
       tags:
       - Example
-  /example/statistics:
+  /api/v1/example/statistics:
     get:
       operationId: getWordStatistics
       responses:
@@ -155,7 +155,7 @@ paths:
       summary: Returns the number of words for each user in order of cardinality.
       tags:
       - Example
-  /example/{id}:
+  /api/v1/example/{id}:
     delete:
       operationId: deleteEntity
       parameters:
