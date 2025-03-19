@@ -66,5 +66,5 @@ class ExampleController(private val exampleService: ExampleService) :
             useReturnTypeSchema = true
         )
     )
-    fun getWordStatistics() = ResponseEntity.ok(exampleService.getWordCountForUsers())
+    fun getWordStatistics(): ResponseEntity<Map<String, Int>> = ResponseEntity.ok(exampleService.getWordCountForUsers())
 }
