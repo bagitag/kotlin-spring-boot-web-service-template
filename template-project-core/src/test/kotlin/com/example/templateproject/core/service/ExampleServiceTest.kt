@@ -8,6 +8,7 @@ import com.example.templateproject.client.jsonplaceholder.api.Post
 import com.example.templateproject.client.jsonplaceholder.api.User
 import com.example.templateproject.core.exception.BadRequestErrorMessages
 import com.example.templateproject.core.exception.BadRequestException
+import com.example.templateproject.core.exception.ExternalServiceTimeoutException
 import com.example.templateproject.core.exception.IdNotFoundException
 import com.example.templateproject.core.mapper.ExampleMapper
 import com.example.templateproject.core.mapper.PageConverter
@@ -51,7 +52,7 @@ internal class ExampleServiceTest {
 
     @BeforeEach
     fun initialize() {
-        victim = ExampleService(false, 10000L, exampleRepository, exampleMapper, pageConverter, jsonPlaceholderService)
+        victim = ExampleService(false, 10000L, exampleRepository, exampleMapper, jsonPlaceholderService, pageConverter)
     }
 
     @Test
@@ -353,13 +354,17 @@ internal class ExampleServiceTest {
     @Test
     fun `Should throw timeout exception`() {
         // given
-        victim = ExampleService(false, 1000L, exampleRepository, exampleMapper, pageConverter, jsonPlaceholderService)
+        victim = ExampleService(false, 1000L, exampleRepository, exampleMapper, jsonPlaceholderService, pageConverter)
+
+        val clientId = "clientId"
+        every { jsonPlaceholderService.clientId } returns clientId
 
         every { jsonPlaceholderService.getUsers() } returns
                 CompletableFuture.supplyAsync({ listOf() }, CompletableFuture.delayedExecutor(2L, TimeUnit.SECONDS))
 
         // when - then
-        assertThrows<TimeoutException> { victim.getWordCountForUsers() }
+        val exception = assertThrows<ExternalServiceTimeoutException> { victim.getWordCountForUsers() }
+        assertEquals(clientId, exception.clientId)
     }
 
     @Test

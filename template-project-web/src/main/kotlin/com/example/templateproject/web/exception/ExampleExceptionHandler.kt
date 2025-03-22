@@ -15,6 +15,7 @@ import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import java.util.concurrent.ExecutionException
@@ -121,6 +122,7 @@ class ExampleExceptionHandler(
         return when (exception) {
             is BaseException -> exception.httpStatus
             is MethodArgumentNotValidException -> exception.statusCode
+            is ResourceAccessException -> HttpStatus.GATEWAY_TIMEOUT
             else -> HttpStatus.INTERNAL_SERVER_ERROR
         }
     }

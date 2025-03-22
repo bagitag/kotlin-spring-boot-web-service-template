@@ -5,6 +5,7 @@ import com.example.templateproject.api.dto.PageDetails
 import com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService
 import com.example.templateproject.core.exception.BadRequestErrorMessages
 import com.example.templateproject.core.exception.BadRequestException
+import com.example.templateproject.core.exception.ExternalServiceTimeoutException
 import com.example.templateproject.core.mapper.ExampleMapper
 import com.example.templateproject.core.mapper.PageConverter
 import com.example.templateproject.persistence.entity.Example
@@ -95,8 +96,8 @@ class ExampleService(
                 LOGGER.info("Calculated word count for users: {}", userNameWordCountMap)
             }.get(wordCountTimeout, TimeUnit.MILLISECONDS)
         } catch (e: TimeoutException) {
-            LOGGER.error("Timeout while calculating word count for users", e)
-            throw e
+            LOGGER.error("[${jsonPlaceholderService.clientId}] Timeout while calculating word count for users", e)
+            throw ExternalServiceTimeoutException(jsonPlaceholderService.clientId)
         }
 
         return userNameWordCountMap.entries.sortedByDescending { it.value }.associateBy({ it.key }, { it.value })
