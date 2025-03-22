@@ -28,8 +28,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import kotlin.reflect.KClass
 
 abstract class AbstractController<D : BaseDTO>(
-    private val service: AbstractService<*, D>,
-    private val clazz: KClass<D>
+    protected open val service: AbstractService<*, D>,
+    protected open val clazz: KClass<D>
 ) {
 
     companion object {

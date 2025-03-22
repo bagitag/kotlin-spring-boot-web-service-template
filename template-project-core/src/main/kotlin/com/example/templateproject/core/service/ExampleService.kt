@@ -27,8 +27,8 @@ class ExampleService(
     @Value("\${core.wordcountcalculation.timeout.millis}") val wordCountTimeout: Long,
     private val exampleRepository: ExampleRepository,
     private val exampleMapper: ExampleMapper,
-    private val pageConverter: PageConverter,
-    private val jsonPlaceholderService: JsonPlaceholderService
+    private val jsonPlaceholderService: JsonPlaceholderService,
+    pageConverter: PageConverter
 ) : AbstractService<Example, ExampleDTO>(exampleRepository, exampleMapper, pageConverter, Example::class) {
 
     companion object {
