@@ -3,7 +3,6 @@ package com.example.templateproject.web.controller
 import com.example.templateproject.api.dto.ExampleDTO
 import com.example.templateproject.api.dto.PageDetails
 import com.example.templateproject.core.service.ExampleService
-import io.micrometer.core.annotation.Timed
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -32,7 +31,6 @@ class ExampleController(private val exampleService: ExampleService) :
     }
 
     @GetMapping(path = ["search"], produces = ["application/json"])
-    @Timed(extraTags = ["path", "search"])
     @Operation(summary = "Gets paginated and sorted Examples based the search terms.")
     @ApiResponses(
         ApiResponse(
