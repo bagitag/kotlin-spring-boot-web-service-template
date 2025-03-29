@@ -32,8 +32,9 @@ services:
       - source: otel_config
         target: /etc/otelcol/config.yaml
     ports:
-      - "4318:4318"
-      - "8889:8889" # Prometheus metrics exposed by the Collector: http://localhost:8889/metrics
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP HTTP receiver
+      - "9099:9099" # Prometheus metrics exposed by the Collector: http://localhost:9099/metrics
       - "55679:55679" # zpages extension (http://localhost:55679/debug/servicez, http://localhost:55679/debug/tracez)
       - "13133:13133" # health_check extension (http://localhost:13133/healthz)
     networks:
@@ -64,7 +65,10 @@ services:
       - source: grafana_dashboard_config
         target: /etc/grafana/provisioning/dashboards/main.yaml
     volumes:
-      - ./.grafana/example-dashboard.json:/var/lib/grafana/dashboards/dashboard.json
+      - type: bind
+        source: ./.grafana
+        target: /var/lib/grafana/dashboards
+#      - ./grafana/asd:/var/lib/grafana/dashboards
     ports:
       - "3000:3000"
     environment:
@@ -115,7 +119,7 @@ configs:
         - job_name: 'otel-collector'
           scrape_interval: '10s'
           static_configs:
-            - targets: ['otel-collector:8889']
+            - targets: ['otel-collector:9099']
               labels:
                 application: 'template-app'
 
@@ -173,7 +177,7 @@ configs:
         otlphttp:
           endpoint: http://loki:3100/otlp
         prometheus:
-          endpoint: 0.0.0.0:8889
+          endpoint: 0.0.0.0:9099
           const_labels:
             label1: value1
       
