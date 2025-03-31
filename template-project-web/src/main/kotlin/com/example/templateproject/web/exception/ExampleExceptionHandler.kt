@@ -1,6 +1,5 @@
 package com.example.templateproject.web.exception
 
-import com.example.templateproject.TemplateApplication
 import com.example.templateproject.api.dto.ErrorDTO
 import com.example.templateproject.client.exception.ExternalServiceException
 import com.example.templateproject.core.exception.BaseException
@@ -10,7 +9,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
-import org.springframework.util.DigestUtils
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -25,8 +23,6 @@ class ExampleExceptionHandler(
     @Value("\${app.stack.trace.enabled:false}") val printStackTraceEnabled: Boolean,
     private val exceptionMetrics: ExceptionMetrics
 ) : ResponseEntityExceptionHandler() {
-
-    val basePackageName: String = TemplateApplication::class.java.`package`.name
 
     companion object {
         const val unknownError = "Unknown internal server error"
@@ -50,7 +46,7 @@ class ExampleExceptionHandler(
         val exception = unwrapException(originalException)
         val message = getMessage(exception)
         val details = getDetails(exception)
-        val exceptionId = generateExceptionId(exception)
+        val exceptionId = ExceptionIdGenerator.generateExceptionId(exception)
         val logPrefix = generateLogPrefix(exception)
 
         exceptionMetrics.updateExceptionCounter(exceptionId, exception.javaClass.simpleName)
@@ -85,21 +81,6 @@ class ExampleExceptionHandler(
             }
 
             else -> null
-        }
-    }
-
-    private fun generateExceptionId(exception: Exception): String {
-        return try {
-            val stackTraceElement =
-                StackWalker.getInstance().walk { exception.stackTrace }.find { it.className.contains(basePackageName) }
-                    ?: StackWalker.getInstance().walk { exception.stackTrace }.first()
-
-            val exceptionIdString = exception.javaClass.canonicalName +
-                    stackTraceElement.className + stackTraceElement.methodName
-            DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(exceptionIdLength)
-        } catch (e: Exception) {
-            logger.error("Unexpected error while generating exceptionId: $e")
-            "unknown"
         }
     }
 
