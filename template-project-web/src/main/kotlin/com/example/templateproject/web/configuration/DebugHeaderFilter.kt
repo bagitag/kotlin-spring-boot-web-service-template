@@ -5,8 +5,6 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
-import org.apache.commons.lang3.RandomStringUtils
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.core.annotation.Order
@@ -20,32 +18,27 @@ class DebugHeaderFilter : Filter {
         private val LOGGER = LoggerFactory.getLogger(DebugHeaderFilter::class.java)
         const val DEBUG_REQUEST_HEADER_NAME = "Jh7rLp2q9w4s8xv"
         const val DEBUG_REQUEST_HEADER_VALUE = "Gk3sFp7vRq9w2Lx"
-        const val MDC_KEY = "debugLevel"
-        const val MDC_VALUE = "on"
-        const val REQUEST_ID = "requestId"
+        const val DEBUG_MODE_MDC_KEY = "debugLevel"
+        const val DEBUG_MODE_MDC_VALUE = "on"
         private val DISABLED_REQUEST_PATHS = listOf("/actuator")
-        private const val REQUEST_ID_LENGTH = 15
     }
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-        if (request is HttpServletRequest && validateRequestPath(request.requestURI)) {
+            if (request is HttpServletRequest && validateRequestPath(request.requestURI)) {
             val debugHeader = request.getHeader(DEBUG_REQUEST_HEADER_NAME)
 
             if (!debugHeader.isNullOrEmpty() && debugHeader == DEBUG_REQUEST_HEADER_VALUE) {
-                MDC.put(MDC_KEY, MDC_VALUE)
-                val requestId = RandomStringUtils.randomAlphanumeric(REQUEST_ID_LENGTH)
-                MDC.put(REQUEST_ID, "[$REQUEST_ID=$requestId]")
-                LOGGER.debug("Debug level logging is turned on for $REQUEST_ID: {}", requestId)
+                MDC.put(DEBUG_MODE_MDC_KEY, DEBUG_MODE_MDC_VALUE)
 
-                if (response is HttpServletResponse) {
-                    response.addHeader(REQUEST_ID, requestId)
-                }
+                val requestId = MDC.get(RequestIdFilter.REQUEST_ID_MDC_KEY)
+                LOGGER.debug("Debug level logging is turned on for requestId: {}", requestId)
             }
 
-            chain.doFilter(request, response)
-
-            MDC.remove(MDC_KEY)
-            MDC.remove(REQUEST_ID)
+            try {
+                chain.doFilter(request, response)
+            } finally {
+                MDC.remove(DEBUG_MODE_MDC_KEY)
+            }
         } else {
             chain.doFilter(request, response)
         }

@@ -16,13 +16,13 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 
 @ExtendWith(OutputCaptureExtension::class)
-class DebugHeaderFilterIT(@Autowired val restTemplate: TestRestTemplate) : BaseIntegrationTest() {
+class RequestIdFilterIT(@Autowired val restTemplate: TestRestTemplate) : BaseIntegrationTest() {
 
     @Test
-    fun `Request with debug header should turn on debug level logging`(output: CapturedOutput) {
+    fun `Should use request id form header`(output: CapturedOutput) {
         // when
         val headers = HttpHeaders()
-        headers.add(DebugHeaderFilter.DEBUG_REQUEST_HEADER_NAME, DebugHeaderFilter.DEBUG_REQUEST_HEADER_VALUE)
+        headers.add(RequestIdFilter.REQUEST_ID_HEADER, "test-request-id")
         val response =
             restTemplate.exchange(
                 "$API_BASE_PATH/$EXAMPLE_ENDPOINT",
@@ -33,6 +33,25 @@ class DebugHeaderFilterIT(@Autowired val restTemplate: TestRestTemplate) : BaseI
 
         // then
         assertEquals(HttpStatus.OK, response.statusCode)
-        assertTrue(output.out.contains("Debug level logging is turned on for requestId:"))
+        assertTrue(output.out.contains("[requestId=test-request-id"))
+    }
+
+    @Test
+    fun `Should generate request id`(output: CapturedOutput) {
+        // when
+        val headers = HttpHeaders()
+        val response =
+            restTemplate.exchange(
+                "$API_BASE_PATH/$EXAMPLE_ENDPOINT",
+                HttpMethod.GET,
+                HttpEntity<Any>(headers),
+                String::class.java
+            )
+
+        // then
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertTrue(
+            output.out.contains(".*requestId=[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}".toRegex()))
+        assertTrue(output.out.contains("[requestId="))
     }
 }
