@@ -31,13 +31,13 @@
         <java.version>21</java.version>
 
         <kotlin.version>2.1.20</kotlin.version>
-        <mockk.version>1.13.17</mockk.version>
+        <mockk.version>1.14.2</mockk.version>
 
         <detekt.version>1.23.8</detekt.version>
         <detekt.config>detekt-config.yml</detekt.config>
         <detekt.baseline>detekt-baseline.xml</detekt.baseline>
 
-        <jacoco.version>0.8.12</jacoco.version>
+        <jacoco.version>0.8.13</jacoco.version>
 
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
