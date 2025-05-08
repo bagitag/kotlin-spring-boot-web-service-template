@@ -22,6 +22,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verifySequence
+import jdk.internal.org.jline.utils.InfoCmp
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -32,10 +33,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.http.HttpStatus
+import org.springframework.web.client.HttpClientErrorException
 import java.util.Optional
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 @ExtendWith(MockKExtension::class)
 internal class ExampleServiceTest {
@@ -365,6 +368,59 @@ internal class ExampleServiceTest {
         // when - then
         val exception = assertThrows<ExternalServiceTimeoutException> { victim.getWordCountForUsers() }
         assertEquals(clientId, exception.clientId)
+    }
+
+    @Test
+    fun `Should handle exception`() {
+        // given
+        victim = ExampleService(false, 1000L, exampleRepository, exampleMapper, jsonPlaceholderService, pageConverter)
+
+        val clientId = "clientId"
+        every { jsonPlaceholderService.clientId } returns clientId
+
+        val exceptionMsg = "NPE message"
+        every { jsonPlaceholderService.getUsers() } throws
+                ExecutionException("NullPointerException", NullPointerException(exceptionMsg))
+
+        // when - then
+        val exception = assertThrows<NullPointerException> { victim.getWordCountForUsers() }
+        assertEquals(exceptionMsg, exception.message)
+    }
+
+    @Test
+    fun `Should handle ExecutionException`() {
+        // given
+        victim = ExampleService(false, 1000L, exampleRepository, exampleMapper, jsonPlaceholderService, pageConverter)
+
+        val clientId = "clientId"
+        every { jsonPlaceholderService.clientId } returns clientId
+
+        every { jsonPlaceholderService.getUsers() } throws
+                ExecutionException("HttpClientErrorException", HttpClientErrorException(HttpStatus.BAD_REQUEST))
+
+        // when - then
+        val exception = assertThrows<HttpClientErrorException> { victim.getWordCountForUsers() }
+        assertEquals(HttpStatus.BAD_REQUEST, exception.statusCode)
+    }
+
+    @Test
+    fun `Should return map with zero word count`() {
+        // given
+        val userId1 = 1L
+        val user1 = User(userId1, "name1", "username1", "email1")
+        val users = listOf(user1)
+        val usersFuture: CompletableFuture<List<User>> = CompletableFuture.completedFuture(users)
+
+        every { jsonPlaceholderService.getUsers() } returns usersFuture
+
+        every { jsonPlaceholderService.getPostsByUserId(userId1) } returns CompletableFuture.completedFuture(listOf())
+
+        // when
+        val actual = victim.getWordCountForUsers()
+
+        // then
+        assertEquals(users.size, actual.size)
+        assertEquals(0, actual[user1.username])
     }
 
     @Test
