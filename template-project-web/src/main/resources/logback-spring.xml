@@ -7,14 +7,6 @@
 
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <springProfile name="dev | openapi">
-        <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
-    </springProfile>
-
-    <springProfile name="!dev &amp; !openapi">
-        <include resource="org/springframework/boot/logging/logback/structured-console-appender.xml" />
-    </springProfile>
-
     <if condition='!"${packages}".contains("UNDEFINED")'>
         <then>
             <turboFilter class="com.example.templateproject.web.configuration.DebugLoggingTurboFilter">
@@ -26,7 +18,25 @@
         </then>
     </if>
 
-    <root level="INFO">
-        <appender-ref ref="CONSOLE"/>
-    </root>
+    <springProfile name="dev | openapi">
+        <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="!dev &amp; !openapi">
+        <include resource="org/springframework/boot/logging/logback/structured-console-appender.xml" />
+
+        <appender name="OPEN_TELEMETRY" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+            <captureExperimentalAttributes>true</captureExperimentalAttributes>
+            <captureCodeAttributes>true</captureCodeAttributes>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="OPEN_TELEMETRY"/>
+        </root>
+    </springProfile>
 </configuration>
