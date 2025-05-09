@@ -1,4 +1,4 @@
-package com.example.templateproject.web.configuration
+package com.example.templateproject.web.configuration.filter
 
 import jakarta.servlet.Filter
 import jakarta.servlet.FilterChain
@@ -7,11 +7,13 @@ import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.MDC
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import java.util.UUID
 
 @Component
+@ConditionalOnProperty(name = ["management.otlp.tracing.export.enabled"], havingValue = "false")
 @Order(0)
 class RequestIdFilter : Filter {
 

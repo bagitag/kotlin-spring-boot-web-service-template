@@ -54,5 +54,7 @@ class RequestIdFilterIT(@Autowired val restTemplate: TestRestTemplate) : BaseInt
         assertTrue(
             output.out.contains(".*requestId=[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}".toRegex()))
         assertTrue(output.out.contains("[requestId="))
+        assertTrue(
+            response.headers.contains(RequestIdFilter.REQUEST_ID_HEADER))
     }
 }
