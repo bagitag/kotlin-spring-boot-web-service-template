@@ -10,8 +10,8 @@ object ExceptionIdGenerator {
     private val LOGGER = LoggerFactory.getLogger(AbstractController::class.java)
 
     private val basePackageName: String = TemplateApplication::class.java.`package`.name
-    private val classesToExcludeFromIdGeneration = listOf<String>(
-        "com.example.templateproject.web.configuration.DebugHeaderFilter"
+    private val classesToExcludeFromIdGeneration = listOf(
+        "com.example.templateproject.web.configuration.filter.DebugHeaderFilter"
     )
 
     fun generateExceptionId(exception: Exception): String {
