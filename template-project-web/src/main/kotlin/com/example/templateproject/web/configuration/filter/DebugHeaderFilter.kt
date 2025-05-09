@@ -1,4 +1,4 @@
-package com.example.templateproject.web.configuration
+package com.example.templateproject.web.configuration.filter
 
 import jakarta.servlet.Filter
 import jakarta.servlet.FilterChain
@@ -20,11 +20,10 @@ class DebugHeaderFilter : Filter {
         const val DEBUG_REQUEST_HEADER_VALUE = "Gk3sFp7vRq9w2Lx"
         const val DEBUG_MODE_MDC_KEY = "debugLevel"
         const val DEBUG_MODE_MDC_VALUE = "on"
-        private val DISABLED_REQUEST_PATHS = listOf("/actuator")
     }
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-            if (request is HttpServletRequest && validateRequestPath(request.requestURI)) {
+        if (request is HttpServletRequest && isValidRequestPath(request.requestURI)) {
             val debugHeader = request.getHeader(DEBUG_REQUEST_HEADER_NAME)
 
             if (!debugHeader.isNullOrEmpty() && debugHeader == DEBUG_REQUEST_HEADER_VALUE) {
@@ -43,7 +42,4 @@ class DebugHeaderFilter : Filter {
             chain.doFilter(request, response)
         }
     }
-
-    private fun validateRequestPath(requestURI: String) =
-        DISABLED_REQUEST_PATHS.stream().anyMatch { !requestURI.contains(it) }
 }

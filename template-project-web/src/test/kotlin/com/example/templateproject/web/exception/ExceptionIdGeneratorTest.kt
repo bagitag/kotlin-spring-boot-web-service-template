@@ -101,7 +101,7 @@ internal class ExceptionIdGeneratorTest {
             StackTraceElement("com.test.first.StackTraceElement1", "testMethod", "StackTraceElement1.java", 100),
             StackTraceElement("com.test.second.StackTraceElement2", "testMethod", "StackTraceElement2.java", 200),
             StackTraceElement(
-                "com.example.templateproject.web.configuration.DebugHeaderFilter",
+                "com.example.templateproject.web.configuration.filter.DebugHeaderFilter",
                 "doFilter", "DebugHeaderFilter.kt", 45
             ),
             StackTraceElement("com.test.third.StackTraceElement3", "testMethod", "StackTraceElement3.java", 300)

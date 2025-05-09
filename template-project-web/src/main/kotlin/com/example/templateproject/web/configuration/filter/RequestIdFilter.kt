@@ -18,11 +18,10 @@ class RequestIdFilter : Filter {
     companion object {
         const val REQUEST_ID_HEADER = "X-Request-ID"
         const val REQUEST_ID_MDC_KEY = "requestId"
-        private val DISABLED_REQUEST_PATHS = listOf("/actuator")
     }
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-        if (request is HttpServletRequest && validateRequestPath(request.requestURI)) {
+        if (request is HttpServletRequest && isValidRequestPath(request.requestURI)) {
 
             var requestId = request.getHeader(REQUEST_ID_HEADER)
 
@@ -45,7 +44,4 @@ class RequestIdFilter : Filter {
             chain.doFilter(request, response)
         }
     }
-
-    private fun validateRequestPath(requestURI: String) =
-        DISABLED_REQUEST_PATHS.stream().anyMatch { !requestURI.contains(it) }
 }

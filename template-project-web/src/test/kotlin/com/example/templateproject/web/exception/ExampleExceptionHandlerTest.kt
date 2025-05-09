@@ -357,7 +357,7 @@ internal class ExampleExceptionHandlerTest {
             StackTraceElement(
                 "org.springframework.web.method.support.HandlerMethodArgumentResolverComposite",
                 "resolveArgument", "HandlerMethodArgumentResolverComposite.java", 122),
-            StackTraceElement("com.example.templateproject.web.configuration.DebugHeaderFilter",
+            StackTraceElement("com.example.templateproject.web.configuration.filter.DebugHeaderFilter",
                 "doFilter", "DebugHeaderFilter.kt", 45),
         )
 

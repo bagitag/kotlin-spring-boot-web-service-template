@@ -1,6 +1,7 @@
-package com.example.templateproject.web.configuration
+package com.example.templateproject.web.configuration.filter
 
 import com.example.templateproject.web.BaseIntegrationTest
+import com.example.templateproject.web.configuration.API_BASE_PATH
 import com.example.templateproject.web.controller.EXAMPLE_ENDPOINT
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -25,7 +26,7 @@ class DebugHeaderFilterIT(@Autowired val restTemplate: TestRestTemplate) : BaseI
         headers.add(DebugHeaderFilter.DEBUG_REQUEST_HEADER_NAME, DebugHeaderFilter.DEBUG_REQUEST_HEADER_VALUE)
         val response =
             restTemplate.exchange(
-                "$API_BASE_PATH/$EXAMPLE_ENDPOINT",
+                "${API_BASE_PATH}/$EXAMPLE_ENDPOINT",
                 HttpMethod.GET,
                 HttpEntity<Any>(headers),
                 String::class.java
