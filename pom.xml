@@ -129,6 +129,7 @@
                     <excludes>
                         <exclude>**/*Configuration.class</exclude>
                         <exclude>com/example/**/*CircuitBreaker.class</exclude>
+                        <exclude>com/example/**/*Properties.class</exclude>
                         <exclude>com/example/templateproject/TemplateApplicationKt.class</exclude>
                         <exclude>com/example/templateproject/core/exception/*Exception.class</exclude>
                         <exclude>com/example/templateproject/core/exception/BadRequestErrorMessages.class</exclude>
