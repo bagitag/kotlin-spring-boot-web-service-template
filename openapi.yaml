@@ -201,8 +201,7 @@ components:
     ErrorDTO:
       type: object
       properties:
-        details:
-          type: object
+        details: {}
         id:
           type: string
         message:
