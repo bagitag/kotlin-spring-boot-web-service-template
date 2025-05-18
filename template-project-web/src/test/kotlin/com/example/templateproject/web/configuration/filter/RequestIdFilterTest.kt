@@ -7,7 +7,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import io.mockk.verifySequence
+import io.mockk.verifyOrder
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
@@ -88,7 +88,7 @@ internal class RequestIdFilterTest {
         assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
 
         // then
-        verifySequence {
+        verifyOrder {
             MDC.put(RequestIdFilter.REQUEST_ID_MDC_KEY, any())
             response.addHeader(RequestIdFilter.REQUEST_ID_HEADER, any())
             MDC.remove(RequestIdFilter.REQUEST_ID_MDC_KEY)
@@ -108,7 +108,7 @@ internal class RequestIdFilterTest {
         assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
 
         // then
-        verifySequence {
+        verifyOrder {
             MDC.put(RequestIdFilter.REQUEST_ID_MDC_KEY, any())
             response.addHeader(RequestIdFilter.REQUEST_ID_HEADER, any())
             MDC.remove(RequestIdFilter.REQUEST_ID_MDC_KEY)
@@ -128,7 +128,7 @@ internal class RequestIdFilterTest {
         assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
 
         // then
-        verifySequence {
+        verifyOrder {
             MDC.put(RequestIdFilter.REQUEST_ID_MDC_KEY, any())
             response.addHeader(RequestIdFilter.REQUEST_ID_HEADER, any())
             MDC.remove(RequestIdFilter.REQUEST_ID_MDC_KEY)

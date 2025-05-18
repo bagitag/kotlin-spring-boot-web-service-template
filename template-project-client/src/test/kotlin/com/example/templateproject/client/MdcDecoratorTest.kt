@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
-import io.mockk.verifySequence
+import io.mockk.verifyOrder
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -40,7 +40,7 @@ internal class MdcDecoratorTest {
         decoratedRunnable.run()
 
         // then
-        verifySequence {
+        verifyOrder {
             MDC.getCopyOfContextMap()
             MDC.setContextMap(contextMap)
             runnable.run()
@@ -60,7 +60,7 @@ internal class MdcDecoratorTest {
         decoratedRunnable.run()
 
         // then
-        verifySequence {
+        verifyOrder {
             MDC.getCopyOfContextMap()
             runnable.run()
             MDC.clear()
