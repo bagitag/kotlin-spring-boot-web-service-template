@@ -6,10 +6,13 @@ import com.example.templateproject.api.dto.SortOrder
 import com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService
 import com.example.templateproject.client.jsonplaceholder.api.Post
 import com.example.templateproject.client.jsonplaceholder.api.User
+import com.example.templateproject.core.exception.BadRequestErrorMessages
+import com.example.templateproject.core.exception.BadRequestException
 import com.example.templateproject.core.exception.IdNotFoundException
 import com.example.templateproject.core.mapper.ExampleMapper
 import com.example.templateproject.core.mapper.PageConverter
-import com.example.templateproject.core.util.anExample
+import com.example.templateproject.core.util.aMockExample
+import com.example.templateproject.core.util.anExampleDTO
 import com.example.templateproject.core.util.anExampleDTOFromEntity
 import com.example.templateproject.persistence.entity.Example
 import com.example.templateproject.persistence.repository.ExampleRepository
@@ -17,7 +20,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import io.mockk.verify
 import io.mockk.verifySequence
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -31,6 +33,8 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import java.util.Optional
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 @ExtendWith(MockKExtension::class)
 internal class ExampleServiceTest {
@@ -47,19 +51,19 @@ internal class ExampleServiceTest {
 
     @BeforeEach
     fun initialize() {
-        victim = ExampleService(false, exampleRepository, exampleMapper, pageConverter, jsonPlaceholderService)
+        victim = ExampleService(false, 10000L, exampleRepository, exampleMapper, pageConverter, jsonPlaceholderService)
     }
 
     @Test
-    fun `Should return paginated examples with default sort`() {
+    fun `Should return paginated entities with default sort`() {
         // given
         val id1 = 100L
         val id2 = 200L
-        val example1 = anExample(id1)
-        val example2 = anExample(id2)
+        val example1 = aMockExample(id1)
+        val example2 = aMockExample(id2)
         val examples = PageImpl(listOf(example1, example2))
         val pageRequest = PageRequest.of(0, 10)
-        val pageable = PageRequest.of(0, 10, ExampleRepository.DEFAULT_SORT)
+        val pageable = PageRequest.of(0, 10, AbstractService.DEFAULT_SORT)
 
         every { exampleRepository.findAll(pageable) } returns examples
         val exampleDTO1 = anExampleDTOFromEntity(example1)
@@ -68,12 +72,14 @@ internal class ExampleServiceTest {
         every { exampleMapper.toDTO(example2) } returns exampleDTO2
 
         val exampleDTOs = listOf(exampleDTO1, exampleDTO2)
-        val pageDetails = PageDetails(exampleDTOs, 0, 10, 2, 1, true,
-            listOf(SortOrder("createdDate", "DESC"), SortOrder("id", "DESC")))
-        every { pageConverter.createPageDetails(any(PageImpl::class)) } returns pageDetails
+        val pageDetails = PageDetails(
+            exampleDTOs, 0, 10, 2, 1, true,
+            listOf(SortOrder("createdDate", "DESC"), SortOrder("id", "DESC"))
+        )
+        every { pageConverter.createPageDetails(any<PageImpl<ExampleDTO>>()) } returns pageDetails
 
         // when
-        val actual = victim.getExamples(pageRequest)
+        val actual = victim.getEntities(pageRequest)
 
         // then
         verifySequence {
@@ -96,16 +102,16 @@ internal class ExampleServiceTest {
     }
 
     @Test
-    fun `Should return paginated examples with custom sort`() {
+    fun `Should return paginated entities with custom sort`() {
         // given
         val id1 = 100L
         val id2 = 200L
         val id3 = 300L
-        val example1 = anExample(id1)
-        val example2 = anExample(id2)
-        val example3 = anExample(id3)
+        val example1 = aMockExample(id1)
+        val example2 = aMockExample(id2)
+        val example3 = aMockExample(id3)
         val examples = PageImpl(listOf(example3, example2, example1))
-        val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC,"id"))
+        val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "id"))
 
         every { exampleRepository.findAll(pageable) } returns examples
         val exampleDTO3 = anExampleDTOFromEntity(example3)
@@ -117,10 +123,10 @@ internal class ExampleServiceTest {
 
         val exampleDTOs = listOf(exampleDTO3, exampleDTO2, exampleDTO1)
         val pageDetails = PageDetails(exampleDTOs, 0, 10, 2, 1, true, listOf(SortOrder("id", "DESC")))
-        every { pageConverter.createPageDetails(any(PageImpl::class)) } returns pageDetails
+        every { pageConverter.createPageDetails(any<PageImpl<ExampleDTO>>()) } returns pageDetails
 
         // when
-        val actual = victim.getExamples(pageable)
+        val actual = victim.getEntities(pageable)
 
         // then
         verifySequence {
@@ -142,14 +148,14 @@ internal class ExampleServiceTest {
     }
 
     @Test
-    fun `Should return examples containing search term`() {
+    fun `Should return entities containing search term`() {
         // given
         val id1 = 199L
         val id2 = 399L
-        val example1 = anExample(id1)
-        val example2 = anExample(id2)
+        val example1 = aMockExample(id1)
+        val example2 = aMockExample(id2)
         val examples = PageImpl(listOf(example2, example1))
-        val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC,"id"))
+        val pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "id"))
         val searchTerm = listOf("99")
 
         every { exampleRepository.findByNameInIgnoreCase(searchTerm, pageable) } returns examples
@@ -160,7 +166,7 @@ internal class ExampleServiceTest {
 
         val exampleDTOs = listOf(exampleDTO1, exampleDTO2)
         val pageDetails = PageDetails(exampleDTOs, 0, 10, 2, 1, true, listOf(SortOrder("id", "DESC")))
-        every { pageConverter.createPageDetails(any(PageImpl::class)) } returns pageDetails
+        every { pageConverter.createPageDetails(any<PageImpl<ExampleDTO>>()) } returns pageDetails
 
         // when
         val actual = victim.searchExamples(searchTerm, pageable)
@@ -184,16 +190,16 @@ internal class ExampleServiceTest {
     }
 
     @Test
-    fun `Should return example for the given id`() {
+    fun `Should return entity for the given id`() {
         // given
         val id = 8L
-        val example = anExample(id)
+        val example = aMockExample(id)
 
         every { exampleRepository.findById(id) } returns Optional.of(example)
         every { exampleMapper.toDTO(example) } returns anExampleDTOFromEntity(example)
 
         // when
-        val actual = victim.getExample(id)
+        val actual = victim.getEntityById(id)
 
         // then
         verifySequence {
@@ -211,92 +217,121 @@ internal class ExampleServiceTest {
         every { exampleRepository.findById(id) } returns Optional.empty()
 
         // when
-        assertThrows<IdNotFoundException> { victim.getExample(id) }
+        assertThrows<IdNotFoundException> { victim.getEntityById(id) }
 
         // then
         verifySequence {
             exampleRepository.findById(id)
         }
+    }
+
+    @Test
+    fun `Creating new entity with id should throw exception`() {
+        // given
+        val dto = anExampleDTO(100L)
+
+        // when
+        val actual = assertThrows<BadRequestException> { victim.createEntity(dto) }
+
+        // then
+        assertEquals(BadRequestErrorMessages.ID_MUST_BE_NULL.message, actual.reason.message)
+    }
+
+    @Test
+    fun `Creating new invalid entity should throw exception`() {
+        // given
+        val name = "invalid example"
+        val dto = ExampleDTO(name)
+        val entity = Example(name)
+        every { exampleMapper.toEntity(dto) } returns entity
+
+        // when
+        val actual = assertThrows<BadRequestException> { victim.createEntity(dto) }
+
+        // then
+        assertEquals(BadRequestErrorMessages.NAME_MUST_START_WITH_A_NUMBER.message, actual.reason.message)
     }
 
     @Test
     fun `Should create new example and return it`() {
         // given
         val id = 99L
-        val name = "test example"
-        val requestExampleDTO = ExampleDTO(name = name)
-        val example = Example(id, name)
-        val responseExampleDTO = ExampleDTO(id, name)
+        val name = "$id. example"
+        val requestExampleDTO = ExampleDTO(name)
+        val example = Example(name)
+        val responseExampleDTO = ExampleDTO(name).apply { this.id = id }
 
-        every { exampleMapper.fromDTO(requestExampleDTO) } returns example
+        every { exampleMapper.toEntity(requestExampleDTO) } returns example
         every { exampleRepository.save(example) } returns example
         every { exampleMapper.toDTO(example) } returns responseExampleDTO
 
         // when
-        val actual = victim.createExample(requestExampleDTO)
+        val actual = victim.createEntity(requestExampleDTO)
 
         // then
         verifySequence {
-            exampleMapper.fromDTO(requestExampleDTO)
+            exampleMapper.toEntity(requestExampleDTO)
             exampleRepository.save(example)
             exampleMapper.toDTO(example)
         }
         assertEquals(responseExampleDTO, actual)
+    }
+
+    @Test
+    fun `Updating entity without id should throw exception`() {
+        // given
+        val dto = ExampleDTO("name")
+
+        // when
+        val actual = assertThrows<BadRequestException> { victim.updateEntity(dto) }
+
+        // then
+        assertEquals(BadRequestErrorMessages.ID_MUST_NOT_BE_NULL.message, actual.reason.message)
+    }
+
+    @Test
+    fun `Updating entity should throw IdNotFoundException`() {
+        // given
+        val id = 100L
+        val name = "test example"
+        val exampleDTO = ExampleDTO(name).apply { this.id = id }
+
+        every { exampleRepository.findById(id) } returns Optional.empty()
+
+        // when
+        assertThrows<IdNotFoundException> { victim.updateEntity(exampleDTO) }
+
+        // then
+        verifySequence {
+            exampleRepository.findById(id)
+        }
     }
 
     @Test
     fun `Should update existing example and return it`() {
         // given
         val id = 99L
-        val name = "test example"
-        val requestExampleDTO = ExampleDTO(id, name)
-        val example = Example(id, name)
-        val responseExampleDTO = ExampleDTO(id, name)
+        val name = "$id. example"
+        val requestExampleDTO = ExampleDTO(name).apply { this.id = id }
+        val example = Example(name)
+        val responseExampleDTO = ExampleDTO(name).apply { this.id = id }
 
         every { exampleRepository.findById(id) } returns Optional.of(example)
-        every { exampleMapper.fromDTO(requestExampleDTO) } returns example
+        every { exampleMapper.toEntity(requestExampleDTO) } returns example
         every { exampleRepository.save(example) } returns example
         every { exampleMapper.toDTO(example) } returns responseExampleDTO
 
         // when
-        val actual = victim.updateExample(requestExampleDTO)
+        val actual = victim.updateEntity(requestExampleDTO)
 
         // then
         verifySequence {
             exampleRepository.findById(id)
-            exampleMapper.fromDTO(requestExampleDTO)
+            exampleMapper.toEntity(requestExampleDTO)
             exampleRepository.save(example)
             exampleMapper.toDTO(example)
         }
         assertEquals(responseExampleDTO, actual)
-    }
-
-    @Test
-    fun `Update should return exception if the id is missing`() {
-        // given
-        val name = "test example"
-        val exampleDTO = ExampleDTO(name = name)
-
-        // when
-        assertThrows<NullPointerException> { victim.updateExample(exampleDTO) }
-    }
-
-    @Test
-    fun `Update should return IdNotFoundException`() {
-        // given
-        val id = 100L
-        val name = "test example"
-        val exampleDTO = ExampleDTO(id, name)
-
-        every { exampleRepository.findById(id) } returns Optional.empty()
-
-        // when
-        assertThrows<IdNotFoundException> { victim.updateExample(exampleDTO) }
-
-        // then
-        verify {
-            exampleRepository.findById(id)
-        }
     }
 
     @Test
@@ -307,12 +342,24 @@ internal class ExampleServiceTest {
         every { exampleRepository.deleteById(id) } returns mockk()
 
         // when
-        victim.deleteExample(id)
+        victim.deleteEntity(id)
 
         // then
         verifySequence {
             exampleRepository.deleteById(id)
         }
+    }
+
+    @Test
+    fun `Should throw timeout exception`() {
+        // given
+        victim = ExampleService(false, 1000L, exampleRepository, exampleMapper, pageConverter, jsonPlaceholderService)
+
+        every { jsonPlaceholderService.getUsers() } returns
+                CompletableFuture.supplyAsync({ listOf() }, CompletableFuture.delayedExecutor(2L, TimeUnit.SECONDS))
+
+        // when - then
+        assertThrows<TimeoutException> { victim.getWordCountForUsers() }
     }
 
     @Test

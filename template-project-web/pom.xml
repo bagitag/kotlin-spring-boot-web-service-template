@@ -13,8 +13,8 @@
 
     <properties>
         <start-class>com.example.templateproject.TemplateApplicationKt</start-class>
-        <springdoc-openapi.version>2.8.4</springdoc-openapi.version>
-        <springdoc-openapi-maven-plugin-version>1.4</springdoc-openapi-maven-plugin-version>
+        <springdoc-openapi.version>2.8.8</springdoc-openapi.version>
+        <springdoc-openapi-maven-plugin-version>1.5</springdoc-openapi-maven-plugin-version>
         <wiremock-spring-boot.version>2.1.3</wiremock-spring-boot.version>
     </properties>
 

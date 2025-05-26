@@ -1,10 +1,9 @@
 package com.example.templateproject.client.jsonplaceholder
 
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.web.client.ClientHttpRequestFactories
-import org.springframework.boot.web.client.ClientHttpRequestFactorySettings
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.support.RestClientAdapter
 import org.springframework.web.service.invoker.HttpServiceProxyFactory
@@ -33,9 +32,8 @@ class JsonPlaceholderConfiguration(
         return factory.createClient(JsonPlaceholderClient::class.java)
     }
 
-    private fun clientHttpRequestFactory() = ClientHttpRequestFactories.get(
-        ClientHttpRequestFactorySettings.DEFAULTS
-            .withConnectTimeout(Duration.ofMillis(connectionTimeoutMillis))
-            .withReadTimeout(Duration.ofMillis(readTimeoutMillis))
-    )
+    private fun clientHttpRequestFactory() = SimpleClientHttpRequestFactory().apply {
+        setConnectTimeout(Duration.ofMillis(connectionTimeoutMillis))
+        setReadTimeout(Duration.ofMillis(readTimeoutMillis))
+    }
 }

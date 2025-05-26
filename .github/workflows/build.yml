@@ -54,7 +54,9 @@ jobs:
 
       - name: Build with Maven
         continue-on-error: ${{ matrix.java-version != env.DEFAULT_JAVA_VERSION }}
-        run: mvn -B verify -ntp
+        run: |
+          chmod +x mvnw
+          ./mvnw -B -V verify -ntp
 
       - name: Store JAR as artifact for the main branch
         if: ${{ github.ref == 'refs/heads/main' && matrix.java-version == env.DEFAULT_JAVA_VERSION }}
@@ -74,14 +76,14 @@ jobs:
 
       - name: Generate JaCoCo Badge
         if: ${{ github.ref == 'refs/heads/main' && matrix.java-version == env.DEFAULT_JAVA_VERSION }}
-        uses: cicirello/jacoco-badge-generator@v2.11.0
+        uses: cicirello/jacoco-badge-generator@v2.12.0
         with:
           jacoco-csv-file: template-project-jacoco-report/target/site/jacoco-aggregate/jacoco.csv
           generate-branches-badge: true
 
       - name: Add JaCoCo coverage to PR
         if: ${{ matrix.java-version == env.DEFAULT_JAVA_VERSION && github.event_name == 'pull_request' }}
-        uses: madrapps/jacoco-report@v1.7.1
+        uses: madrapps/jacoco-report@v1.7.2
         with:
           paths: |
             ${{ github.workspace }}/template-project-jacoco-report/target/site/jacoco-aggregate/jacoco.xml

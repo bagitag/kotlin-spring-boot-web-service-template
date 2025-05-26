@@ -2,9 +2,14 @@ package com.example.templateproject.web.controller
 
 import com.example.templateproject.api.dto.ExampleDTO
 import com.example.templateproject.api.dto.PageDetails
+import com.example.templateproject.persistence.entity.history.ExampleHistory
+import com.example.templateproject.persistence.entity.history.HistoryEvent
+import com.example.templateproject.persistence.repository.history.ExampleHistoryRepository
 import com.example.templateproject.web.BaseIntegrationTest
+import com.example.templateproject.web.configuration.API_BASE_PATH
 import jakarta.inject.Inject
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -21,13 +26,15 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
-class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIntegrationTest() {
+class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate) : BaseIntegrationTest() {
+
+    private val path = "$API_BASE_PATH/$EXAMPLE_ENDPOINT"
 
     @Test
     fun testForGetPaginatedExamples() {
         // when
         val pageDetailsTypeReference = object : ParameterizedTypeReference<PageDetails<ExampleDTO>>() {}
-        val actual = restTemplate.exchange(EXAMPLE_ENDPOINT, HttpMethod.GET, null, pageDetailsTypeReference)
+        val actual = restTemplate.exchange(path, HttpMethod.GET, null, pageDetailsTypeReference)
 
         // then
         assertEquals(HttpStatus.OK, actual.statusCode)
@@ -46,7 +53,7 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
     @Test
     fun testForGetAllPaginatedAndSortedExamples() {
         // when
-        val uriBuilder = UriComponentsBuilder.fromUri(URI.create(EXAMPLE_ENDPOINT))
+        val uriBuilder = UriComponentsBuilder.fromUri(URI.create(path))
             .queryParam("page", 0)
             .queryParam("size", 50)
             .queryParam("sort", "id,asc", "name,desc")
@@ -73,7 +80,7 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
         // when
         val searchTerms1 = "4. example"
         val searchTerms2 = "14. example"
-        val uriBuilder = UriComponentsBuilder.fromUri(URI.create("$EXAMPLE_ENDPOINT/search"))
+        val uriBuilder = UriComponentsBuilder.fromUri(URI.create("$path/search"))
             .queryParam("searchTerms", searchTerms1, searchTerms2)
             .build(false)
         val pageTypeReference = object : ParameterizedTypeReference<PageDetails<ExampleDTO>>() {}
@@ -97,7 +104,7 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
         val id = 1L
 
         // when
-        val actual = restTemplate.getForEntity(URI.create("$EXAMPLE_ENDPOINT/$id"), ExampleDTO::class.java)
+        val actual = restTemplate.getForEntity("$path/$id", ExampleDTO::class.java)
 
         // then
         assertEquals(HttpStatus.OK, actual.statusCode)
@@ -109,12 +116,17 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
     inner class DatabaseManipulatingTests {
 
         @Inject
+        private lateinit var historyRepository: ExampleHistoryRepository
+
+        @Inject
         private lateinit var jdbcTemplate: JdbcTemplate
 
         @BeforeEach
         fun init() {
             jdbcTemplate.execute("TRUNCATE TABLE example")
             jdbcTemplate.execute("ALTER SEQUENCE example_id_seq RESTART")
+            jdbcTemplate.execute("TRUNCATE TABLE example_history")
+            jdbcTemplate.execute("ALTER SEQUENCE example_history_id_seq RESTART")
 
             try {
                 val sqlScriptResource = ClassPathResource("data.sql")
@@ -128,36 +140,44 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
         @Test
         fun testForCreateExample() {
             // given
-            val name = "New example"
+            val name = "1. new example"
             val request = ExampleDTO(name = name)
 
             // when
-            val actual =
-                restTemplate.postForEntity<ExampleDTO>(URI.create(EXAMPLE_ENDPOINT), request, ExampleDTO::class.java)
+            val actual = restTemplate.postForEntity<ExampleDTO>(path, request, ExampleDTO::class.java)
 
             // then
             assertEquals(HttpStatus.CREATED, actual.statusCode)
-            assertEquals(name, actual.body!!.name)
-            assertEquals(16, actual.body!!.id)
+            val entity = actual.body!!
+            assertEquals(name, entity.name)
+            assertEquals(16, entity.id)
+
+            val historyEntityList = historyRepository.findByEntityId(entity.id!!)
+            assertEquals(1, historyEntityList.size)
+            val historyEntity = historyEntityList.first()
+            validateHistoryEntity(entity, historyEntity, HistoryEvent.CREATE)
         }
 
         @Test
         fun testForUpdateExample() {
             // given
             val id = 2L
-            val name = "Updated example"
-            val request = ExampleDTO(id, name)
+            val name = "$id updated example"
+            val request = ExampleDTO(name).apply { this.id = id }
 
             // when
-            val actual = restTemplate.exchange(
-                URI.create(EXAMPLE_ENDPOINT), HttpMethod.PUT, HttpEntity(request),
-                ExampleDTO::class.java
-            )
+            val actual = restTemplate.exchange(path, HttpMethod.PUT, HttpEntity(request), ExampleDTO::class.java)
 
             // then
             assertEquals(HttpStatus.OK, actual.statusCode)
-            assertEquals(id, actual.body!!.id)
-            assertEquals(name, actual.body!!.name)
+            val entity = actual.body!!
+            assertEquals(id, entity.id)
+            assertEquals(name, entity.name)
+
+            val historyEntityList = historyRepository.findByEntityIdAndEvent(entity.id!!, HistoryEvent.UPDATE)
+            assertEquals(1, historyEntityList.size)
+            val historyEntity = historyEntityList.first()
+            validateHistoryEntity(entity, historyEntity, HistoryEvent.UPDATE)
         }
 
         @Test
@@ -167,10 +187,23 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate): BaseIn
 
             // when
             val actual =
-                restTemplate.exchange("$EXAMPLE_ENDPOINT/$id", HttpMethod.DELETE, null, ResponseEntity::class.java)
+                restTemplate.exchange("$path/$id", HttpMethod.DELETE, null, ResponseEntity::class.java)
 
             // then
             assertEquals(HttpStatus.NO_CONTENT, actual.statusCode)
+
+            val historyEntityList = historyRepository.findByEntityIdAndEvent(id, HistoryEvent.DELETE)
+            assertEquals(1, historyEntityList.size)
+            val historyEntity = historyEntityList.first()
+            assertEquals(HistoryEvent.DELETE, historyEntity.event)
+        }
+
+        private fun validateHistoryEntity(entity: ExampleDTO, historyEntity: ExampleHistory, event: HistoryEvent) {
+            assertEquals(16, historyEntity.id)
+            assertEquals(entity.id, historyEntity.entityId)
+            assertEquals(entity.name, historyEntity.name)
+            assertEquals(event, historyEntity.event)
+            assertNotNull(historyEntity.createdAt)
         }
     }
 }
