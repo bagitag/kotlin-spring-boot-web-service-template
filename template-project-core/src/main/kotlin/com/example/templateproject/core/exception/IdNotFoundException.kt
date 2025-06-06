@@ -5,5 +5,5 @@ import kotlin.reflect.KClass
 
 data class IdNotFoundException(
     val clazz: KClass<*>,
-    val entityId: Long
+    val entityId: Long,
 ) : BaseException("Could not find ${clazz.simpleName} with id: $entityId", HttpStatus.NOT_FOUND)

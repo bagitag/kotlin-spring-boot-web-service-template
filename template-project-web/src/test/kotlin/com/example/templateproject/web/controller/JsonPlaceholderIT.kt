@@ -37,9 +37,8 @@ class JsonPlaceholderIT(
     @Autowired private val mockMvc: MockMvc,
     @Autowired private val cacheManager: CacheManager,
     @Value("\${client.jsonplaceholder.base-url}") private val baseUrl: String,
-    @Value("\${client.jsonplaceholder.api-key}") private val apiKey: String
+    @Value("\${client.jsonplaceholder.api-key}") private val apiKey: String,
 ) : BaseIntegrationTest() {
-
     private val path = "$API_BASE_PATH/$EXAMPLE_ENDPOINT/statistics"
 
     @InjectWireMock("json-placeholder")
@@ -49,11 +48,12 @@ class JsonPlaceholderIT(
 
     @BeforeEach
     fun initialize() {
-        users = listOf(
-            User(1L, "name1", "username1", "email1"),
-            User(2L, "name2", "username2", "email2"),
-            User(3L, "name3", "username3", "email3")
-        )
+        users =
+            listOf(
+                User(1L, "name1", "username1", "email1"),
+                User(2L, "name2", "username2", "email2"),
+                User(3L, "name3", "username3", "email3"),
+            )
 
         createStubForPosts(1L, 2)
         createStubForPosts(2L, 1)
@@ -74,21 +74,23 @@ class JsonPlaceholderIT(
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
-                        .withBody(objectMapper.writeValueAsString(users))
-                )
+                        .withBody(objectMapper.writeValueAsString(users)),
+                ),
         )
 
         // when
-        val actual = mockMvc.perform(MockMvcRequestBuilders.get(path))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andReturn()
+        val actual =
+            mockMvc
+                .perform(MockMvcRequestBuilders.get(path))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
 
         // then
         verifyResponse(actual)
 
-        wiremock.verify(1, getRequestedFor(urlEqualTo("/users")));
-        wiremock.verify(3, getRequestedFor(urlPathEqualTo("/posts")));
+        wiremock.verify(1, getRequestedFor(urlEqualTo("/users")))
+        wiremock.verify(3, getRequestedFor(urlPathEqualTo("/posts")))
     }
 
     @Test
@@ -104,8 +106,8 @@ class JsonPlaceholderIT(
                 .willReturn(
                     aResponse()
                         .withStatus(500)
-                        .withBody("Internal Server Error")
-                )
+                        .withBody("Internal Server Error"),
+                ),
         )
 
         wiremock.givenThat(
@@ -117,23 +119,24 @@ class JsonPlaceholderIT(
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
-                        .withBody(objectMapper.writeValueAsString(users))
-                )
+                        .withBody(objectMapper.writeValueAsString(users)),
+                ),
         )
 
         // when
-        val actual = mockMvc.perform(MockMvcRequestBuilders.get(path))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andReturn()
+        val actual =
+            mockMvc
+                .perform(MockMvcRequestBuilders.get(path))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
 
         // then
         verifyResponse(actual)
 
-        wiremock.verify(2, getRequestedFor(urlEqualTo("/users")));
-        wiremock.verify(3, getRequestedFor(urlPathEqualTo("/posts")));
+        wiremock.verify(2, getRequestedFor(urlEqualTo("/users")))
+        wiremock.verify(3, getRequestedFor(urlPathEqualTo("/posts")))
     }
-
 
     @Test
     fun testForStatisticsEndpointWithCache() {
@@ -145,38 +148,48 @@ class JsonPlaceholderIT(
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
-                        .withBody(objectMapper.writeValueAsString(users))
-                )
+                        .withBody(objectMapper.writeValueAsString(users)),
+                ),
         )
 
         // when
-        val actual1 = mockMvc.perform(MockMvcRequestBuilders.get(path))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andReturn()
+        val actual1 =
+            mockMvc
+                .perform(MockMvcRequestBuilders.get(path))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
 
-        val actual2 = mockMvc.perform(MockMvcRequestBuilders.get(path))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andReturn()
+        val actual2 =
+            mockMvc
+                .perform(MockMvcRequestBuilders.get(path))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
 
         // then
         verifyResponse(actual1)
         verifyResponse(actual2)
 
-        wiremock.verify(1, getRequestedFor(urlEqualTo("/users")));
-        wiremock.verify(6, getRequestedFor(urlPathEqualTo("/posts")));
+        wiremock.verify(1, getRequestedFor(urlEqualTo("/users")))
+        wiremock.verify(6, getRequestedFor(urlPathEqualTo("/posts")))
     }
 
-    private fun createStubForPosts(userId: Long, postCount: Long) {
-        val posts = LongStream.range(0, postCount).boxed()
-            .map { Post(it, userId, "title$it", "a a a a a") }
-            .toList()
+    private fun createStubForPosts(
+        userId: Long,
+        postCount: Long,
+    ) {
+        val posts =
+            LongStream
+                .range(0, postCount)
+                .boxed()
+                .map { Post(it, userId, "title$it", "a a a a a") }
+                .toList()
 
         wiremock.stubFor(
             get(urlPathEqualTo("/posts"))
                 .withQueryParam("userId", equalTo(userId.toString()))
-                .willReturn(okJson(objectMapper.writeValueAsString(posts)))
+                .willReturn(okJson(objectMapper.writeValueAsString(posts))),
         )
     }
 

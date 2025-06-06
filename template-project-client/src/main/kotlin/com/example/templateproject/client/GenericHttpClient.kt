@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component
 
 @Component
 class GenericHttpClient {
-
     companion object {
         private val LOGGER = LoggerFactory.getLogger(GenericHttpClient::class.java)
     }
@@ -15,7 +14,7 @@ class GenericHttpClient {
         logPrefix: String,
         request: Any,
         defaultResponse: RESPONSE,
-        httpCall: () -> ResponseEntity<RESPONSE>
+        httpCall: () -> ResponseEntity<RESPONSE>,
     ): RESPONSE {
         LOGGER.debug("$logPrefix ==> Sending request: {}", request)
 

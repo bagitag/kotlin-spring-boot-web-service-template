@@ -38,12 +38,14 @@ import java.util.concurrent.TimeoutException
 
 @ExtendWith(MockKExtension::class)
 internal class ExampleServiceTest {
-
     private val exampleRepository = mockk<ExampleRepository>()
+
     @MockK
     private lateinit var exampleMapper: ExampleMapper
+
     @MockK
     private lateinit var pageConverter: PageConverter
+
     @MockK
     private lateinit var jsonPlaceholderService: JsonPlaceholderService
 
@@ -72,10 +74,16 @@ internal class ExampleServiceTest {
         every { exampleMapper.toDTO(example2) } returns exampleDTO2
 
         val exampleDTOs = listOf(exampleDTO1, exampleDTO2)
-        val pageDetails = PageDetails(
-            exampleDTOs, 0, 10, 2, 1, true,
-            listOf(SortOrder("createdDate", "DESC"), SortOrder("id", "DESC"))
-        )
+        val pageDetails =
+            PageDetails(
+                exampleDTOs,
+                0,
+                10,
+                2,
+                1,
+                true,
+                listOf(SortOrder("createdDate", "DESC"), SortOrder("id", "DESC")),
+            )
         every { pageConverter.createPageDetails(any<PageImpl<ExampleDTO>>()) } returns pageDetails
 
         // when
@@ -356,7 +364,7 @@ internal class ExampleServiceTest {
         victim = ExampleService(false, 1000L, exampleRepository, exampleMapper, pageConverter, jsonPlaceholderService)
 
         every { jsonPlaceholderService.getUsers() } returns
-                CompletableFuture.supplyAsync({ listOf() }, CompletableFuture.delayedExecutor(2L, TimeUnit.SECONDS))
+            CompletableFuture.supplyAsync({ listOf() }, CompletableFuture.delayedExecutor(2L, TimeUnit.SECONDS))
 
         // when - then
         assertThrows<TimeoutException> { victim.getWordCountForUsers() }
@@ -374,16 +382,18 @@ internal class ExampleServiceTest {
 
         every { jsonPlaceholderService.getUsers() } returns usersFuture
 
-        val posts1 = listOf(
-            Post(1, userId1, "title1", "a b c"),
-            Post(2, userId1, "title2", "a b c"),
-            Post(3, userId1, "title3", "c d e f")
-        )
-        val posts2 = listOf(
-            Post(4, userId2, "title1", "a b c"),
-            Post(5, userId2, "title2", "d e f"),
-            Post(6, userId2, "title3", "g h i j k l")
-        )
+        val posts1 =
+            listOf(
+                Post(1, userId1, "title1", "a b c"),
+                Post(2, userId1, "title2", "a b c"),
+                Post(3, userId1, "title3", "c d e f"),
+            )
+        val posts2 =
+            listOf(
+                Post(4, userId2, "title1", "a b c"),
+                Post(5, userId2, "title2", "d e f"),
+                Post(6, userId2, "title3", "g h i j k l"),
+            )
         every { jsonPlaceholderService.getPostsByUserId(userId1) } returns CompletableFuture.completedFuture(posts1)
         every { jsonPlaceholderService.getPostsByUserId(userId2) } returns CompletableFuture.completedFuture(posts2)
 

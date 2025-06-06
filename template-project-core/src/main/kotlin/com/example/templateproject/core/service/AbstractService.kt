@@ -18,9 +18,8 @@ abstract class AbstractService<E : BaseEntity, D : BaseDTO>(
     open val repository: BaseRepository<E>,
     private val mapper: AbstractMapper<E, D>,
     private val pageConverter: PageConverter,
-    private val clazz: KClass<E>
+    private val clazz: KClass<E>,
 ) {
-
     companion object {
         val DEFAULT_SORT: Sort = Sort.by(Sort.Order.desc("createdDate"), Sort.Order.desc("id"))
     }
@@ -31,16 +30,17 @@ abstract class AbstractService<E : BaseEntity, D : BaseDTO>(
 
     open fun getEntities(pageable: Pageable): PageDetails<D> {
         val pageableToUse = getPageable(pageable)
-        return repository.findAll(pageableToUse)
+        return repository
+            .findAll(pageableToUse)
             .map { mapper.toDTO(it) }
             .let { pageConverter.createPageDetails(it) }
     }
 
-    open fun getEntityById(id: Long): D {
-        return repository.findById(id)
+    open fun getEntityById(id: Long): D =
+        repository
+            .findById(id)
             .map { mapper.toDTO(it) }
             .orElseThrow { IdNotFoundException(clazz, id) }
-    }
 
     open fun createEntity(dto: D): D {
         if (dto.id != null) {
@@ -58,7 +58,8 @@ abstract class AbstractService<E : BaseEntity, D : BaseDTO>(
             throw BadRequestException(BadRequestErrorMessages.ID_MUST_NOT_BE_NULL)
         }
 
-        return repository.findById(dto.id!!)
+        return repository
+            .findById(dto.id!!)
             .map { mapper.toEntity(dto) }
             .map { saveEntity(it) }
             .map { mapper.toDTO(it) }
@@ -75,11 +76,10 @@ abstract class AbstractService<E : BaseEntity, D : BaseDTO>(
         return repository.save(entity)
     }
 
-    protected fun getPageable(pageable: Pageable): Pageable {
-        return if (pageable.sort.isUnsorted) {
+    protected fun getPageable(pageable: Pageable): Pageable =
+        if (pageable.sort.isUnsorted) {
             PageRequest.of(pageable.pageNumber, pageable.pageSize, getDefaultSort())
         } else {
             pageable
         }
-    }
 }

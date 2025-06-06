@@ -22,7 +22,6 @@ import org.slf4j.MDC
 
 @ExtendWith(MockKExtension::class)
 internal class DebugHeaderFilterTest {
-
     private lateinit var victim: DebugHeaderFilter
 
     private val request = mockk<HttpServletRequest>()

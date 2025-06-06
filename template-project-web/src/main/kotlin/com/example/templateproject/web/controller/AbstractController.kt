@@ -29,9 +29,8 @@ import kotlin.reflect.KClass
 
 abstract class AbstractController<D : BaseDTO>(
     private val service: AbstractService<*, D>,
-    private val clazz: KClass<D>
+    private val clazz: KClass<D>,
 ) {
-
     companion object {
         private val LOGGER = LoggerFactory.getLogger(AbstractController::class.java)
     }
@@ -41,29 +40,35 @@ abstract class AbstractController<D : BaseDTO>(
     @Operation(summary = "Gets paginated and sorted entities.")
     @ApiResponses(
         ApiResponse(
-            responseCode = "200", description = "The entity list has been successfully returned.",
-            useReturnTypeSchema = true
-        )
+            responseCode = "200",
+            description = "The entity list has been successfully returned.",
+            useReturnTypeSchema = true,
+        ),
     )
     @PageableAsQueryParam
-    fun getEntities(@Parameter(hidden = true) @PageableDefault pageable: Pageable): PageDetails<D> {
-        return service.getEntities(pageable)
-            .apply { LOGGER.info("Returning ${content.size} out of $totalElements ${clazz.simpleName}") }
-    }
+    fun getEntities(
+        @Parameter(hidden = true) @PageableDefault pageable: Pageable,
+    ): PageDetails<D> =
+        service.getEntities(pageable).apply {
+            LOGGER.info("Returning ${content.size} out of $totalElements ${clazz.simpleName}")
+        }
 
     @GetMapping("/{id:[0-9]*}", produces = ["application/json"])
     @Operation(summary = "Gets entity by its id.")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "The requested entity has been successfully returned."),
         ApiResponse(
-            responseCode = "404", description = "The requested entity was not found.",
+            responseCode = "404",
+            description = "The requested entity was not found.",
             content = [
-                Content(mediaType = "application/json", schema = Schema(implementation = ErrorDTO::class))
-            ]
-        )
+                Content(mediaType = "application/json", schema = Schema(implementation = ErrorDTO::class)),
+            ],
+        ),
     )
     @Timed(extraTags = ["path", "read"])
-    fun getEntityById(@PathVariable id: Long): D {
+    fun getEntityById(
+        @PathVariable id: Long,
+    ): D {
         LOGGER.info("Returning ${clazz.simpleName} with id: $id")
         return service.getEntityById(id)
     }
@@ -73,14 +78,17 @@ abstract class AbstractController<D : BaseDTO>(
     @ApiResponses(
         ApiResponse(responseCode = "201", description = "Entity successfully created."),
         ApiResponse(
-            responseCode = "400", description = "The request body is invalid.",
+            responseCode = "400",
+            description = "The request body is invalid.",
             content = [
-                Content(mediaType = "application/json", schema = Schema(implementation = ErrorDTO::class))
-            ]
-        )
+                Content(mediaType = "application/json", schema = Schema(implementation = ErrorDTO::class)),
+            ],
+        ),
     )
     @Timed(extraTags = ["path", "create"])
-    fun createEntity(@RequestBody @Valid request: D): ResponseEntity<D> {
+    fun createEntity(
+        @RequestBody @Valid request: D,
+    ): ResponseEntity<D> {
         LOGGER.info("Creating ${clazz.simpleName}: ${StringUtils.trimAllWhitespace(request.toString())}")
         val createdEntity = service.createEntity(request)
         return ResponseEntity.status(HttpStatus.CREATED).body<D>(createdEntity)
@@ -91,20 +99,24 @@ abstract class AbstractController<D : BaseDTO>(
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "Entity successfully updated."),
         ApiResponse(
-            responseCode = "404", description = "The requested entity was not found.",
+            responseCode = "404",
+            description = "The requested entity was not found.",
             content = [
-                Content(mediaType = "application/json", schema = Schema(implementation = ErrorDTO::class))
-            ]
+                Content(mediaType = "application/json", schema = Schema(implementation = ErrorDTO::class)),
+            ],
         ),
         ApiResponse(
-            responseCode = "400", description = "The request body is invalid.",
+            responseCode = "400",
+            description = "The request body is invalid.",
             content = [
-                Content(mediaType = "application/json", schema = Schema(implementation = ErrorDTO::class))
-            ]
-        )
+                Content(mediaType = "application/json", schema = Schema(implementation = ErrorDTO::class)),
+            ],
+        ),
     )
     @Timed(extraTags = ["path", "update"])
-    fun updateEntity(@RequestBody @Valid request: D): D {
+    fun updateEntity(
+        @RequestBody @Valid request: D,
+    ): D {
         LOGGER.info("Updating ${clazz.simpleName}: ${StringUtils.trimAllWhitespace(request.toString())}")
         return service.updateEntity(request)
     }
@@ -113,7 +125,9 @@ abstract class AbstractController<D : BaseDTO>(
     @Operation(summary = "Deletes an entity by its id.")
     @ApiResponses(ApiResponse(responseCode = "204"))
     @Timed(extraTags = ["path", "delete"])
-    fun deleteEntity(@PathVariable id: Long): ResponseEntity<Void> {
+    fun deleteEntity(
+        @PathVariable id: Long,
+    ): ResponseEntity<Void> {
         LOGGER.info("Deleting ${clazz.simpleName} with id: $id")
         service.deleteEntity(id)
         return ResponseEntity.noContent().build()

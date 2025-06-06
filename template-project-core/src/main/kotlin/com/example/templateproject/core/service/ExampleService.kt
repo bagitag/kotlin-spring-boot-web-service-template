@@ -27,9 +27,8 @@ class ExampleService(
     private val exampleRepository: ExampleRepository,
     private val exampleMapper: ExampleMapper,
     private val pageConverter: PageConverter,
-    private val jsonPlaceholderService: JsonPlaceholderService
+    private val jsonPlaceholderService: JsonPlaceholderService,
 ) : AbstractService<Example, ExampleDTO>(exampleRepository, exampleMapper, pageConverter, Example::class) {
-
     companion object {
         private val LOGGER = LoggerFactory.getLogger(ExampleService::class.java)
         const val EXAMPLES_CACHE_NAME = "database-examples"
@@ -43,37 +42,41 @@ class ExampleService(
         }
     }
 
-    fun searchExamples(searchTerms: List<String>, pageable: Pageable): PageDetails<ExampleDTO> {
+    fun searchExamples(
+        searchTerms: List<String>,
+        pageable: Pageable,
+    ): PageDetails<ExampleDTO> {
         val pageableToUse = getPageable(pageable)
-        return exampleRepository.findByNameInIgnoreCase(searchTerms, pageableToUse)
+        return exampleRepository
+            .findByNameInIgnoreCase(searchTerms, pageableToUse)
             .map { exampleMapper.toDTO(it) }
             .let { pageConverter.createPageDetails(it) }
     }
 
     @Cacheable(
         EXAMPLES_CACHE_NAME,
-        condition = "#root.target.cacheEnabled"
+        condition = "#root.target.cacheEnabled",
     )
     override fun getEntities(pageable: Pageable) = super.getEntities(pageable)
 
     @CacheEvict(
-        value = [ EXAMPLES_CACHE_NAME ],
+        value = [EXAMPLES_CACHE_NAME],
         beforeInvocation = false,
-        allEntries = true
+        allEntries = true,
     )
     override fun createEntity(dto: ExampleDTO) = super.createEntity(dto)
 
     @CacheEvict(
-        value = [ EXAMPLES_CACHE_NAME ],
+        value = [EXAMPLES_CACHE_NAME],
         beforeInvocation = false,
-        allEntries = true
+        allEntries = true,
     )
     override fun updateEntity(dto: ExampleDTO) = super.updateEntity(dto)
 
     @CacheEvict(
-        value = [ EXAMPLES_CACHE_NAME ],
+        value = [EXAMPLES_CACHE_NAME],
         beforeInvocation = false,
-        allEntries = true
+        allEntries = true,
     )
     override fun deleteEntity(id: Long) = super.deleteEntity(id)
 
@@ -81,19 +84,23 @@ class ExampleService(
         val userNameWordCountMap = ConcurrentHashMap<String, Int>()
 
         try {
-            jsonPlaceholderService.getUsers().thenComposeAsync { users ->
-                val futureArray = users.map { user ->
-                    jsonPlaceholderService.getPostsByUserId(user.id).thenAccept { posts ->
-                        posts.forEach { post ->
-                            val wordCount = post.body.split("\\s+".toRegex()).size
-                            userNameWordCountMap.merge(user.username, wordCount, Integer::sum)
-                        }
-                    }
-                }.toTypedArray()
-                CompletableFuture.allOf(*futureArray)
-            }.thenApply {
-                LOGGER.info("Calculated word count for users: {}", userNameWordCountMap)
-            }.get(wordCountTimeout, TimeUnit.MILLISECONDS)
+            jsonPlaceholderService
+                .getUsers()
+                .thenComposeAsync { users ->
+                    val futureArray =
+                        users
+                            .map { user ->
+                                jsonPlaceholderService.getPostsByUserId(user.id).thenAccept { posts ->
+                                    posts.forEach { post ->
+                                        val wordCount = post.body.split("\\s+".toRegex()).size
+                                        userNameWordCountMap.merge(user.username, wordCount, Integer::sum)
+                                    }
+                                }
+                            }.toTypedArray()
+                    CompletableFuture.allOf(*futureArray)
+                }.thenApply {
+                    LOGGER.info("Calculated word count for users: {}", userNameWordCountMap)
+                }.get(wordCountTimeout, TimeUnit.MILLISECONDS)
         } catch (e: TimeoutException) {
             LOGGER.error("Timeout while calculating word count for users", e)
             throw e

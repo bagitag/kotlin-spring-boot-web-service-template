@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component
 
 @Component
 class JsonPlaceholderCircuitBreaker {
-
     companion object {
         private val LOGGER = LoggerFactory.getLogger(JsonPlaceholderCircuitBreaker::class.java)
     }
@@ -16,9 +15,9 @@ class JsonPlaceholderCircuitBreaker {
         label = "JSON_PLACEHOLDER_CB",
         maxAttemptsExpression = "#{'\${client.jsonplaceholder.circuitbreaker.failure.rate}'}",
         openTimeoutExpression = "#{'\${client.jsonplaceholder.circuitbreaker.open.timeout.millis:10000}'}",
-        resetTimeoutExpression = "#{'\${client.jsonplaceholder.circuitbreaker.reset.timeout.millis:10000}'}"
+        resetTimeoutExpression = "#{'\${client.jsonplaceholder.circuitbreaker.reset.timeout.millis:10000}'}",
     )
-    fun <T> decorate(method : () -> T) = method()
+    fun <T> decorate(method: () -> T) = method()
 
     @Recover
     private fun <T> recover(ex: Exception): T {

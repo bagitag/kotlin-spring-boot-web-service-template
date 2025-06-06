@@ -16,8 +16,9 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 
 @ExtendWith(OutputCaptureExtension::class)
-class DebugHeaderFilterIT(@Autowired val restTemplate: TestRestTemplate) : BaseIntegrationTest() {
-
+class DebugHeaderFilterIT(
+    @Autowired val restTemplate: TestRestTemplate,
+) : BaseIntegrationTest() {
     @Test
     fun `Request with debug header should turn on debug level logging`(output: CapturedOutput) {
         // when
@@ -28,7 +29,7 @@ class DebugHeaderFilterIT(@Autowired val restTemplate: TestRestTemplate) : BaseI
                 "$API_BASE_PATH/$EXAMPLE_ENDPOINT",
                 HttpMethod.GET,
                 HttpEntity<Any>(headers),
-                String::class.java
+                String::class.java,
             )
 
         // then

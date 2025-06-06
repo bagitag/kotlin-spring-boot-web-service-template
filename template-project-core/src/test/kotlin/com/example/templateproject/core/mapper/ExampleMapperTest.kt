@@ -25,7 +25,6 @@ import kotlin.jvm.java
 
 @ExtendWith(MockKExtension::class)
 internal class ExampleMapperTest {
-
     @MockK
     private lateinit var repository: ExampleRepository
 

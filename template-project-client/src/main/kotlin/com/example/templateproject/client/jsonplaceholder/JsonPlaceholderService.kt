@@ -21,7 +21,6 @@ class JsonPlaceholderService(
     private val retryDecorator: RetryableHttpRequestDecorator,
     private val circuitBreaker: JsonPlaceholderCircuitBreaker,
 ) {
-
     companion object {
         private val LOGGER = LoggerFactory.getLogger(JsonPlaceholderService::class.java)
         private const val SERVICE_NAME = "JSON_PLACEHOLDER"
@@ -30,7 +29,7 @@ class JsonPlaceholderService(
 
     @Cacheable(
         JsonPlaceholderCacheConfiguration.USERS_CACHE_NAME,
-        condition = "#root.target.cacheEnabled"
+        condition = "#root.target.cacheEnabled",
     )
     fun getUsers(): CompletableFuture<List<User>> {
         val request = USERS_ENDPOINT
@@ -45,19 +44,19 @@ class JsonPlaceholderService(
     private fun <T> execute(
         request: Any,
         defaultResponse: T,
-        httpCall: () -> ResponseEntity<T>
-    ): CompletableFuture<T> {
-        return CompletableFuture.supplyAsync {
-            retryDecorator.retryForHttpServerError(request) {
-                circuitBreaker.decorate {
-                    httpClient.perform(LOG_PREFIX, request, defaultResponse, httpCall)
+        httpCall: () -> ResponseEntity<T>,
+    ): CompletableFuture<T> =
+        CompletableFuture
+            .supplyAsync {
+                retryDecorator.retryForHttpServerError(request) {
+                    circuitBreaker.decorate {
+                        httpClient.perform(LOG_PREFIX, request, defaultResponse, httpCall)
+                    }
                 }
+            }.exceptionally { ex ->
+                handleException(ex)
+                defaultResponse
             }
-        }.exceptionally { ex ->
-            handleException(ex)
-            defaultResponse
-        }
-    }
 
     private fun handleException(ex: Throwable) {
         val cause = ex.cause!!
@@ -65,11 +64,15 @@ class JsonPlaceholderService(
         when (cause) {
             is HttpClientErrorException -> {
                 val oneLineBody =
-                    cause.responseBodyAsString.lines().stream().map(String::trim).collect(Collectors.joining())
+                    cause.responseBodyAsString
+                        .lines()
+                        .stream()
+                        .map(String::trim)
+                        .collect(Collectors.joining())
                 LOGGER.error(
                     "$LOG_PREFIX - Client side error: {} - Response body: {}",
                     cause.statusText,
-                    oneLineBody
+                    oneLineBody,
                 )
             }
         }

@@ -8,7 +8,6 @@ import com.example.templateproject.TemplateApplication
 import org.slf4j.Marker
 
 class DebugLoggingTurboFilter : MDCFilter() {
-
     private var packages: String? = null
 
     fun setPackages(packages: String) {
@@ -16,7 +15,12 @@ class DebugLoggingTurboFilter : MDCFilter() {
     }
 
     override fun decide(
-        marker: Marker?, logger: Logger?, level: Level?, format: String?, params: Array<out Any>?, t: Throwable?
+        marker: Marker?,
+        logger: Logger?,
+        level: Level?,
+        format: String?,
+        params: Array<out Any>?,
+        t: Throwable?,
     ): FilterReply {
         if (!isStarted) {
             return FilterReply.NEUTRAL
@@ -25,11 +29,14 @@ class DebugLoggingTurboFilter : MDCFilter() {
         var filterReply = super.decide(marker, logger, level, format, params, t)
 
         if (filterReply === FilterReply.ACCEPT) {
-            filterReply = extendPackagesWithProjectBasePackage().split(",").stream()
-                .filter { e -> logger?.name?.startsWith(e) ?: false }
-                .map { FilterReply.ACCEPT }
-                .findAny()
-                .orElse(FilterReply.NEUTRAL)
+            filterReply =
+                extendPackagesWithProjectBasePackage()
+                    .split(",")
+                    .stream()
+                    .filter { e -> logger?.name?.startsWith(e) ?: false }
+                    .map { FilterReply.ACCEPT }
+                    .findAny()
+                    .orElse(FilterReply.NEUTRAL)
         }
         return filterReply
     }

@@ -109,6 +109,20 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>com.github.gantsign.maven</groupId>
+                <artifactId>ktlint-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>format</goal>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>com.github.ozsie</groupId>
                 <artifactId>detekt-maven-plugin</artifactId>
                 <version>${detekt.version}</version>

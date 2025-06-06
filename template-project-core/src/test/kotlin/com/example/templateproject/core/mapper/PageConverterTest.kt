@@ -9,7 +9,6 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 
 internal class PageConverterTest {
-
     private val victim = PageConverter()
 
     @Test

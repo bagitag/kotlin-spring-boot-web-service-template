@@ -7,12 +7,13 @@ import org.springframework.stereotype.Service
 
 @Service
 class ExampleHistoryMapper : AbstractHistoryMapper<Example, ExampleHistory>() {
-
-    override fun toHistoryEntity(entity: Example, event: HistoryEvent): ExampleHistory {
-        return ExampleHistory(
+    override fun toHistoryEntity(
+        entity: Example,
+        event: HistoryEvent,
+    ): ExampleHistory =
+        ExampleHistory(
             entity.id!!,
             event,
-            entity.name
+            entity.name,
         )
-    }
 }

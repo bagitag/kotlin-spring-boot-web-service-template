@@ -9,8 +9,9 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-abstract class AbstractMapper<E : BaseEntity, D : BaseDTO>(open val repository: JpaRepository<E, Long>) {
-
+abstract class AbstractMapper<E : BaseEntity, D : BaseDTO>(
+    open val repository: JpaRepository<E, Long>,
+) {
     abstract fun toEntity(dto: D): E
 
     abstract fun toDTO(entity: E): D
@@ -18,13 +19,15 @@ abstract class AbstractMapper<E : BaseEntity, D : BaseDTO>(open val repository: 
     protected fun getEntityId(id: Long): E =
         repository.findById(id).orElseThrow { IdNotFoundException(Example::class, id) }
 
-    protected fun setBaseDTOFields(dto: D, entity: E) {
+    protected fun setBaseDTOFields(
+        dto: D,
+        entity: E,
+    ) {
         dto.id = entity.id
         dto.createdDate = entity.createdDate?.let { transformInstantToLocalDateTime(it) }
         dto.modifiedDate = entity.modifiedDate?.let { transformInstantToLocalDateTime(it) }
     }
 
-    private fun transformInstantToLocalDateTime(instant: Instant): LocalDateTime {
-        return LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-    }
+    private fun transformInstantToLocalDateTime(instant: Instant): LocalDateTime =
+        LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
 }

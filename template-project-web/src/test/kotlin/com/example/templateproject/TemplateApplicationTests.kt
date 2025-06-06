@@ -14,17 +14,22 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.readBytes
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, properties = [
-    "spring.config.import=classpath:client-openapi.properties,classpath:core-openapi.properties," +
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
+    properties = [
+        "spring.config.import=classpath:client-openapi.properties,classpath:core-openapi.properties," +
             "classpath:persistence-openapi.properties",
 
-    "app.debug.logging.package.list=UNDEFINED"
-])
+        "app.debug.logging.package.list=UNDEFINED",
+    ],
+)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class TemplateApplicationTests(@Autowired val restTemplate: TestRestTemplate) {
-
+class TemplateApplicationTests(
+    @Autowired val restTemplate: TestRestTemplate,
+) {
     companion object {
-        private const val OPEN_API_ERROR_MSG =  "Run the following command to update it: " +
+        private const val OPEN_API_ERROR_MSG =
+            "Run the following command to update it: " +
                 "mvnw clean verify -Dmaven.test.skip -Djacoco.skip=true -pl !template-project-jacoco-report -Popenapi"
     }
 
@@ -35,25 +40,27 @@ class TemplateApplicationTests(@Autowired val restTemplate: TestRestTemplate) {
     @Throws(Exception::class)
     fun verifyOpenAPISpecification() {
         val file = Path.of("../openapi.yaml")
-        val expected = try {
-            file.readBytes()
-        } catch (e: java.nio.file.NoSuchFileException) {
-            System.err.println("\nThe openapi.yaml is missing! $OPEN_API_ERROR_MSG")
-            throw e
-        }
-        val actual = restTemplate.execute("/api-docs.yaml", HttpMethod.GET, null, {
-            val path = Files.createTempFile("download", ".tmp")
-            StreamUtils.copy(it.body, FileOutputStream(path.toFile()))
-            path.readBytes()
-        })
+        val expected =
+            try {
+                file.readBytes()
+            } catch (e: java.nio.file.NoSuchFileException) {
+                System.err.println("\nThe openapi.yaml is missing! $OPEN_API_ERROR_MSG")
+                throw e
+            }
+        val actual =
+            restTemplate.execute("/api-docs.yaml", HttpMethod.GET, null, {
+                val path = Files.createTempFile("download", ".tmp")
+                StreamUtils.copy(it.body, FileOutputStream(path.toFile()))
+                path.readBytes()
+            })
 
         assertTrue(compareContent(expected, actual), "The openapi.yaml file is outdated! $OPEN_API_ERROR_MSG")
     }
 
-    private fun compareContent(expected: ByteArray, actual: ByteArray): Boolean {
-        return replaceLineEndings(expected) == replaceLineEndings(actual)
-    }
+    private fun compareContent(
+        expected: ByteArray,
+        actual: ByteArray,
+    ): Boolean = replaceLineEndings(expected) == replaceLineEndings(actual)
 
-    private fun replaceLineEndings(array: ByteArray) =
-        array.toString(Charset.defaultCharset()).replace("\r\n", "\n")
+    private fun replaceLineEndings(array: ByteArray) = array.toString(Charset.defaultCharset()).replace("\r\n", "\n")
 }

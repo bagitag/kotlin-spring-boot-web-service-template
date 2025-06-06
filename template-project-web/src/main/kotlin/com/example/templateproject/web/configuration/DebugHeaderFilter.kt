@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component
 @Component
 @Order(1)
 class DebugHeaderFilter : Filter {
-
     companion object {
         private val LOGGER = LoggerFactory.getLogger(DebugHeaderFilter::class.java)
         const val DEBUG_REQUEST_HEADER_NAME = "Jh7rLp2q9w4s8xv"
@@ -27,7 +26,11 @@ class DebugHeaderFilter : Filter {
         private const val REQUEST_ID_LENGTH = 15
     }
 
-    override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
+    override fun doFilter(
+        request: ServletRequest,
+        response: ServletResponse,
+        chain: FilterChain,
+    ) {
         if (request is HttpServletRequest && validateRequestPath(request.requestURI)) {
             val debugHeader = request.getHeader(DEBUG_REQUEST_HEADER_NAME)
 

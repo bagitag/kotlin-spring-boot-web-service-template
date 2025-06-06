@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity
 
 @ExtendWith(MockKExtension::class)
 internal class GenericHttpClientTest {
-
     private var victim = GenericHttpClient()
 
     @Test
@@ -19,7 +18,7 @@ internal class GenericHttpClientTest {
         val logPrefix = "logPrefix"
         val request = 1L
         val defaultResponse = listOf<User>()
-        val response : ResponseEntity<List<User>> = ResponseEntity.noContent().build()
+        val response: ResponseEntity<List<User>> = ResponseEntity.noContent().build()
 
         // when
         val actual = victim.perform(logPrefix, request, defaultResponse) { response }
@@ -34,7 +33,7 @@ internal class GenericHttpClientTest {
         val logPrefix = "logPrefix"
         val request = 1L
         val defaultResponse = listOf<User>()
-        val response : ResponseEntity<List<User>> = ResponseEntity.badRequest().build()
+        val response: ResponseEntity<List<User>> = ResponseEntity.badRequest().build()
 
         // when
         val actual = victim.perform(logPrefix, request, defaultResponse) { response }

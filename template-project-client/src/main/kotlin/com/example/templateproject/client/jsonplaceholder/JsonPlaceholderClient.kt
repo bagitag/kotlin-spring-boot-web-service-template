@@ -15,22 +15,32 @@ const val USERS_ENDPOINT = "/users"
 const val POSTS_ENDPOINT = "/posts"
 
 interface JsonPlaceholderClient {
-
     @GetExchange(USERS_ENDPOINT)
     fun getUsers(): ResponseEntity<List<User>>
 
     @GetExchange(POSTS_ENDPOINT)
-    fun getAllPostByUserId(@RequestParam userId: Long): ResponseEntity<List<Post>>
+    fun getAllPostByUserId(
+        @RequestParam userId: Long,
+    ): ResponseEntity<List<Post>>
 
     @GetExchange("$POSTS_ENDPOINT/{id}")
-    fun findPostById(@PathVariable id: Long): ResponseEntity<Post>
+    fun findPostById(
+        @PathVariable id: Long,
+    ): ResponseEntity<Post>
 
     @PostExchange(POSTS_ENDPOINT)
-    fun createPost(@RequestBody post: Post): ResponseEntity<Post?>
+    fun createPost(
+        @RequestBody post: Post,
+    ): ResponseEntity<Post?>
 
     @PutExchange("$POSTS_ENDPOINT/{id}")
-    fun updatePost(@PathVariable id: Long, post: Post): ResponseEntity<Post>
+    fun updatePost(
+        @PathVariable id: Long,
+        post: Post,
+    ): ResponseEntity<Post>
 
     @DeleteExchange("$POSTS_ENDPOINT/{id}")
-    fun deletePost(@PathVariable id: Long): ResponseEntity<Any?>
+    fun deletePost(
+        @PathVariable id: Long,
+    ): ResponseEntity<Void>
 }

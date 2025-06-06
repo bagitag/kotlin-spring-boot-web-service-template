@@ -14,26 +14,28 @@ class JsonPlaceholderConfiguration(
     @Value("\${client.jsonplaceholder.base-url}") private val baseUrl: String,
     @Value("\${client.jsonplaceholder.api-key}") private val apiKey: String,
     @Value("\${client.jsonplaceholder.connection.timeout.millis:1000}") private val connectionTimeoutMillis: Long,
-    @Value("\${client.jsonplaceholder.read.timeout.millis:5000}") private val readTimeoutMillis: Long
+    @Value("\${client.jsonplaceholder.read.timeout.millis:5000}") private val readTimeoutMillis: Long,
 ) {
-
     companion object {
         private const val API_KEY_HEADER = "api-key"
     }
 
     @Bean
     fun jsonPlaceholderClient(): JsonPlaceholderClient {
-        val restClient = RestClient.builder()
-            .baseUrl(baseUrl)
-            .defaultHeader(API_KEY_HEADER, apiKey)
-            .requestFactory(clientHttpRequestFactory())
-            .build()
+        val restClient =
+            RestClient
+                .builder()
+                .baseUrl(baseUrl)
+                .defaultHeader(API_KEY_HEADER, apiKey)
+                .requestFactory(clientHttpRequestFactory())
+                .build()
         val factory = HttpServiceProxyFactory.builderFor(RestClientAdapter.create(restClient)).build()
         return factory.createClient(JsonPlaceholderClient::class.java)
     }
 
-    private fun clientHttpRequestFactory() = SimpleClientHttpRequestFactory().apply {
-        setConnectTimeout(Duration.ofMillis(connectionTimeoutMillis))
-        setReadTimeout(Duration.ofMillis(readTimeoutMillis))
-    }
+    private fun clientHttpRequestFactory() =
+        SimpleClientHttpRequestFactory().apply {
+            setConnectTimeout(Duration.ofMillis(connectionTimeoutMillis))
+            setReadTimeout(Duration.ofMillis(readTimeoutMillis))
+        }
 }
