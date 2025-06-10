@@ -17,6 +17,7 @@ class RetryableHttpRequestDecorator {
     }
 
     @Retryable(
+        label = "HTTP_SERVER_ERROR_RETRY",
         retryFor = [HttpServerErrorException::class, ResourceAccessException::class],
         maxAttemptsExpression = "#{'\${max.retry.attempts}'}",
         backoff = Backoff(delay = 500, multiplier = 2.0, maxDelay = 1000),
