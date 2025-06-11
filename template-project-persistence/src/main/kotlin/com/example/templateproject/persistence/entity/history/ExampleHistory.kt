@@ -1,5 +1,6 @@
 package com.example.templateproject.persistence.entity.history
 
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.SequenceGenerator
 import org.hibernate.Hibernate
@@ -13,6 +14,7 @@ import org.hibernate.Hibernate
 data class ExampleHistory(
     override var entityId: Long,
     override var event: HistoryEvent,
+    @Column(length = 20)
     var name: String,
 ) : BaseHistoryEntity(entityId, event) {
     override fun equals(other: Any?): Boolean {
