@@ -15,10 +15,10 @@ import org.springframework.data.domain.Sort
 import kotlin.reflect.KClass
 
 abstract class AbstractService<E : BaseEntity, D : BaseDTO>(
-    open val repository: BaseRepository<E>,
-    private val mapper: AbstractMapper<E, D>,
-    private val pageConverter: PageConverter,
-    private val clazz: KClass<E>
+    protected open val repository: BaseRepository<E>,
+    protected open val mapper: AbstractMapper<E, D>,
+    protected open val pageConverter: PageConverter,
+    protected open val clazz: KClass<E>
 ) {
 
     companion object {

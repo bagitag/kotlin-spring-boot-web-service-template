@@ -4,7 +4,6 @@ import com.example.templateproject.api.dto.BaseDTO
 import com.example.templateproject.api.dto.ErrorDTO
 import com.example.templateproject.api.dto.PageDetails
 import com.example.templateproject.core.service.AbstractService
-import io.micrometer.core.annotation.Timed
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -28,8 +27,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import kotlin.reflect.KClass
 
 abstract class AbstractController<D : BaseDTO>(
-    private val service: AbstractService<*, D>,
-    private val clazz: KClass<D>
+    protected open val service: AbstractService<*, D>,
+    protected open val clazz: KClass<D>
 ) {
 
     companion object {
@@ -37,7 +36,6 @@ abstract class AbstractController<D : BaseDTO>(
     }
 
     @GetMapping(produces = ["application/json"])
-    @Timed(extraTags = ["path", "list"])
     @Operation(summary = "Gets paginated and sorted entities.")
     @ApiResponses(
         ApiResponse(
@@ -62,7 +60,6 @@ abstract class AbstractController<D : BaseDTO>(
             ]
         )
     )
-    @Timed(extraTags = ["path", "read"])
     fun getEntityById(@PathVariable id: Long): D {
         LOGGER.info("Returning ${clazz.simpleName} with id: $id")
         return service.getEntityById(id)
@@ -79,7 +76,6 @@ abstract class AbstractController<D : BaseDTO>(
             ]
         )
     )
-    @Timed(extraTags = ["path", "create"])
     fun createEntity(@RequestBody @Valid request: D): ResponseEntity<D> {
         LOGGER.info("Creating ${clazz.simpleName}: ${StringUtils.trimAllWhitespace(request.toString())}")
         val createdEntity = service.createEntity(request)
@@ -103,7 +99,6 @@ abstract class AbstractController<D : BaseDTO>(
             ]
         )
     )
-    @Timed(extraTags = ["path", "update"])
     fun updateEntity(@RequestBody @Valid request: D): D {
         LOGGER.info("Updating ${clazz.simpleName}: ${StringUtils.trimAllWhitespace(request.toString())}")
         return service.updateEntity(request)
@@ -112,7 +107,6 @@ abstract class AbstractController<D : BaseDTO>(
     @DeleteMapping("/{id:[0-9]*}")
     @Operation(summary = "Deletes an entity by its id.")
     @ApiResponses(ApiResponse(responseCode = "204"))
-    @Timed(extraTags = ["path", "delete"])
     fun deleteEntity(@PathVariable id: Long): ResponseEntity<Void> {
         LOGGER.info("Deleting ${clazz.simpleName} with id: $id")
         service.deleteEntity(id)

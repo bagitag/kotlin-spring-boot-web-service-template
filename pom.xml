@@ -129,11 +129,15 @@
                     <excludes>
                         <exclude>**/*Configuration.class</exclude>
                         <exclude>com/example/**/*CircuitBreaker.class</exclude>
+                        <exclude>com/example/**/*Properties.class</exclude>
                         <exclude>com/example/templateproject/TemplateApplicationKt.class</exclude>
                         <exclude>com/example/templateproject/core/exception/*Exception.class</exclude>
                         <exclude>com/example/templateproject/core/exception/BadRequestErrorMessages.class</exclude>
                         <exclude>com/example/templateproject/client/RetryableHttpRequestDecorator.class</exclude>
+                        <exclude>com/example/templateproject/client/exception/*Exception.class</exclude>
+                        <exclude>com/example/templateproject/client/CustomClientRequestObservationConvention.class</exclude>
                         <exclude>com/example/templateproject/persistence/entity/history/*</exclude>
+                        <exclude>com/example/templateproject/web/controller/MetricsController.class</exclude>
                     </excludes>
                     <rules>
                         <rule>
