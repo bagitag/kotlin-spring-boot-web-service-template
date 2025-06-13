@@ -3,12 +3,16 @@
 This module is responsible for integrating with third-party services and external APIs.
 [JSONPlaceholder](https://jsonplaceholder.typicode.com/) is used as an example.
 
-<details open>
+<details>
   <summary>Table of Contents</summary>
 
 - [Technology Stack](#technology-stack)
 - [Configuration](#configuration)
 - [Features](#features)
+  - [Circuit Breaker](#circuit-breaker)
+  - [Retry](#retry)
+  - [Caching](#caching)
+  - [Thread pool](#thread-pool)
 
 </details>
 
