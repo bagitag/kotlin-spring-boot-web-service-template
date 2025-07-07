@@ -2,10 +2,11 @@ package com.example.templateproject.core.service
 
 import com.example.templateproject.api.dto.ExampleDTO
 import com.example.templateproject.api.dto.PageDetails
+import com.example.templateproject.client.exception.ExternalServiceException
 import com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService
 import com.example.templateproject.core.exception.BadRequestErrorMessages
 import com.example.templateproject.core.exception.BadRequestException
-import com.example.templateproject.core.exception.ExternalServiceTimeoutException
+import com.example.templateproject.core.exception.ExecutionTimeoutException
 import com.example.templateproject.core.mapper.ExampleMapper
 import com.example.templateproject.core.mapper.PageConverter
 import com.example.templateproject.persistence.entity.Example
@@ -16,13 +17,11 @@ import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
-import org.springframework.web.client.HttpClientErrorException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
-import java.util.stream.Collectors
 
 @Service
 class ExampleService(
@@ -99,23 +98,14 @@ class ExampleService(
                 LOGGER.info("Calculated word count for users: {}", userNameWordCountMap)
             }.get(wordCountTimeout, TimeUnit.MILLISECONDS)
         } catch (e: TimeoutException) {
-            LOGGER.error("[${jsonPlaceholderService.clientId}] Timeout while calculating word count for users", e)
-            throw ExternalServiceTimeoutException(jsonPlaceholderService.clientId)
+            throw ExecutionTimeoutException("Calculating word count for users", e.message)
         } catch (ex: ExecutionException) {
             val cause = ex.cause!!
 
-            when (cause) {
-                is HttpClientErrorException -> {
-                    val oneLineBody =
-                        cause.responseBodyAsString.lines().stream().map(String::trim).collect(Collectors.joining())
-                    LOGGER.error(
-                        "[${jsonPlaceholderService.clientId}] - Client side error: {} - Response body: {}",
-                        cause.statusText,
-                        oneLineBody
-                    )
-                }
+            if (cause is ExternalServiceException) {
+                throw cause
             }
-            throw cause
+            throw ExternalServiceException(cause, cause.message!!, jsonPlaceholderService.clientId)
         }
 
         return userNameWordCountMap.entries

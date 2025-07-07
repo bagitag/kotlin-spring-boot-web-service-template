@@ -45,7 +45,7 @@ class JsonPlaceholderService(
         return CompletableFuture.completedFuture(
             retryDecorator.retryForHttpServerError(request) {
                 circuitBreaker.decorate {
-                    httpClient.perform("[$clientId]", request, defaultResponse, httpCall)
+                    httpClient.perform(clientId, request, defaultResponse, httpCall)
                 }
             }
         )

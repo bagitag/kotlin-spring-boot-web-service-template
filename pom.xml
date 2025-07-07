@@ -137,13 +137,13 @@
                         <exclude>com/example/templateproject/client/exception/*Exception.class</exclude>
                         <exclude>com/example/templateproject/client/CustomClientRequestObservationConvention.class</exclude>
                         <exclude>com/example/templateproject/persistence/entity/history/*</exclude>
-                        <exclude>com/example/templateproject/web/controller/MetricsController.class</exclude>
                     </excludes>
                     <rules>
                         <rule>
                             <element>CLASS</element>
                             <excludes>
                                 <exclude>com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService</exclude>
+                                <exclude>com.example.templateproject.client.GenericHttpClient</exclude>
                             </excludes>
                             <limits>
                                 <limit>
@@ -176,8 +176,9 @@
                         <rule>
                             <element>CLASS</element>
                             <includes>
-                                <!-- JaCoCo 0.8.12 cannot detect coverage for Kotlin inline functions -->
+                                <!-- JaCoCo 0.8.13 cannot detect coverage for Kotlin inline functions -->
                                 <include>com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService</include>
+                                <include>com.example.templateproject.client.GenericHttpClient</include>
                             </includes>
                             <limits>
                                 <limit>

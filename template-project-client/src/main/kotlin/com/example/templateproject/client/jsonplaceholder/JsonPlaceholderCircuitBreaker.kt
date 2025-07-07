@@ -1,16 +1,11 @@
 package com.example.templateproject.client.jsonplaceholder
 
-import org.slf4j.LoggerFactory
 import org.springframework.retry.annotation.CircuitBreaker
 import org.springframework.retry.annotation.Recover
 import org.springframework.stereotype.Component
 
 @Component
 class JsonPlaceholderCircuitBreaker {
-
-    companion object {
-        private val LOGGER = LoggerFactory.getLogger(JsonPlaceholderCircuitBreaker::class.java)
-    }
 
     @CircuitBreaker(
         label = "JSON_PLACEHOLDER_CB",
@@ -22,7 +17,6 @@ class JsonPlaceholderCircuitBreaker {
 
     @Recover
     private fun <T> recover(ex: Exception): T {
-        LOGGER.error("[JSON_PLACEHOLDER] - Circuit breaker error: ${ex.message}")
         throw ex
     }
 }

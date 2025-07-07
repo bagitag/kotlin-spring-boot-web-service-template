@@ -2,6 +2,8 @@ package com.example.templateproject.web.exception
 
 import com.example.templateproject.api.dto.ErrorDTO
 import com.example.templateproject.client.exception.ExternalServiceException
+import com.example.templateproject.client.exception.ExternalServiceExceptionHandler
+import com.example.templateproject.core.exception.ExecutionTimeoutException
 import com.example.templateproject.core.exception.IdNotFoundException
 import com.example.templateproject.persistence.entity.Example
 import com.example.templateproject.web.metrics.ExceptionMetrics
@@ -42,12 +44,14 @@ internal class ExampleExceptionHandlerTest {
     private lateinit var webRequest: WebRequest
     @MockK
     private lateinit var exceptionMetrics: ExceptionMetrics
+    @MockK
+    private lateinit var externalServiceExceptionHandler: ExternalServiceExceptionHandler
 
     private lateinit var victim: ExampleExceptionHandler
 
     @BeforeEach
     fun initialize() {
-        victim = ExampleExceptionHandler(true, exceptionMetrics)
+        victim = ExampleExceptionHandler(true, exceptionMetrics, externalServiceExceptionHandler)
         every { webRequest.getParameterValues("trace") } returns emptyArray()
         every { exceptionMetrics.updateExceptionCounter(any(), any()) } returns Unit
 
@@ -108,7 +112,7 @@ internal class ExampleExceptionHandlerTest {
     @Test
     fun `Should generate response entity without stacktrace if the feature is disabled`() {
         // given
-        victim = ExampleExceptionHandler(false, exceptionMetrics)
+        victim = ExampleExceptionHandler(false, exceptionMetrics, externalServiceExceptionHandler)
 
         val id = 10L
         val exception = IdNotFoundException(Example::class, id)
@@ -308,6 +312,9 @@ internal class ExampleExceptionHandlerTest {
         val exceptionId = "exceptionId"
         every { ExceptionIdGenerator.generateExceptionId(exception) } returns exceptionId
 
+        val details = mapOf("key" to "value")
+        every { externalServiceExceptionHandler.getDetails(exception) } returns details
+
         // when
         val actual = victim.handleExceptions(originalException, webRequest)
 
@@ -316,6 +323,29 @@ internal class ExampleExceptionHandlerTest {
         assertNotNull(actual.body)
         val body = actual.body!!
         assertEquals(errorMessage, body.message)
+        assertEquals(exceptionId, body.id)
+        assertEquals(details, body.details)
+        assertTrue(body.stackTrace.isNullOrEmpty())
+        verify { ExceptionIdGenerator.generateExceptionId(exception) }
+    }
+
+    @Test
+    fun `Should unwrap ExecutionTimeoutException`() {
+        // given
+        val taskDescription = "task description"
+        val exception = ExecutionTimeoutException(taskDescription, null)
+        val originalException = ExecutionException(exception)
+        val exceptionId = "exceptionId"
+        every { ExceptionIdGenerator.generateExceptionId(exception) } returns exceptionId
+
+        // when
+        val actual = victim.handleExceptions(originalException, webRequest)
+
+        // then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actual.statusCode)
+        assertNotNull(actual.body)
+        val body = actual.body!!
+        assertEquals("Execution timed out for task: '$taskDescription'", body.message)
         assertEquals(exceptionId, body.id)
         assertNull(body.details)
         assertTrue(body.stackTrace.isNullOrEmpty())

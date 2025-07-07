@@ -3,12 +3,13 @@ package com.example.templateproject.core.service
 import com.example.templateproject.api.dto.ExampleDTO
 import com.example.templateproject.api.dto.PageDetails
 import com.example.templateproject.api.dto.SortOrder
+import com.example.templateproject.client.exception.ExternalServiceException
 import com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService
 import com.example.templateproject.client.jsonplaceholder.api.Post
 import com.example.templateproject.client.jsonplaceholder.api.User
 import com.example.templateproject.core.exception.BadRequestErrorMessages
 import com.example.templateproject.core.exception.BadRequestException
-import com.example.templateproject.core.exception.ExternalServiceTimeoutException
+import com.example.templateproject.core.exception.ExecutionTimeoutException
 import com.example.templateproject.core.exception.IdNotFoundException
 import com.example.templateproject.core.mapper.ExampleMapper
 import com.example.templateproject.core.mapper.PageConverter
@@ -358,15 +359,14 @@ internal class ExampleServiceTest {
         // given
         victim = ExampleService(false, 1000L, exampleRepository, exampleMapper, jsonPlaceholderService, pageConverter)
 
-        val clientId = "clientId"
-        every { jsonPlaceholderService.clientId } returns clientId
+        every { jsonPlaceholderService.clientId } returns "clientId"
 
         every { jsonPlaceholderService.getUsers() } returns
                 CompletableFuture.supplyAsync({ listOf() }, CompletableFuture.delayedExecutor(2L, TimeUnit.SECONDS))
 
         // when - then
-        val exception = assertThrows<ExternalServiceTimeoutException> { victim.getWordCountForUsers() }
-        assertEquals(clientId, exception.clientId)
+        val exception = assertThrows<ExecutionTimeoutException> { victim.getWordCountForUsers() }
+        assertEquals("Calculating word count for users", exception.taskDescription)
     }
 
     @Test
@@ -382,8 +382,9 @@ internal class ExampleServiceTest {
                 ExecutionException("NullPointerException", NullPointerException(exceptionMsg))
 
         // when - then
-        val exception = assertThrows<NullPointerException> { victim.getWordCountForUsers() }
+        val exception = assertThrows<ExternalServiceException> { victim.getWordCountForUsers() }
         assertEquals(exceptionMsg, exception.message)
+        assertEquals(clientId, exception.serviceName)
     }
 
     @Test
@@ -394,12 +395,15 @@ internal class ExampleServiceTest {
         val clientId = "clientId"
         every { jsonPlaceholderService.clientId } returns clientId
 
+        val cause = HttpClientErrorException(HttpStatus.BAD_REQUEST)
         every { jsonPlaceholderService.getUsers() } throws
-                ExecutionException("HttpClientErrorException", HttpClientErrorException(HttpStatus.BAD_REQUEST))
+                ExternalServiceException(cause, "Bad Request", clientId)
 
         // when - then
-        val exception = assertThrows<HttpClientErrorException> { victim.getWordCountForUsers() }
-        assertEquals(HttpStatus.BAD_REQUEST, exception.statusCode)
+        val exception = assertThrows<ExternalServiceException> { victim.getWordCountForUsers() }
+        assertEquals(cause, exception.cause)
+        assertEquals(HttpStatus.BAD_REQUEST, (exception.cause as HttpClientErrorException).statusCode)
+        assertEquals(clientId, exception.serviceName)
     }
 
     @Test

@@ -2,7 +2,9 @@ package com.example.templateproject.web.exception
 
 import com.example.templateproject.api.dto.ErrorDTO
 import com.example.templateproject.client.exception.ExternalServiceException
+import com.example.templateproject.client.exception.ExternalServiceExceptionHandler
 import com.example.templateproject.core.exception.BaseException
+import com.example.templateproject.core.exception.ExecutionTimeoutException
 import com.example.templateproject.web.metrics.ExceptionMetrics
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -21,7 +23,8 @@ import java.util.concurrent.ExecutionException
 @ControllerAdvice
 class ExampleExceptionHandler(
     @Value("\${app.stack.trace.enabled:false}") val printStackTraceEnabled: Boolean,
-    private val exceptionMetrics: ExceptionMetrics
+    private val exceptionMetrics: ExceptionMetrics,
+    private val externalServiceExceptionHandler: ExternalServiceExceptionHandler
 ) : ResponseEntityExceptionHandler() {
 
     companion object {
@@ -79,7 +82,8 @@ class ExampleExceptionHandler(
                     .mapValues { (_, groupedErrors) -> groupedErrors.map { it.defaultMessage!! } }
                 errors
             }
-
+            is ExternalServiceException -> externalServiceExceptionHandler.getDetails(exception)
+            is ExecutionTimeoutException -> exception.details
             else -> null
         }
     }
