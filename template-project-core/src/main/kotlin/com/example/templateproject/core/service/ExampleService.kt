@@ -101,11 +101,8 @@ class ExampleService(
             throw ExecutionTimeoutException("Calculating word count for users", e.message)
         } catch (ex: ExecutionException) {
             val cause = ex.cause!!
-
-            if (cause is ExternalServiceException) {
-                throw cause
-            }
-            throw ExternalServiceException(cause, cause.message!!, jsonPlaceholderService.clientId)
+            throw cause as? ExternalServiceException
+                ?: ExternalServiceException(cause, cause.message!!, jsonPlaceholderService.clientId)
         }
 
         return userNameWordCountMap.entries

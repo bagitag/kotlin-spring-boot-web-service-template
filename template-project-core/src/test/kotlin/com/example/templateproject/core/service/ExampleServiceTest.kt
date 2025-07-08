@@ -370,7 +370,7 @@ internal class ExampleServiceTest {
     }
 
     @Test
-    fun `Should handle exception`() {
+    fun `Should handle unknown ExecutionException`() {
         // given
         victim = ExampleService(false, 1000L, exampleRepository, exampleMapper, jsonPlaceholderService, pageConverter)
 
@@ -397,7 +397,7 @@ internal class ExampleServiceTest {
 
         val cause = HttpClientErrorException(HttpStatus.BAD_REQUEST)
         every { jsonPlaceholderService.getUsers() } throws
-                ExternalServiceException(cause, "Bad Request", clientId)
+                ExecutionException(ExternalServiceException(cause, "Bad Request", clientId))
 
         // when - then
         val exception = assertThrows<ExternalServiceException> { victim.getWordCountForUsers() }
