@@ -196,9 +196,9 @@ class JsonPlaceholderIT(
     private fun verifyResponse(actual: MvcResult) {
         assertNotNull(actual.response.contentAsString)
         val map = objectMapper.readValue(actual.response.contentAsString, HashMap::class.java)
-        assertEquals(2, map!!.size)
+        assertEquals(3, map!!.size)
         assertEquals(10, map["username1"])
         assertEquals(5, map["username2"])
-        assertNull(map["username3"])
+        assertEquals(0, map["username3"])
     }
 }

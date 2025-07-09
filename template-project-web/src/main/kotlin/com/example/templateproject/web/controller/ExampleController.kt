@@ -3,7 +3,6 @@ package com.example.templateproject.web.controller
 import com.example.templateproject.api.dto.ExampleDTO
 import com.example.templateproject.api.dto.PageDetails
 import com.example.templateproject.core.service.ExampleService
-import io.micrometer.core.annotation.Timed
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import kotlin.jvm.java
 
 const val EXAMPLE_ENDPOINT = "/example"
 
@@ -33,7 +31,6 @@ class ExampleController(
     }
 
     @GetMapping(path = ["search"], produces = ["application/json"])
-    @Timed(extraTags = ["path", "search"])
     @Operation(summary = "Gets paginated and sorted Examples based the search terms.")
     @ApiResponses(
         ApiResponse(

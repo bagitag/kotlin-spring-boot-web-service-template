@@ -1,6 +1,6 @@
-package com.example.templateproject.web.configuration
+package com.example.templateproject.web.configuration.filter
 
-import com.example.templateproject.web.controller.EXAMPLE_ENDPOINT
+import com.example.templateproject.web.configuration.API_BASE_PATH
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
@@ -34,7 +34,7 @@ internal class DebugHeaderFilterTest {
         mockkStatic(MDC::class)
 
         every { filterChain.doFilter(request, response) } returns mockk()
-        every { request.requestURI }.returns(EXAMPLE_ENDPOINT)
+        every { request.requestURI }.returns("${API_BASE_PATH}/test")
     }
 
     @AfterEach
@@ -59,7 +59,7 @@ internal class DebugHeaderFilterTest {
     }
 
     @Test
-    fun `Should not run logic if request path is disabled`() {
+    fun `Should not run logic if request path is not valid`() {
         // given
         every { request.requestURI }.returns("/actuator/info")
 
@@ -118,18 +118,15 @@ internal class DebugHeaderFilterTest {
 
         every { request.getHeader(DebugHeaderFilter.DEBUG_REQUEST_HEADER_NAME) }
             .returns(DebugHeaderFilter.DEBUG_REQUEST_HEADER_VALUE)
-        every { response.addHeader(any(), any()) } returns mockk()
 
         // when
         assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
 
         // then
         verifyOrder {
-            MDC.put(DebugHeaderFilter.MDC_KEY, DebugHeaderFilter.MDC_VALUE)
-            MDC.put(DebugHeaderFilter.REQUEST_ID, any())
-            response.addHeader(DebugHeaderFilter.REQUEST_ID, any())
-            MDC.remove(DebugHeaderFilter.MDC_KEY)
-            MDC.remove(DebugHeaderFilter.REQUEST_ID)
+            MDC.put(DebugHeaderFilter.DEBUG_MODE_MDC_KEY, DebugHeaderFilter.DEBUG_MODE_MDC_VALUE)
+            MDC.get(RequestIdFilter.REQUEST_ID_MDC_KEY)
+            MDC.remove(DebugHeaderFilter.DEBUG_MODE_MDC_KEY)
         }
     }
 }
