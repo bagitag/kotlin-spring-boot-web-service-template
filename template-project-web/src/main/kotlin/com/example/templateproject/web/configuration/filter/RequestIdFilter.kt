@@ -16,15 +16,17 @@ import java.util.UUID
 @ConditionalOnProperty(name = ["management.otlp.tracing.export.enabled"], havingValue = "false")
 @Order(0)
 class RequestIdFilter : Filter {
-
     companion object {
         const val REQUEST_ID_HEADER = "X-Request-ID"
         const val REQUEST_ID_MDC_KEY = "requestId"
     }
 
-    override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
+    override fun doFilter(
+        request: ServletRequest,
+        response: ServletResponse,
+        chain: FilterChain,
+    ) {
         if (request is HttpServletRequest && isValidRequestPath(request.requestURI)) {
-
             var requestId = request.getHeader(REQUEST_ID_HEADER)
 
             if (requestId.isNullOrEmpty()) {

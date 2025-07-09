@@ -18,12 +18,11 @@ class JsonPlaceholderService(
     private val jsonPlaceholderClient: JsonPlaceholderClient,
     private val httpClient: GenericHttpClient,
     private val retryDecorator: RetryableHttpRequestDecorator,
-    private val circuitBreaker: JsonPlaceholderCircuitBreaker
+    private val circuitBreaker: JsonPlaceholderCircuitBreaker,
 ) {
-
     @Cacheable(
         JsonPlaceholderCacheConfiguration.USERS_CACHE_NAME,
-        condition = "#root.target.cacheEnabled"
+        condition = "#root.target.cacheEnabled",
     )
     @Async("jsonPlaceHolderExecutor")
     fun getUsers(): CompletableFuture<List<User>> {
@@ -40,14 +39,13 @@ class JsonPlaceholderService(
     private fun <T> execute(
         request: Any,
         defaultResponse: T,
-        httpCall: () -> ResponseEntity<T>
-    ): CompletableFuture<T> {
-        return CompletableFuture.completedFuture(
+        httpCall: () -> ResponseEntity<T>,
+    ): CompletableFuture<T> =
+        CompletableFuture.completedFuture(
             retryDecorator.retryForHttpServerError(request) {
                 circuitBreaker.decorate {
                     httpClient.perform(clientId, request, defaultResponse, httpCall)
                 }
-            }
+            },
         )
-    }
 }

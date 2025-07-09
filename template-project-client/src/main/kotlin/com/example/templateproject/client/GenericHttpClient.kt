@@ -40,12 +40,16 @@ class GenericHttpClient {
         return result
     }
 
-    private fun handleException(e: Exception, clientId: String) {
-        val message = when (e) {
-            is HttpStatusCodeException -> "Communication error: ${e.statusText}"
-            is ResourceAccessException -> e.message ?: "Resource access error"
-            else -> "Unknown error"
-        }
+    private fun handleException(
+        e: Exception,
+        clientId: String,
+    ) {
+        val message =
+            when (e) {
+                is HttpStatusCodeException -> "Communication error: ${e.statusText}"
+                is ResourceAccessException -> e.message ?: "Resource access error"
+                else -> "Unknown error"
+            }
         throw ExternalServiceException(e, message, clientId)
     }
 }

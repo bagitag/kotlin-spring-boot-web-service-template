@@ -24,13 +24,11 @@ import java.util.concurrent.ExecutionException
 class ExampleExceptionHandler(
     @Value("\${app.stack.trace.enabled:false}") val printStackTraceEnabled: Boolean,
     private val exceptionMetrics: ExceptionMetrics,
-    private val externalServiceExceptionHandler: ExternalServiceExceptionHandler
+    private val externalServiceExceptionHandler: ExternalServiceExceptionHandler,
 ) : ResponseEntityExceptionHandler() {
-
     companion object {
-        const val unknownError = "Unknown internal server error"
-        const val stackTraceParameter = "trace"
-        const val exceptionIdLength = 15
+        const val UNKNOWN_ERROR_MESSAGE = "Unknown internal server error"
+        const val STACK_TRACE_HEADER_PARAMETER_NAME = "trace"
     }
 
     public override fun handleExceptionInternal(
@@ -38,14 +36,17 @@ class ExampleExceptionHandler(
         body: Any?,
         headers: HttpHeaders,
         statusCode: HttpStatusCode,
-        request: WebRequest
+        request: WebRequest,
     ): ResponseEntity<Any> {
         val responseEntity = handleExceptions(ex, request)
         return ResponseEntity(responseEntity.body as Any, statusCode)
     }
 
     @ExceptionHandler(value = [Exception::class])
-    fun handleExceptions(originalException: Exception, request: WebRequest): ResponseEntity<ErrorDTO> {
+    fun handleExceptions(
+        originalException: Exception,
+        request: WebRequest,
+    ): ResponseEntity<ErrorDTO> {
         val exception = unwrapException(originalException)
         val message = getMessage(exception)
         val details = getDetails(exception)
@@ -67,48 +68,47 @@ class ExampleExceptionHandler(
             else -> originalException
         }
 
-    private fun getMessage(exception: Exception): String {
-        return when (exception) {
+    private fun getMessage(exception: Exception): String =
+        when (exception) {
             is MethodArgumentNotValidException -> "Invalid request content."
-            else -> exception.message ?: unknownError
+            else -> exception.message ?: UNKNOWN_ERROR_MESSAGE
         }
-    }
 
-    private fun getDetails(exception: Exception): Any? {
-        return when (exception) {
+    private fun getDetails(exception: Exception): Any? =
+        when (exception) {
             is MethodArgumentNotValidException -> {
-                val errors: Map<String, List<String>> = exception.bindingResult.allErrors
-                    .groupBy { (it as FieldError).field }
-                    .mapValues { (_, groupedErrors) -> groupedErrors.map { it.defaultMessage!! } }
+                val errors: Map<String, List<String>> =
+                    exception.bindingResult.allErrors
+                        .groupBy { (it as FieldError).field }
+                        .mapValues { (_, groupedErrors) -> groupedErrors.map { it.defaultMessage!! } }
                 errors
             }
             is ExternalServiceException -> externalServiceExceptionHandler.getDetails(exception)
             is ExecutionTimeoutException -> exception.details
             else -> null
         }
-    }
 
-    private fun generateLogPrefix(exception: Exception): String {
-        return when (exception) {
+    private fun generateLogPrefix(exception: Exception): String =
+        when (exception) {
             is ExternalServiceException -> "[${exception.serviceName}] - "
             else -> ""
         }
-    }
 
-    private fun getStackTrace(exception: Exception, request: WebRequest): String? {
-        return if (printStackTraceEnabled && isStackTraceRequested(request)) exception.stackTraceToString() else null
-    }
+    private fun getStackTrace(
+        exception: Exception,
+        request: WebRequest,
+    ): String? = if (printStackTraceEnabled && isStackTraceRequested(request)) exception.stackTraceToString() else null
 
-    private fun isStackTraceRequested(request: WebRequest): Boolean {
-        return request.getParameterValues(stackTraceParameter)?.any { !it.isNullOrBlank() && it.toBoolean() } ?: false
-    }
+    private fun isStackTraceRequested(request: WebRequest): Boolean =
+        request.getParameterValues(STACK_TRACE_HEADER_PARAMETER_NAME)?.any {
+            !it.isNullOrBlank() && it.toBoolean()
+        } ?: false
 
-    private fun getHttpStatus(exception: Exception): HttpStatusCode {
-        return when (exception) {
+    private fun getHttpStatus(exception: Exception): HttpStatusCode =
+        when (exception) {
             is BaseException -> exception.httpStatus
             is MethodArgumentNotValidException -> exception.statusCode
             is ResourceAccessException -> HttpStatus.GATEWAY_TIMEOUT
             else -> HttpStatus.INTERNAL_SERVER_ERROR
         }
-    }
 }

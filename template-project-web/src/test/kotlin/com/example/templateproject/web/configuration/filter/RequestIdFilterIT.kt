@@ -17,8 +17,9 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 
 @ExtendWith(OutputCaptureExtension::class)
-class RequestIdFilterIT(@Autowired val restTemplate: TestRestTemplate) : BaseIntegrationTest() {
-
+class RequestIdFilterIT(
+    @Autowired val restTemplate: TestRestTemplate,
+) : BaseIntegrationTest() {
     @Test
     fun `Should use request id form header`(output: CapturedOutput) {
         // when
@@ -29,7 +30,7 @@ class RequestIdFilterIT(@Autowired val restTemplate: TestRestTemplate) : BaseInt
                 "${API_BASE_PATH}/$EXAMPLE_ENDPOINT",
                 HttpMethod.GET,
                 HttpEntity<Any>(headers),
-                String::class.java
+                String::class.java,
             )
 
         // then
@@ -46,15 +47,17 @@ class RequestIdFilterIT(@Autowired val restTemplate: TestRestTemplate) : BaseInt
                 "${API_BASE_PATH}/$EXAMPLE_ENDPOINT",
                 HttpMethod.GET,
                 HttpEntity<Any>(headers),
-                String::class.java
+                String::class.java,
             )
 
         // then
         assertEquals(HttpStatus.OK, response.statusCode)
         assertTrue(
-            output.out.contains(".*requestId=[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}".toRegex()))
+            output.out.contains(".*requestId=[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}".toRegex()),
+        )
         assertTrue(output.out.contains("[requestId="))
         assertTrue(
-            response.headers.contains(RequestIdFilter.REQUEST_ID_HEADER))
+            response.headers.contains(RequestIdFilter.REQUEST_ID_HEADER),
+        )
     }
 }

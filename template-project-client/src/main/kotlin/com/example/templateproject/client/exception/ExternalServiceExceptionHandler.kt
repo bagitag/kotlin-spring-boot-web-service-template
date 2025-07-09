@@ -9,7 +9,7 @@ import org.springframework.web.client.HttpServerErrorException
 
 @Component
 class ExternalServiceExceptionHandler(
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) {
     companion object {
         private val LOGGER = LoggerFactory.getLogger(ExternalServiceExceptionHandler::class.java)
@@ -18,10 +18,11 @@ class ExternalServiceExceptionHandler(
     fun getDetails(exception: ExternalServiceException): Map<String, Any> {
         val details = mutableMapOf<String, Any>("serviceName" to exception.serviceName)
 
-        val responseBody = when (exception.cause) {
-            is HttpClientErrorException, is HttpServerErrorException -> exception.cause.responseBodyAsString
-            else -> null
-        }
+        val responseBody =
+            when (exception.cause) {
+                is HttpClientErrorException, is HttpServerErrorException -> exception.cause.responseBodyAsString
+                else -> null
+            }
 
         if (!responseBody.isNullOrEmpty()) {
             details.putAll(processJsonResponse(responseBody, exception.serviceName))
@@ -30,13 +31,15 @@ class ExternalServiceExceptionHandler(
         return details
     }
 
-    private fun processJsonResponse(response: String, serviceName: String): Map<String, Any> {
-        return try {
+    private fun processJsonResponse(
+        response: String,
+        serviceName: String,
+    ): Map<String, Any> =
+        try {
             val json = objectMapper.readValue(response, Map::class.java) as Map<String, String>
             mapOf("response" to json)
         } catch (e: JacksonException) {
             LOGGER.warn("[$serviceName] - Failed to parse server response: {}", e.message)
             mapOf("rawResponse" to response)
         }
-    }
 }

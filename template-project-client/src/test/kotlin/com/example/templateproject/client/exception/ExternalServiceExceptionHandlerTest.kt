@@ -15,9 +15,9 @@ import org.springframework.web.client.ResourceAccessException
 
 @ExtendWith(MockKExtension::class)
 class ExternalServiceExceptionHandlerTest {
-
     @MockK
     private lateinit var objectMapper: ObjectMapper
+
     @InjectMockKs
     private lateinit var victim: ExternalServiceExceptionHandler
 
@@ -77,8 +77,13 @@ class ExternalServiceExceptionHandlerTest {
         val response = """{"key1": "value1", "key2": "value2"}"""
         val parsedResponse = mapOf("key" to "value")
         val exception =
-            HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", null,
-                response.toByteArray(), null)
+            HttpServerErrorException(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error",
+                null,
+                response.toByteArray(),
+                null,
+            )
         val externalServiceException = ExternalServiceException(exception, "Test message", serviceName)
 
         every { objectMapper.readValue(response, Map::class.java) } returns parsedResponse

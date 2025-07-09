@@ -30,9 +30,8 @@ class ExampleService(
     private val exampleRepository: ExampleRepository,
     private val exampleMapper: ExampleMapper,
     private val jsonPlaceholderService: JsonPlaceholderService,
-    pageConverter: PageConverter
+    pageConverter: PageConverter,
 ) : AbstractService<Example, ExampleDTO>(exampleRepository, exampleMapper, pageConverter, Example::class) {
-
     companion object {
         private val LOGGER = LoggerFactory.getLogger(ExampleService::class.java)
         const val EXAMPLES_CACHE_NAME = "database-examples"
@@ -46,37 +45,41 @@ class ExampleService(
         }
     }
 
-    fun searchExamples(searchTerms: List<String>, pageable: Pageable): PageDetails<ExampleDTO> {
+    fun searchExamples(
+        searchTerms: List<String>,
+        pageable: Pageable,
+    ): PageDetails<ExampleDTO> {
         val pageableToUse = getPageable(pageable)
-        return exampleRepository.findByNameInIgnoreCase(searchTerms, pageableToUse)
+        return exampleRepository
+            .findByNameInIgnoreCase(searchTerms, pageableToUse)
             .map { exampleMapper.toDTO(it) }
             .let { pageConverter.createPageDetails(it) }
     }
 
     @Cacheable(
         EXAMPLES_CACHE_NAME,
-        condition = "#root.target.cacheEnabled"
+        condition = "#root.target.cacheEnabled",
     )
     override fun getEntities(pageable: Pageable) = super.getEntities(pageable)
 
     @CacheEvict(
         value = [ EXAMPLES_CACHE_NAME ],
         beforeInvocation = false,
-        allEntries = true
+        allEntries = true,
     )
     override fun createEntity(dto: ExampleDTO) = super.createEntity(dto)
 
     @CacheEvict(
         value = [ EXAMPLES_CACHE_NAME ],
         beforeInvocation = false,
-        allEntries = true
+        allEntries = true,
     )
     override fun updateEntity(dto: ExampleDTO) = super.updateEntity(dto)
 
     @CacheEvict(
         value = [ EXAMPLES_CACHE_NAME ],
         beforeInvocation = false,
-        allEntries = true
+        allEntries = true,
     )
     override fun deleteEntity(id: Long) = super.deleteEntity(id)
 
@@ -86,17 +89,21 @@ class ExampleService(
         try {
             val users = jsonPlaceholderService.getUsers().get(wordCountTimeout, TimeUnit.MILLISECONDS)
 
-            val futureArray = users.map { user ->
-                jsonPlaceholderService.getPostsByUserId(user.id).thenAccept { posts ->
-                    val totalWords = posts.sumOf { it.body.split("\\s+".toRegex()).size }
-                    userNameWordCountMap[user.username] =
-                        userNameWordCountMap.getOrDefault(user.username, 0) + totalWords
-                }
-            }.toTypedArray()
+            val futureArray =
+                users
+                    .map { user ->
+                        jsonPlaceholderService.getPostsByUserId(user.id).thenAccept { posts ->
+                            val totalWords = posts.sumOf { it.body.split("\\s+".toRegex()).size }
+                            userNameWordCountMap[user.username] =
+                                userNameWordCountMap.getOrDefault(user.username, 0) + totalWords
+                        }
+                    }.toTypedArray()
 
-            CompletableFuture.allOf(*futureArray).thenRun {
-                LOGGER.info("Calculated word count for users: {}", userNameWordCountMap)
-            }.get(wordCountTimeout, TimeUnit.MILLISECONDS)
+            CompletableFuture
+                .allOf(*futureArray)
+                .thenRun {
+                    LOGGER.info("Calculated word count for users: {}", userNameWordCountMap)
+                }.get(wordCountTimeout, TimeUnit.MILLISECONDS)
         } catch (e: TimeoutException) {
             throw ExecutionTimeoutException("Calculating word count for users", e.message)
         } catch (ex: ExecutionException) {

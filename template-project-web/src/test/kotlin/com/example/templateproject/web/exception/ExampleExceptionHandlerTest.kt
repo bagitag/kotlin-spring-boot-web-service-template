@@ -39,11 +39,12 @@ import java.util.concurrent.ExecutionException
 
 @ExtendWith(MockKExtension::class)
 internal class ExampleExceptionHandlerTest {
-
     @MockK
     private lateinit var webRequest: WebRequest
+
     @MockK
     private lateinit var exceptionMetrics: ExceptionMetrics
+
     @MockK
     private lateinit var externalServiceExceptionHandler: ExternalServiceExceptionHandler
 
@@ -176,7 +177,7 @@ internal class ExampleExceptionHandlerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actual.statusCode)
         assertNotNull(actual.body)
         val body = actual.body!!
-        assertEquals(ExampleExceptionHandler.unknownError, body.message)
+        assertEquals(ExampleExceptionHandler.UNKNOWN_ERROR_MESSAGE, body.message)
         assertEquals(exceptionId, body.id)
         assertNull(body.details)
         assertTrue(body.stackTrace.isNullOrEmpty())
@@ -200,7 +201,7 @@ internal class ExampleExceptionHandlerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actual.statusCode)
         assertNotNull(actual.body)
         val body = actual.body!!
-        assertEquals(ExampleExceptionHandler.unknownError, body.message)
+        assertEquals(ExampleExceptionHandler.UNKNOWN_ERROR_MESSAGE, body.message)
         assertEquals(exceptionId, body.id)
         assertFalse(body.stackTrace.isNullOrEmpty())
         verify { ExceptionIdGenerator.generateExceptionId(exception) }
@@ -239,12 +240,20 @@ internal class ExampleExceptionHandlerTest {
         val exceptionId = "exceptionId"
         every { ExceptionIdGenerator.generateExceptionId(exception) } returns exceptionId
 
-        exception.stackTrace = arrayOf(
-            StackTraceElement("com.external.ExampleClass", "exampleMethod", "exampleFile", 100))
+        exception.stackTrace =
+            arrayOf(
+                StackTraceElement("com.external.ExampleClass", "exampleMethod", "exampleFile", 100),
+            )
 
         // when
-        val actual = victim.handleExceptionInternal(exception, null, HttpHeaders(),
-            HttpStatus.UNSUPPORTED_MEDIA_TYPE, webRequest)
+        val actual =
+            victim.handleExceptionInternal(
+                exception,
+                null,
+                HttpHeaders(),
+                HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+                webRequest,
+            )
 
         // then
         assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE, actual.statusCode)
@@ -259,24 +268,31 @@ internal class ExampleExceptionHandlerTest {
     @Test
     fun `Should generate response entity with details`() {
         // given
-        val errors = mutableListOf(
-            FieldError("objectName", "field1", "errorMsg1"),
-            FieldError("objectName", "field1", "errorMsg2"),
-            FieldError("objectName", "field2", "errorMsg1")
-        )
+        val errors =
+            mutableListOf(
+                FieldError("objectName", "field1", "errorMsg1"),
+                FieldError("objectName", "field1", "errorMsg2"),
+                FieldError("objectName", "field2", "errorMsg1"),
+            )
 
         val bindingResult: BindingResult = mock(BindingResult::class.java)
         `when`(bindingResult.allErrors).thenAnswer { errors }
 
-        val parameter = mockk<MethodParameter> {
-            every { parameterIndex } returns 1
-        }
+        val parameter =
+            mockk<MethodParameter> {
+                every { parameterIndex } returns 1
+            }
         val exception = MethodArgumentNotValidException(parameter, bindingResult)
 
         exception.stackTrace =
-            arrayOf(StackTraceElement("com.external.ExampleClass",
-                "exampleMethod",
-                "exampleFile", 100))
+            arrayOf(
+                StackTraceElement(
+                    "com.external.ExampleClass",
+                    "exampleMethod",
+                    "exampleFile",
+                    100,
+                ),
+            )
 
         every { exception.message } returns "MethodArgumentNotValidException"
 
@@ -368,28 +384,41 @@ internal class ExampleExceptionHandlerTest {
     @Test
     fun `Should not generate exception id from excluded classes`() {
         // given
-        val errors = mutableListOf(
-            FieldError("objectName", "field1", "errorMsg1"),
-        )
+        val errors =
+            mutableListOf(
+                FieldError("objectName", "field1", "errorMsg1"),
+            )
 
         val bindingResult: BindingResult = mock(BindingResult::class.java)
         `when`(bindingResult.allErrors).thenAnswer { errors }
 
-        val parameter = mockk<MethodParameter> {
-            every { parameterIndex } returns 1
-        }
+        val parameter =
+            mockk<MethodParameter> {
+                every { parameterIndex } returns 1
+            }
         val exception = MethodArgumentNotValidException(parameter, bindingResult)
 
-        exception.stackTrace = arrayOf(
-            StackTraceElement(
-                "org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor",
-                "resolveArgument", "RequestResponseBodyMethodProcessor.java", 159),
-            StackTraceElement(
-                "org.springframework.web.method.support.HandlerMethodArgumentResolverComposite",
-                "resolveArgument", "HandlerMethodArgumentResolverComposite.java", 122),
-            StackTraceElement("com.example.templateproject.web.configuration.filter.DebugHeaderFilter",
-                "doFilter", "DebugHeaderFilter.kt", 45),
-        )
+        exception.stackTrace =
+            arrayOf(
+                StackTraceElement(
+                    "org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor",
+                    "resolveArgument",
+                    "RequestResponseBodyMethodProcessor.java",
+                    159,
+                ),
+                StackTraceElement(
+                    "org.springframework.web.method.support.HandlerMethodArgumentResolverComposite",
+                    "resolveArgument",
+                    "HandlerMethodArgumentResolverComposite.java",
+                    122,
+                ),
+                StackTraceElement(
+                    "com.example.templateproject.web.configuration.filter.DebugHeaderFilter",
+                    "doFilter",
+                    "DebugHeaderFilter.kt",
+                    45,
+                ),
+            )
 
         every { exception.message } returns "MethodArgumentNotValidException"
 

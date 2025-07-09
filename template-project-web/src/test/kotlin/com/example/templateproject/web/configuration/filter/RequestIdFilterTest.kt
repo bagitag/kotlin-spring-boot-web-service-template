@@ -24,7 +24,6 @@ import org.slf4j.MDC
 
 @ExtendWith(MockKExtension::class)
 internal class RequestIdFilterTest {
-
     private lateinit var victim: RequestIdFilter
 
     private val request = mockk<HttpServletRequest>()

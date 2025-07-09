@@ -9,24 +9,28 @@ import org.springframework.validation.annotation.Validated
 
 @ConfigurationProperties(prefix = "client.jsonplaceholder")
 @Validated
-data class JsonPlaceholderProperties @ConstructorBinding constructor(
-    @NotEmpty
-    val clientId: String,
-    @NotEmpty
-    val baseUrl: String,
-    @NotEmpty
-    val apiKey: String,
-    val connectionTimeoutMillis: Long = 1000,
-    val readTimeoutMillis: Long = 3000,
-    @Valid
-    val threadPool: ThreadPoolTaskExecutorProperties
-)
+data class JsonPlaceholderProperties
+    @ConstructorBinding
+    constructor(
+        @NotEmpty
+        val clientId: String,
+        @NotEmpty
+        val baseUrl: String,
+        @NotEmpty
+        val apiKey: String,
+        val connectionTimeoutMillis: Long = 1000,
+        val readTimeoutMillis: Long = 3000,
+        @Valid
+        val threadPool: ThreadPoolTaskExecutorProperties,
+    )
 
-data class ThreadPoolTaskExecutorProperties @ConstructorBinding constructor(
-    @NotNull
-    val corePoolSize: Int,
-    @NotNull
-    val maxPoolSize: Int,
-    @NotNull
-    val queueCapacity: Int
-)
+data class ThreadPoolTaskExecutorProperties
+    @ConstructorBinding
+    constructor(
+        @NotNull
+        val corePoolSize: Int,
+        @NotNull
+        val maxPoolSize: Int,
+        @NotNull
+        val queueCapacity: Int,
+    )

@@ -387,7 +387,7 @@ internal class ExampleServiceTest {
 
         val exceptionMsg = "NPE message"
         every { jsonPlaceholderService.getUsers() } throws
-                ExecutionException("NullPointerException", NullPointerException(exceptionMsg))
+            ExecutionException("NullPointerException", NullPointerException(exceptionMsg))
 
         // when - then
         val exception = assertThrows<ExternalServiceException> { victim.getWordCountForUsers() }
@@ -405,7 +405,7 @@ internal class ExampleServiceTest {
 
         val cause = HttpClientErrorException(HttpStatus.BAD_REQUEST)
         every { jsonPlaceholderService.getUsers() } throws
-                ExecutionException(ExternalServiceException(cause, "Bad Request", clientId))
+            ExecutionException(ExternalServiceException(cause, "Bad Request", clientId))
 
         // when - then
         val exception = assertThrows<ExternalServiceException> { victim.getWordCountForUsers() }

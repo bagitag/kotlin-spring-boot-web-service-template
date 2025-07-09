@@ -17,7 +17,6 @@ import com.github.tomakehurst.wiremock.stubbing.Scenario
 import com.maciejwalkowiak.wiremock.spring.InjectWireMock
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

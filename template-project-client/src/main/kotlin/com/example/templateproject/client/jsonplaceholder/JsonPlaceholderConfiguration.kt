@@ -16,7 +16,9 @@ import java.time.Duration
 import java.util.concurrent.Executor
 
 @Configuration
-class JsonPlaceholderConfiguration(private val properties: JsonPlaceholderProperties) {
+class JsonPlaceholderConfiguration(
+    private val properties: JsonPlaceholderProperties,
+) {
     companion object {
         private const val API_KEY_HEADER = "api-key"
         private const val THREAD_NAME_PREFIX = "JPH-exec-"
@@ -24,36 +26,44 @@ class JsonPlaceholderConfiguration(private val properties: JsonPlaceholderProper
 
     @Bean
     fun jsonPlaceholderClient(observationRegistry: ObservationRegistry): JsonPlaceholderClient {
-        val restClient = RestClient.builder()
-            .baseUrl(properties.baseUrl)
-            .defaultHeader(API_KEY_HEADER, properties.apiKey)
-            .requestFactory(clientHttpRequestFactory())
-            .observationRegistry(observationRegistry)
-            .observationConvention(observationConvention())
-            .build()
+        val restClient =
+            RestClient
+                .builder()
+                .baseUrl(properties.baseUrl)
+                .defaultHeader(API_KEY_HEADER, properties.apiKey)
+                .requestFactory(clientHttpRequestFactory())
+                .observationRegistry(observationRegistry)
+                .observationConvention(observationConvention())
+                .build()
         val factory = HttpServiceProxyFactory.builderFor(RestClientAdapter.create(restClient)).build()
         return factory.createClient(JsonPlaceholderClient::class.java)
     }
 
     @Bean
     fun jsonPlaceHolderExecutor(): Executor {
-        val threadPoolTaskExecutor = ThreadPoolTaskExecutor().apply {
-            corePoolSize = properties.threadPool.corePoolSize
-            maxPoolSize = properties.threadPool.maxPoolSize
-            queueCapacity = properties.threadPool.queueCapacity
-            threadNamePrefix = THREAD_NAME_PREFIX
-            setTaskDecorator(CompositeTaskDecorator(listOf(
-                ContextPropagatingTaskDecorator(),
-                MdcDecorator()
-            )))
-        }
+        val threadPoolTaskExecutor =
+            ThreadPoolTaskExecutor().apply {
+                corePoolSize = properties.threadPool.corePoolSize
+                maxPoolSize = properties.threadPool.maxPoolSize
+                queueCapacity = properties.threadPool.queueCapacity
+                threadNamePrefix = THREAD_NAME_PREFIX
+                setTaskDecorator(
+                    CompositeTaskDecorator(
+                        listOf(
+                            ContextPropagatingTaskDecorator(),
+                            MdcDecorator(),
+                        ),
+                    ),
+                )
+            }
         return threadPoolTaskExecutor
     }
 
-    private fun clientHttpRequestFactory() = SimpleClientHttpRequestFactory().apply {
-        setConnectTimeout(Duration.ofMillis(properties.connectionTimeoutMillis))
-        setReadTimeout(Duration.ofMillis(properties.readTimeoutMillis))
-    }
+    private fun clientHttpRequestFactory() =
+        SimpleClientHttpRequestFactory().apply {
+            setConnectTimeout(Duration.ofMillis(properties.connectionTimeoutMillis))
+            setReadTimeout(Duration.ofMillis(properties.readTimeoutMillis))
+        }
 
     private fun observationConvention() = CustomClientRequestObservationConvention(properties.clientId)
 }

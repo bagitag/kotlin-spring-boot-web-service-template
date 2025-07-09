@@ -21,7 +21,6 @@ import org.junit.jupiter.params.provider.CsvSource
 
 @ExtendWith(MockKExtension::class)
 internal class TraceIdFilterTest {
-
     private lateinit var victim: TraceIdFilter
 
     private val tracer = mockk<Tracer>()
