@@ -3,11 +3,13 @@ package com.example.templateproject.core.service
 import com.example.templateproject.api.dto.ExampleDTO
 import com.example.templateproject.api.dto.PageDetails
 import com.example.templateproject.api.dto.SortOrder
+import com.example.templateproject.client.exception.ExternalServiceException
 import com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService
 import com.example.templateproject.client.jsonplaceholder.api.Post
 import com.example.templateproject.client.jsonplaceholder.api.User
 import com.example.templateproject.core.exception.BadRequestErrorMessages
 import com.example.templateproject.core.exception.BadRequestException
+import com.example.templateproject.core.exception.ExecutionTimeoutException
 import com.example.templateproject.core.exception.IdNotFoundException
 import com.example.templateproject.core.mapper.ExampleMapper
 import com.example.templateproject.core.mapper.PageConverter
@@ -31,10 +33,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.http.HttpStatus
+import org.springframework.web.client.HttpClientErrorException
 import java.util.Optional
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 @ExtendWith(MockKExtension::class)
 internal class ExampleServiceTest {
@@ -51,7 +55,7 @@ internal class ExampleServiceTest {
 
     @BeforeEach
     fun initialize() {
-        victim = ExampleService(false, 10000L, exampleRepository, exampleMapper, pageConverter, jsonPlaceholderService)
+        victim = ExampleService(false, 10000L, exampleRepository, exampleMapper, jsonPlaceholderService, pageConverter)
     }
 
     @Test
@@ -353,13 +357,73 @@ internal class ExampleServiceTest {
     @Test
     fun `Should throw timeout exception`() {
         // given
-        victim = ExampleService(false, 1000L, exampleRepository, exampleMapper, pageConverter, jsonPlaceholderService)
+        victim = ExampleService(false, 1000L, exampleRepository, exampleMapper, jsonPlaceholderService, pageConverter)
+
+        every { jsonPlaceholderService.clientId } returns "clientId"
 
         every { jsonPlaceholderService.getUsers() } returns
                 CompletableFuture.supplyAsync({ listOf() }, CompletableFuture.delayedExecutor(2L, TimeUnit.SECONDS))
 
         // when - then
-        assertThrows<TimeoutException> { victim.getWordCountForUsers() }
+        val exception = assertThrows<ExecutionTimeoutException> { victim.getWordCountForUsers() }
+        assertEquals("Calculating word count for users", exception.taskDescription)
+    }
+
+    @Test
+    fun `Should handle unknown ExecutionException`() {
+        // given
+        victim = ExampleService(false, 1000L, exampleRepository, exampleMapper, jsonPlaceholderService, pageConverter)
+
+        val clientId = "clientId"
+        every { jsonPlaceholderService.clientId } returns clientId
+
+        val exceptionMsg = "NPE message"
+        every { jsonPlaceholderService.getUsers() } throws
+                ExecutionException("NullPointerException", NullPointerException(exceptionMsg))
+
+        // when - then
+        val exception = assertThrows<ExternalServiceException> { victim.getWordCountForUsers() }
+        assertEquals(exceptionMsg, exception.message)
+        assertEquals(clientId, exception.serviceName)
+    }
+
+    @Test
+    fun `Should handle ExecutionException`() {
+        // given
+        victim = ExampleService(false, 1000L, exampleRepository, exampleMapper, jsonPlaceholderService, pageConverter)
+
+        val clientId = "clientId"
+        every { jsonPlaceholderService.clientId } returns clientId
+
+        val cause = HttpClientErrorException(HttpStatus.BAD_REQUEST)
+        every { jsonPlaceholderService.getUsers() } throws
+                ExecutionException(ExternalServiceException(cause, "Bad Request", clientId))
+
+        // when - then
+        val exception = assertThrows<ExternalServiceException> { victim.getWordCountForUsers() }
+        assertEquals(cause, exception.cause)
+        assertEquals(HttpStatus.BAD_REQUEST, (exception.cause as HttpClientErrorException).statusCode)
+        assertEquals(clientId, exception.serviceName)
+    }
+
+    @Test
+    fun `Should return map with zero word count`() {
+        // given
+        val userId1 = 1L
+        val user1 = User(userId1, "name1", "username1", "email1")
+        val users = listOf(user1)
+        val usersFuture: CompletableFuture<List<User>> = CompletableFuture.completedFuture(users)
+
+        every { jsonPlaceholderService.getUsers() } returns usersFuture
+
+        every { jsonPlaceholderService.getPostsByUserId(userId1) } returns CompletableFuture.completedFuture(listOf())
+
+        // when
+        val actual = victim.getWordCountForUsers()
+
+        // then
+        assertEquals(users.size, actual.size)
+        assertEquals(0, actual[user1.username])
     }
 
     @Test

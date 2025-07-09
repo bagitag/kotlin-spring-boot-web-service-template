@@ -20,21 +20,78 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=12345
     ports:
       - "8070:80"
-    configs:
-      - source: pgadmin_config
+    volumes:
+      - type: bind
+        source: ./.docker/pgadmin/servers.json
         target: /pgadmin4/servers.json
+    networks:
+      - example-network
+
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    command:
+      - --config=/etc/otelcol-contrib/otel-collector.yml
+    volumes:
+      - type: bind
+        source: ./.docker/otel-collector.yml
+        target: /etc/otelcol-contrib/otel-collector.yml
+    ports:
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP HTTP receiver
+      - "9099:9099" # Prometheus metrics exposed by the Collector: http://localhost:9099/metrics
+      - "55679:55679" # zpages extension (http://localhost:55679/debug/servicez, http://localhost:55679/debug/tracez)
+      - "13133:13133" # health_check extension (http://localhost:13133/healthz)
     networks:
       - example-network
 
   prometheus:
     image: prom/prometheus:latest
-#    volumes:
-#      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    configs:
-      - source: prometheus_config
+    volumes:
+      - type: bind
+        source: ./.docker/prometheus/prometheus.yml
         target: /etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    networks:
+      - example-network
+
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    networks:
+      - example-network
+
+  tempo:
+    image: grafana/tempo:latest
+    command: [ "-config.file=/etc/tempo.yml" ]
+    volumes:
+      - type: bind
+        source: ./.docker/tempo/tempo.yml
+        target: /etc/tempo.yml
+    ports:
+      - "3200"
+      - "4317"  # otlp grpc
+    networks:
+      - example-network
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - type: bind
+        source: ./.docker/grafana/grafana-datasource.yml
+        target: /etc/grafana/provisioning/datasources/datasource.yml
+      - type: bind
+        source: ./.docker/grafana/grafana-dashboard.yml
+        target: /etc/grafana/provisioning/dashboards/dashboard.yml
+      - type: bind
+        source: ./.docker/grafana/dashboards
+        target: /var/lib/grafana/dashboards
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
       - example-network
 
@@ -58,33 +115,6 @@ networks:
     driver: bridge
 
 configs:
-  pgadmin_config:
-    content: |
-      {
-        "Servers": {
-          "1": {
-            "Name": "PostgreSQL",
-            "Group": "Servers",
-            "Host": "database",
-            "Port": 5432,
-            "Username": "test",
-            "MaintenanceDB": "postgres",
-            "SSLMode": "prefer"
-          }
-        }
-      }
-
-  prometheus_config:
-    content: |
-      scrape_configs:
-        - job_name: 'spring-actuator'
-          metrics_path: '/actuator/prometheus'
-          scrape_interval: '10s'
-          static_configs:
-            - targets: ['host.docker.internal:8080']
-              labels:
-                application: 'template-app'
-
   service_config:
     content: |
       {

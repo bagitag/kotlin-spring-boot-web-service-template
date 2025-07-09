@@ -1,29 +1,31 @@
 package com.example.templateproject.web.exception
 
-import com.example.templateproject.TemplateApplication
 import com.example.templateproject.api.dto.ErrorDTO
+import com.example.templateproject.client.exception.ExternalServiceException
+import com.example.templateproject.client.exception.ExternalServiceExceptionHandler
 import com.example.templateproject.core.exception.BaseException
+import com.example.templateproject.core.exception.ExecutionTimeoutException
 import com.example.templateproject.web.metrics.ExceptionMetrics
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
-import org.springframework.util.DigestUtils
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
+import java.util.concurrent.ExecutionException
 
 @ControllerAdvice
 class ExampleExceptionHandler(
     @Value("\${app.stack.trace.enabled:false}") val printStackTraceEnabled: Boolean,
-    private val exceptionMetrics: ExceptionMetrics
+    private val exceptionMetrics: ExceptionMetrics,
+    private val externalServiceExceptionHandler: ExternalServiceExceptionHandler
 ) : ResponseEntityExceptionHandler() {
-
-    val basePackageName: String = TemplateApplication::class.java.`package`.name
 
     companion object {
         const val unknownError = "Unknown internal server error"
@@ -43,13 +45,15 @@ class ExampleExceptionHandler(
     }
 
     @ExceptionHandler(value = [Exception::class])
-    fun handleExceptions(exception: Exception, request: WebRequest): ResponseEntity<ErrorDTO> {
+    fun handleExceptions(originalException: Exception, request: WebRequest): ResponseEntity<ErrorDTO> {
+        val exception = unwrapException(originalException)
         val message = getMessage(exception)
         val details = getDetails(exception)
-        val exceptionId = generateExceptionId(exception)
+        val exceptionId = ExceptionIdGenerator.generateExceptionId(exception)
+        val logPrefix = generateLogPrefix(exception)
 
         exceptionMetrics.updateExceptionCounter(exceptionId, exception.javaClass.simpleName)
-        logger.error("ExceptionId: $exceptionId - ${exception.message}", exception)
+        logger.error("${logPrefix}ExceptionId: $exceptionId - ${exception.message}", exception)
 
         val stackTrace = getStackTrace(exception, request)
         val body = ErrorDTO(exceptionId, message, details, stackTrace)
@@ -57,37 +61,37 @@ class ExampleExceptionHandler(
         return ResponseEntity(body, httpStatus)
     }
 
+    private fun unwrapException(originalException: Exception) =
+        when (originalException) {
+            is ExecutionException -> originalException.cause as Exception
+            else -> originalException
+        }
+
     private fun getMessage(exception: Exception): String {
-        return when(exception) {
+        return when (exception) {
             is MethodArgumentNotValidException -> "Invalid request content."
             else -> exception.message ?: unknownError
         }
     }
 
     private fun getDetails(exception: Exception): Any? {
-        return when(exception) {
+        return when (exception) {
             is MethodArgumentNotValidException -> {
-                val errors : Map<String, List<String>> = exception.bindingResult.allErrors
+                val errors: Map<String, List<String>> = exception.bindingResult.allErrors
                     .groupBy { (it as FieldError).field }
                     .mapValues { (_, groupedErrors) -> groupedErrors.map { it.defaultMessage!! } }
                 errors
             }
+            is ExternalServiceException -> externalServiceExceptionHandler.getDetails(exception)
+            is ExecutionTimeoutException -> exception.details
             else -> null
         }
     }
 
-    private fun generateExceptionId(exception: Exception): String {
-        return try {
-            val stackTraceElement =
-                StackWalker.getInstance().walk { exception.stackTrace }.find { it.className.contains(basePackageName) }
-                    ?: StackWalker.getInstance().walk { exception.stackTrace }.first()
-
-            val exceptionIdString = exception.javaClass.canonicalName +
-                    stackTraceElement.className + stackTraceElement.methodName
-            DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(exceptionIdLength)
-        } catch (e: Exception) {
-            logger.error("Unexpected error while generating exceptionId: $e")
-            "unknown"
+    private fun generateLogPrefix(exception: Exception): String {
+        return when (exception) {
+            is ExternalServiceException -> "[${exception.serviceName}] - "
+            else -> ""
         }
     }
 
@@ -103,6 +107,7 @@ class ExampleExceptionHandler(
         return when (exception) {
             is BaseException -> exception.httpStatus
             is MethodArgumentNotValidException -> exception.statusCode
+            is ResourceAccessException -> HttpStatus.GATEWAY_TIMEOUT
             else -> HttpStatus.INTERNAL_SERVER_ERROR
         }
     }

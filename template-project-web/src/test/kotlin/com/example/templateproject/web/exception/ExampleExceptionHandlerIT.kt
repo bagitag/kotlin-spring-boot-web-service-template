@@ -1,6 +1,7 @@
 package com.example.templateproject.web.exception
 
 import com.example.templateproject.api.dto.ExampleDTO
+import com.example.templateproject.client.exception.ExternalServiceExceptionHandler
 import com.example.templateproject.core.exception.IdNotFoundException
 import com.example.templateproject.core.service.ExampleService
 import com.example.templateproject.persistence.entity.Example
@@ -31,7 +32,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest(ExampleController::class)
 @ActiveProfiles("test")
-@Import(MockClock::class, SimpleMeterRegistry::class, ExceptionMetrics::class)
+@Import(MockClock::class, SimpleMeterRegistry::class, ExceptionMetrics::class, ExternalServiceExceptionHandler::class)
 class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
 
     private val path = "$API_BASE_PATH/$EXAMPLE_ENDPOINT"

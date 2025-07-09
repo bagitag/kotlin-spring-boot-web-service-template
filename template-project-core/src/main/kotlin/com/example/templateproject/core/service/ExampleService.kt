@@ -2,9 +2,11 @@ package com.example.templateproject.core.service
 
 import com.example.templateproject.api.dto.ExampleDTO
 import com.example.templateproject.api.dto.PageDetails
+import com.example.templateproject.client.exception.ExternalServiceException
 import com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService
 import com.example.templateproject.core.exception.BadRequestErrorMessages
 import com.example.templateproject.core.exception.BadRequestException
+import com.example.templateproject.core.exception.ExecutionTimeoutException
 import com.example.templateproject.core.mapper.ExampleMapper
 import com.example.templateproject.core.mapper.PageConverter
 import com.example.templateproject.persistence.entity.Example
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
@@ -26,8 +29,8 @@ class ExampleService(
     @Value("\${core.wordcountcalculation.timeout.millis}") val wordCountTimeout: Long,
     private val exampleRepository: ExampleRepository,
     private val exampleMapper: ExampleMapper,
-    private val pageConverter: PageConverter,
-    private val jsonPlaceholderService: JsonPlaceholderService
+    private val jsonPlaceholderService: JsonPlaceholderService,
+    pageConverter: PageConverter
 ) : AbstractService<Example, ExampleDTO>(exampleRepository, exampleMapper, pageConverter, Example::class) {
 
     companion object {
@@ -81,24 +84,29 @@ class ExampleService(
         val userNameWordCountMap = ConcurrentHashMap<String, Int>()
 
         try {
-            jsonPlaceholderService.getUsers().thenComposeAsync { users ->
-                val futureArray = users.map { user ->
-                    jsonPlaceholderService.getPostsByUserId(user.id).thenAccept { posts ->
-                        posts.forEach { post ->
-                            val wordCount = post.body.split("\\s+".toRegex()).size
-                            userNameWordCountMap.merge(user.username, wordCount, Integer::sum)
-                        }
-                    }
-                }.toTypedArray()
-                CompletableFuture.allOf(*futureArray)
-            }.thenApply {
+            val users = jsonPlaceholderService.getUsers().get(wordCountTimeout, TimeUnit.MILLISECONDS)
+
+            val futureArray = users.map { user ->
+                jsonPlaceholderService.getPostsByUserId(user.id).thenAccept { posts ->
+                    val totalWords = posts.sumOf { it.body.split("\\s+".toRegex()).size }
+                    userNameWordCountMap[user.username] =
+                        userNameWordCountMap.getOrDefault(user.username, 0) + totalWords
+                }
+            }.toTypedArray()
+
+            CompletableFuture.allOf(*futureArray).thenRun {
                 LOGGER.info("Calculated word count for users: {}", userNameWordCountMap)
             }.get(wordCountTimeout, TimeUnit.MILLISECONDS)
         } catch (e: TimeoutException) {
-            LOGGER.error("Timeout while calculating word count for users", e)
-            throw e
+            throw ExecutionTimeoutException("Calculating word count for users", e.message)
+        } catch (ex: ExecutionException) {
+            val cause = ex.cause!!
+            throw cause as? ExternalServiceException
+                ?: ExternalServiceException(cause, cause.message!!, jsonPlaceholderService.clientId)
         }
 
-        return userNameWordCountMap.entries.sortedByDescending { it.value }.associateBy({ it.key }, { it.value })
+        return userNameWordCountMap.entries
+            .sortedByDescending { it.value }
+            .associate { it.key to it.value }
     }
 }

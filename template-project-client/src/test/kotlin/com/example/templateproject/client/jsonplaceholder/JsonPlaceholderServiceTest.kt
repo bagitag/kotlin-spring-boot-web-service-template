@@ -9,16 +9,13 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
-import java.util.concurrent.ExecutionException
 
 @ExtendWith(MockKExtension::class)
 internal class JsonPlaceholderServiceTest {
@@ -36,7 +33,8 @@ internal class JsonPlaceholderServiceTest {
 
     @BeforeEach
     fun initialize() {
-        victim = JsonPlaceholderService(false, jsonPlaceholderClient, httpClient, retryDecorator, circuitBreaker)
+        victim =
+            JsonPlaceholderService("clientId", false, jsonPlaceholderClient, httpClient, retryDecorator, circuitBreaker)
     }
 
     @Test
@@ -95,11 +93,8 @@ internal class JsonPlaceholderServiceTest {
             ) { any() }
         } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
 
-        // when
-        val actual = assertThrows<ExecutionException> { victim.getUsers().get() }
-
-        // then
-        assertTrue(actual.cause is HttpServerErrorException)
+        // when - then
+        assertThrows<HttpServerErrorException> { victim.getUsers().get() }
     }
 
     @Test
@@ -162,38 +157,7 @@ internal class JsonPlaceholderServiceTest {
             ) { any() }
         } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
 
-        // when
-        val actual = assertThrows<ExecutionException> { victim.getPostsByUserId(userId).get() }
-
-        // then
-        assertTrue(actual.cause is HttpServerErrorException)
-    }
-
-    @Test
-    fun `Should return default response in case of HttpClientErrorException`() {
-        // given
-        every { jsonPlaceholderClient.getUsers() } throws HttpClientErrorException(HttpStatus.BAD_REQUEST)
-
-        every {
-            retryDecorator.retryForHttpServerError<List<User>>(any(), any())
-        } throws HttpClientErrorException(HttpStatus.BAD_REQUEST)
-
-        every {
-            circuitBreaker.decorate { any<Any>() }
-        } throws HttpClientErrorException(HttpStatus.BAD_REQUEST)
-
-        every {
-            httpClient.perform(
-                any<String>(),
-                any<String>(),
-                any<List<User>>()
-            ) { any() }
-        } throws HttpClientErrorException(HttpStatus.BAD_REQUEST)
-
-        // when
-        val actual = assertThrows<ExecutionException> { victim.getUsers().get() }
-
-        // then
-        assertTrue(actual.cause is HttpClientErrorException)
+        // when - then
+        assertThrows<HttpServerErrorException> { victim.getPostsByUserId(userId).get() }
     }
 }
