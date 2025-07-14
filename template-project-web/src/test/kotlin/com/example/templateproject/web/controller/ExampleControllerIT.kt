@@ -27,7 +27,7 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
 class ExampleControllerIT(
-    @Autowired val restTemplate: TestRestTemplate,
+    @param:Autowired val restTemplate: TestRestTemplate,
 ) : BaseIntegrationTest() {
     private val path = "$API_BASE_PATH/$EXAMPLE_ENDPOINT"
 
@@ -208,7 +208,7 @@ class ExampleControllerIT(
             val request = ExampleDTO(name = name)
 
             // when
-            val actual = restTemplate.postForEntity<ExampleDTO>(path, request, ExampleDTO::class.java)
+            val actual = restTemplate.postForEntity(path, request, ExampleDTO::class.java)
 
             // then
             assertEquals(HttpStatus.CREATED, actual.statusCode)

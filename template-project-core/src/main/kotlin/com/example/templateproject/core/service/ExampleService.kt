@@ -25,8 +25,8 @@ import java.util.concurrent.TimeoutException
 
 @Service
 class ExampleService(
-    @Value("\${core.database.cache.enabled}") val cacheEnabled: Boolean,
-    @Value("\${core.wordcountcalculation.timeout.millis}") val wordCountTimeout: Long,
+    @param:Value($$"${core.database.cache.enabled}") val cacheEnabled: Boolean,
+    @param:Value($$"${core.wordcountcalculation.timeout.millis}") val wordCountTimeout: Long,
     private val exampleRepository: ExampleRepository,
     private val exampleMapper: ExampleMapper,
     private val jsonPlaceholderService: JsonPlaceholderService,
@@ -63,21 +63,21 @@ class ExampleService(
     override fun getEntities(pageable: Pageable) = super.getEntities(pageable)
 
     @CacheEvict(
-        value = [ EXAMPLES_CACHE_NAME ],
+        value = [EXAMPLES_CACHE_NAME],
         beforeInvocation = false,
         allEntries = true,
     )
     override fun createEntity(dto: ExampleDTO) = super.createEntity(dto)
 
     @CacheEvict(
-        value = [ EXAMPLES_CACHE_NAME ],
+        value = [EXAMPLES_CACHE_NAME],
         beforeInvocation = false,
         allEntries = true,
     )
     override fun updateEntity(dto: ExampleDTO) = super.updateEntity(dto)
 
     @CacheEvict(
-        value = [ EXAMPLES_CACHE_NAME ],
+        value = [EXAMPLES_CACHE_NAME],
         beforeInvocation = false,
         allEntries = true,
     )

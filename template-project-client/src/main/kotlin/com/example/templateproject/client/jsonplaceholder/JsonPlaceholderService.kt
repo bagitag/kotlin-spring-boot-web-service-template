@@ -13,8 +13,8 @@ import java.util.concurrent.CompletableFuture
 
 @Service
 class JsonPlaceholderService(
-    @Value("\${client.jsonplaceholder.client-id}") val clientId: String,
-    @Value("\${client.jsonplaceholder.cache.enabled}") val cacheEnabled: Boolean,
+    @param:Value($$"${client.jsonplaceholder.client-id:asd}") val clientId: String,
+    @param:Value($$"${client.jsonplaceholder.cache.enabled}") val cacheEnabled: Boolean,
     private val jsonPlaceholderClient: JsonPlaceholderClient,
     private val httpClient: GenericHttpClient,
     private val retryDecorator: RetryableHttpRequestDecorator,

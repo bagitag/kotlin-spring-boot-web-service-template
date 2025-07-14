@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component
 class JsonPlaceholderCircuitBreaker {
     @CircuitBreaker(
         label = "JSON_PLACEHOLDER_CB",
-        maxAttemptsExpression = "#{'\${client.jsonplaceholder.circuitbreaker.failure.rate}'}",
-        openTimeoutExpression = "#{'\${client.jsonplaceholder.circuitbreaker.open.timeout.millis:10000}'}",
-        resetTimeoutExpression = "#{'\${client.jsonplaceholder.circuitbreaker.reset.timeout.millis:10000}'}",
+        maxAttemptsExpression = $$"#{'${client.jsonplaceholder.circuitbreaker.failure.rate}'}",
+        openTimeoutExpression = $$"#{'${client.jsonplaceholder.circuitbreaker.open.timeout.millis:10000}'}",
+        resetTimeoutExpression = $$"#{'${client.jsonplaceholder.circuitbreaker.reset.timeout.millis:10000}'}",
     )
     fun <T> decorate(method: () -> T) = method()
 

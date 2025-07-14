@@ -18,7 +18,7 @@ import org.springframework.http.HttpStatus
 
 @ExtendWith(OutputCaptureExtension::class)
 class RequestIdFilterIT(
-    @Autowired val restTemplate: TestRestTemplate,
+    @param:Autowired val restTemplate: TestRestTemplate,
 ) : BaseIntegrationTest() {
     @Test
     fun `Should use request id form header`(output: CapturedOutput) {

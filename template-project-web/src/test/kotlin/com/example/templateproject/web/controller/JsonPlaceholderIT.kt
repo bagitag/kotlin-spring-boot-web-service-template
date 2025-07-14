@@ -32,11 +32,11 @@ import java.net.URI
 import java.util.stream.LongStream
 
 class JsonPlaceholderIT(
-    @Autowired private val objectMapper: ObjectMapper,
-    @Autowired private val mockMvc: MockMvc,
-    @Autowired private val cacheManager: CacheManager,
-    @Value("\${client.jsonplaceholder.base-url}") private val baseUrl: String,
-    @Value("\${client.jsonplaceholder.api-key}") private val apiKey: String,
+    @param:Autowired private val objectMapper: ObjectMapper,
+    @param:Autowired private val mockMvc: MockMvc,
+    @param:Autowired private val cacheManager: CacheManager,
+    @param:Value($$"${client.jsonplaceholder.base-url}") private val baseUrl: String,
+    @param:Value($$"${client.jsonplaceholder.api-key}") private val apiKey: String,
 ) : BaseIntegrationTest() {
     private val path = "$API_BASE_PATH/$EXAMPLE_ENDPOINT/statistics"
 

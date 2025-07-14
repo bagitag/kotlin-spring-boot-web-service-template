@@ -13,7 +13,7 @@ internal class InputSanitizerTest {
         fun testData(): Stream<Arguments> =
             Stream.of(
                 Arguments.of(" 0, ", " 0 "),
-                Arguments.of("O\$_!%#<.>ß$¤÷×Đä▓O", "O.O"),
+                Arguments.of($$"O$_!%#<.>ß$¤÷×Đä▓O", "O.O"),
             )
     }
 

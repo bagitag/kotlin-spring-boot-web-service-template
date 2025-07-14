@@ -34,7 +34,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @ActiveProfiles("test")
 @Import(MockClock::class, SimpleMeterRegistry::class, ExceptionMetrics::class, ExternalServiceExceptionHandler::class)
 class ExampleExceptionHandlerIT(
-    @Autowired val mockMvc: MockMvc,
+    @param:Autowired val mockMvc: MockMvc,
 ) {
     private val path = "$API_BASE_PATH/$EXAMPLE_ENDPOINT"
 

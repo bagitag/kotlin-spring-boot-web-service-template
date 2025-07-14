@@ -12,8 +12,8 @@ import java.util.concurrent.TimeUnit
 @Configuration
 @ConditionalOnProperty(value = ["client.jsonplaceholder.cache.enabled"], havingValue = "true")
 class JsonPlaceholderCacheConfiguration(
-    @Value("\${client.jsonplaceholder.cache.expiration.minutes}") private val expirationMinutes: Long,
-    @Value("\${client.jsonplaceholder.cache.users.maxSize:1}") private val usersCacheMaxSize: Long,
+    @param:Value($$"${client.jsonplaceholder.cache.expiration.minutes}") private val expirationMinutes: Long,
+    @param:Value($$"${client.jsonplaceholder.cache.users.maxSize:1}") private val usersCacheMaxSize: Long,
     val cacheManager: CaffeineCacheManager,
 ) {
     companion object {

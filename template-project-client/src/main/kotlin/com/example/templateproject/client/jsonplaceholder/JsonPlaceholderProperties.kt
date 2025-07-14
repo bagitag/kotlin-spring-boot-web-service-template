@@ -12,25 +12,25 @@ import org.springframework.validation.annotation.Validated
 data class JsonPlaceholderProperties
     @ConstructorBinding
     constructor(
-        @NotEmpty
+        @field:NotEmpty
         val clientId: String,
-        @NotEmpty
+        @field:NotEmpty
         val baseUrl: String,
-        @NotEmpty
+        @field:NotEmpty
         val apiKey: String,
         val connectionTimeoutMillis: Long = 1000,
         val readTimeoutMillis: Long = 3000,
-        @Valid
+        @field:Valid
         val threadPool: ThreadPoolTaskExecutorProperties,
     )
 
 data class ThreadPoolTaskExecutorProperties
     @ConstructorBinding
     constructor(
-        @NotNull
+        @field:NotNull
         val corePoolSize: Int,
-        @NotNull
+        @field:NotNull
         val maxPoolSize: Int,
-        @NotNull
+        @field:NotNull
         val queueCapacity: Int,
     )

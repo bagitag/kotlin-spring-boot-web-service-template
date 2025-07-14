@@ -18,7 +18,7 @@ import org.springframework.http.HttpStatus
 
 @ExtendWith(OutputCaptureExtension::class)
 class DebugHeaderFilterIT(
-    @Autowired val restTemplate: TestRestTemplate,
+    @param:Autowired val restTemplate: TestRestTemplate,
 ) : BaseIntegrationTest() {
     @Test
     fun `Request with debug header should turn on debug level logging`(output: CapturedOutput) {

@@ -11,10 +11,10 @@ import org.springframework.context.annotation.Configuration
 import java.util.concurrent.TimeUnit
 
 @Configuration
-@ConditionalOnProperty(value = [ "core.database.cache.enabled" ], havingValue = "true")
+@ConditionalOnProperty(value = ["core.database.cache.enabled"], havingValue = "true")
 class DatabaseCacheConfiguration(
-    @Value("\${core.database.cache.expiration.minutes}") private val expirationMinutes: Long,
-    @Value("\${core.database.cache.examples.maxSize}") private val examplesCacheMaxSize: Long,
+    @param:Value($$"${core.database.cache.expiration.minutes}") private val expirationMinutes: Long,
+    @param:Value($$"${core.database.cache.examples.maxSize}") private val examplesCacheMaxSize: Long,
     val cacheManager: CaffeineCacheManager,
 ) {
     @PostConstruct
@@ -39,5 +39,5 @@ class DatabaseCacheConfiguration(
             .expireAfterWrite(expirationMinutes, TimeUnit.MINUTES)
             .maximumSize(size)
             .recordStats()
-            .buildAsync<Any, Any>()
+            .buildAsync()
 }
