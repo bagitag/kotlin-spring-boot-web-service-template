@@ -21,14 +21,14 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.concurrent.ExecutionException
 
 @ControllerAdvice
-class ExampleExceptionHandler(
+class GlobalExceptionHandler(
     @param:Value($$"${app.stack.trace.enabled:false}") val printStackTraceEnabled: Boolean,
     private val exceptionMetrics: ExceptionMetrics,
     private val externalServiceExceptionHandler: ExternalServiceExceptionHandler,
 ) : ResponseEntityExceptionHandler() {
     companion object {
         const val UNKNOWN_ERROR_MESSAGE = "Unknown internal server error"
-        const val STACK_TRACE_HEADER_PARAMETER_NAME = "trace"
+        const val STACK_TRACE_QUERY_PARAMETER_NAME = "stackTrace"
     }
 
     public override fun handleExceptionInternal(
@@ -100,7 +100,7 @@ class ExampleExceptionHandler(
     ): String? = if (printStackTraceEnabled && isStackTraceRequested(request)) exception.stackTraceToString() else null
 
     private fun isStackTraceRequested(request: WebRequest): Boolean =
-        request.getParameterValues(STACK_TRACE_HEADER_PARAMETER_NAME)?.any {
+        request.getParameterValues(STACK_TRACE_QUERY_PARAMETER_NAME)?.any {
             !it.isNullOrBlank() && it.toBoolean()
         } ?: false
 

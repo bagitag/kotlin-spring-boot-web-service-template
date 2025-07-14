@@ -8,6 +8,7 @@ import com.example.templateproject.persistence.entity.Example
 import com.example.templateproject.web.configuration.API_BASE_PATH
 import com.example.templateproject.web.controller.EXAMPLE_ENDPOINT
 import com.example.templateproject.web.controller.ExampleController
+import com.example.templateproject.web.exception.GlobalExceptionHandler.Companion.STACK_TRACE_QUERY_PARAMETER_NAME
 import com.example.templateproject.web.metrics.ExceptionMetrics
 import io.micrometer.core.instrument.MockClock
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
@@ -33,7 +34,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @WebMvcTest(ExampleController::class)
 @ActiveProfiles("test")
 @Import(MockClock::class, SimpleMeterRegistry::class, ExceptionMetrics::class, ExternalServiceExceptionHandler::class)
-class ExampleExceptionHandlerIT(
+class GlobalExceptionHandlerIT(
     @param:Autowired val mockMvc: MockMvc,
 ) {
     private val path = "$API_BASE_PATH/$EXAMPLE_ENDPOINT"
@@ -70,7 +71,7 @@ class ExampleExceptionHandlerIT(
         mockMvc
             .perform(
                 MockMvcRequestBuilders
-                    .put("$path?trace=true")
+                    .put("$path?$STACK_TRACE_QUERY_PARAMETER_NAME=true")
                     .content("{ \"id\": $id, \"name\":\"$name\"}")
                     .contentType(MediaType.APPLICATION_JSON),
             ).andExpect(status().isNotFound)
@@ -92,7 +93,7 @@ class ExampleExceptionHandlerIT(
             .perform(
                 MockMvcRequestBuilders
                     .get("$path/$id")
-                    .param(ExampleExceptionHandler.STACK_TRACE_HEADER_PARAMETER_NAME, "true")
+                    .param(STACK_TRACE_QUERY_PARAMETER_NAME, "true")
                     .contentType(MediaType.APPLICATION_JSON),
             ).andExpect(status().isInternalServerError)
             .andExpect(jsonPath("$.id").isNotEmpty)

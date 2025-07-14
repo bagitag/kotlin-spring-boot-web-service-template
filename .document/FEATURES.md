@@ -17,7 +17,7 @@ Or it can be reached directly at [http://localhost:8080/api-docs](http://localho
 
 ## Exception ID generation
 
-The project uses [Spring Boot's `@ControllerAdvice`](https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-ann-controller-advice) to handle exceptions globally. The logic can be found in the [ExampleExceptionHandler.kt](../template-project-web/src/main/kotlin/com/example/templateproject/web/exception/ExampleExceptionHandler.kt) file.
+The project uses [Spring Boot's `@ControllerAdvice`](https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-ann-controller-advice) to handle exceptions globally. The logic can be found in the [GlobalExceptionHandler.kt](../template-project-web/src/main/kotlin/com/example/templateproject/web/exception/GlobalExceptionHandler.kt) file.
 
 For each exception thrown, a unique ID is generated and included in the response structure ([ErrorDTO.kt](../template-project-api/src/main/kotlin/com/example/templateproject/api/dto/ErrorDTO.kt)) allowing for easier tracking and debugging of issues.
 

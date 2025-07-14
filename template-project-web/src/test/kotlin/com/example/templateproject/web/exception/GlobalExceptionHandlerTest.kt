@@ -6,6 +6,7 @@ import com.example.templateproject.client.exception.ExternalServiceExceptionHand
 import com.example.templateproject.core.exception.ExecutionTimeoutException
 import com.example.templateproject.core.exception.IdNotFoundException
 import com.example.templateproject.persistence.entity.Example
+import com.example.templateproject.web.exception.GlobalExceptionHandler.Companion.STACK_TRACE_QUERY_PARAMETER_NAME
 import com.example.templateproject.web.metrics.ExceptionMetrics
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -38,7 +39,7 @@ import java.net.SocketTimeoutException
 import java.util.concurrent.ExecutionException
 
 @ExtendWith(MockKExtension::class)
-internal class ExampleExceptionHandlerTest {
+internal class GlobalExceptionHandlerTest {
     @MockK
     private lateinit var webRequest: WebRequest
 
@@ -48,12 +49,12 @@ internal class ExampleExceptionHandlerTest {
     @MockK
     private lateinit var externalServiceExceptionHandler: ExternalServiceExceptionHandler
 
-    private lateinit var victim: ExampleExceptionHandler
+    private lateinit var victim: GlobalExceptionHandler
 
     @BeforeEach
     fun initialize() {
-        victim = ExampleExceptionHandler(true, exceptionMetrics, externalServiceExceptionHandler)
-        every { webRequest.getParameterValues("trace") } returns emptyArray()
+        victim = GlobalExceptionHandler(true, exceptionMetrics, externalServiceExceptionHandler)
+        every { webRequest.getParameterValues(STACK_TRACE_QUERY_PARAMETER_NAME) } returns emptyArray()
         every { exceptionMetrics.updateExceptionCounter(any(), any()) } returns Unit
 
         mockkObject(ExceptionIdGenerator)
@@ -95,7 +96,7 @@ internal class ExampleExceptionHandlerTest {
         every { ExceptionIdGenerator.generateExceptionId(exception) } returns exceptionId
 
         // and
-        every { webRequest.getParameterValues("trace") } returns Array(1) { "true" }
+        every { webRequest.getParameterValues(STACK_TRACE_QUERY_PARAMETER_NAME) } returns Array(1) { "true" }
 
         // when
         val actual = victim.handleExceptions(exception, webRequest)
@@ -113,7 +114,7 @@ internal class ExampleExceptionHandlerTest {
     @Test
     fun `Should generate response entity without stacktrace if the feature is disabled`() {
         // given
-        victim = ExampleExceptionHandler(false, exceptionMetrics, externalServiceExceptionHandler)
+        victim = GlobalExceptionHandler(false, exceptionMetrics, externalServiceExceptionHandler)
 
         val id = 10L
         val exception = IdNotFoundException(Example::class, id)
@@ -134,7 +135,7 @@ internal class ExampleExceptionHandlerTest {
         val exception = IdNotFoundException(Example::class, id)
 
         // and
-        every { webRequest.getParameterValues("trace") } returns null
+        every { webRequest.getParameterValues(STACK_TRACE_QUERY_PARAMETER_NAME) } returns null
 
         // when
         val actual = victim.handleExceptions(exception, webRequest)
@@ -152,7 +153,8 @@ internal class ExampleExceptionHandlerTest {
         val exception = IdNotFoundException(Example::class, id)
 
         // and
-        every { webRequest.getParameterValues("trace") } returns arrayOf(null, "", "   ", "asdas", "false")
+        every { webRequest.getParameterValues(STACK_TRACE_QUERY_PARAMETER_NAME) } returns
+            arrayOf(null, "", "   ", "asdas", "false")
 
         // when
         val actual = victim.handleExceptions(exception, webRequest)
@@ -177,7 +179,7 @@ internal class ExampleExceptionHandlerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actual.statusCode)
         assertNotNull(actual.body)
         val body = actual.body!!
-        assertEquals(ExampleExceptionHandler.UNKNOWN_ERROR_MESSAGE, body.message)
+        assertEquals(GlobalExceptionHandler.UNKNOWN_ERROR_MESSAGE, body.message)
         assertEquals(exceptionId, body.id)
         assertNull(body.details)
         assertTrue(body.stackTrace.isNullOrEmpty())
@@ -192,7 +194,7 @@ internal class ExampleExceptionHandlerTest {
         every { ExceptionIdGenerator.generateExceptionId(exception) } returns exceptionId
 
         // and
-        every { webRequest.getParameterValues("trace") } returns Array(1) { "true" }
+        every { webRequest.getParameterValues(STACK_TRACE_QUERY_PARAMETER_NAME) } returns Array(1) { "true" }
 
         // when
         val actual = victim.handleExceptions(exception, webRequest)
@@ -201,7 +203,7 @@ internal class ExampleExceptionHandlerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actual.statusCode)
         assertNotNull(actual.body)
         val body = actual.body!!
-        assertEquals(ExampleExceptionHandler.UNKNOWN_ERROR_MESSAGE, body.message)
+        assertEquals(GlobalExceptionHandler.UNKNOWN_ERROR_MESSAGE, body.message)
         assertEquals(exceptionId, body.id)
         assertFalse(body.stackTrace.isNullOrEmpty())
         verify { ExceptionIdGenerator.generateExceptionId(exception) }
@@ -299,7 +301,7 @@ internal class ExampleExceptionHandlerTest {
         val exceptionId = "exceptionId"
         every { ExceptionIdGenerator.generateExceptionId(exception) } returns exceptionId
 
-        every { webRequest.getParameterValues("trace") } returns null
+        every { webRequest.getParameterValues(STACK_TRACE_QUERY_PARAMETER_NAME) } returns null
 
         // when
         val actual = victim.handleExceptions(exception, webRequest)
@@ -425,7 +427,7 @@ internal class ExampleExceptionHandlerTest {
         val exceptionId = "exceptionId"
         every { ExceptionIdGenerator.generateExceptionId(exception) } returns exceptionId
 
-        every { webRequest.getParameterValues("trace") } returns null
+        every { webRequest.getParameterValues(STACK_TRACE_QUERY_PARAMETER_NAME) } returns null
 
         // when
         val actual = victim.handleExceptions(exception, webRequest)
