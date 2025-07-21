@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 class DatabaseCacheConfiguration(
     @param:Value($$"${core.database.cache.expiration.minutes}") private val expirationMinutes: Long,
     @param:Value($$"${core.database.cache.examples.maxSize}") private val examplesCacheMaxSize: Long,
-    val cacheManager: CaffeineCacheManager,
+    private val cacheManager: CaffeineCacheManager,
 ) {
     @PostConstruct
     fun registerCaches() {

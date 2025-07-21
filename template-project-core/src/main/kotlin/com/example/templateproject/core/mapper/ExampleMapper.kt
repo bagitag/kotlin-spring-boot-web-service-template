@@ -11,7 +11,7 @@ import java.util.Optional
 
 @Service
 class ExampleMapper(
-    repository: ExampleRepository,
+    override val repository: ExampleRepository,
 ) : AbstractMapper<Example, ExampleDTO>(repository) {
     @Timed(
         value = "app.method.executions",

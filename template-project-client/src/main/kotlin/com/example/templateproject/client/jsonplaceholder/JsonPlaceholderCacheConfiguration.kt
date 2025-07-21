@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
 class JsonPlaceholderCacheConfiguration(
     @param:Value($$"${client.jsonplaceholder.cache.expiration.minutes}") private val expirationMinutes: Long,
     @param:Value($$"${client.jsonplaceholder.cache.users.maxSize:1}") private val usersCacheMaxSize: Long,
-    val cacheManager: CaffeineCacheManager,
+    private val cacheManager: CaffeineCacheManager,
 ) {
     companion object {
         const val USERS_CACHE_NAME = "jsonplaceholder-users"
