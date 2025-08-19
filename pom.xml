@@ -39,6 +39,8 @@
 
         <jacoco.version>0.8.13</jacoco.version>
 
+        <kotlin-jupyter-spring.version>0.12.0-457</kotlin-jupyter-spring.version>
+
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
 
@@ -58,6 +60,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlin-jupyter-spring-starter</artifactId>
+            <version>${kotlin-jupyter-spring.version}</version>
         </dependency>
 
         <dependency>

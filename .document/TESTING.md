@@ -5,11 +5,8 @@
 
 - [Technology Stack](#technology-stack)
 - [Unit Tests](#unit-tests)
-  - [Special Unit Test Class](#special-unit-test-class)
 - [Integration Tests](#integration-tests)
-  - [Testing External Service Calls](#testing-external-service-calls)
 - [Test Coverage](#test-coverage)
-  - [The jacoco-report Module](#the-jacoco-report-module)
 
 </details>
 

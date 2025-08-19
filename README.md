@@ -6,21 +6,20 @@
 
 This is a template project for a simple Spring Boot REST service written in Kotlin. It can be used to quickly create a new web service.
 
-The project contains a lot of useful features and configurations that are commonly used in web services.
-For more details, see the [Features](#features) section.
+The project contains a lot of useful features and configurations that help you to develop, maintain and troubleshoot your web service. For more details, see the [Features](.document/FEATURES.md) section.
 
 ---
 
 # Table of Contents
 
 - [Technical Overview](#technical-overview)
-- [Architecture](#architecture)
-- [Project Structure](#project-structure)
-- [Technology Stack](#technology-stack)
+  - [Architecture](#architecture)
+  - [Project Structure](#project-structure)
+  - [Technology Stack](#technology-stack)
 - [Getting Started](#getting-started)
-- [How to build the project](#how-to-build-the-project)
-- [How to run the application](#how-to-run-the-application)
-- [Configuration](#configuration)
+  - [How to build the project](#how-to-build-the-project)
+  - [How to run the application](#how-to-run-the-application)
+  - [Configuration](#configuration)
 - [Further documentation](#further-documentation)
 
 # Technical Overview
@@ -142,7 +141,7 @@ The minimum required configuration can be found in the [docker-compose.yml](./do
 
 The full list of configuration properties can be found in the `*-dev.properties` file in each module's `src/main/resources` directory.
 
-## Further documentation
+# Further documentation
 
 Detailed documentation can be found for the following topics:
 

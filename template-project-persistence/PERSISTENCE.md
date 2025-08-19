@@ -3,12 +3,14 @@
 This module is responsible for managing the data and the database connection.
 The supported database is PostgreSQL.
 
-<details open>
+<details>
   <summary>Table of Contents</summary>
 
 - [Technology Stack](#technology-stack)
 - [Database configuration](#database-configuration)
 - [Features](#features)
+  - [Database change management](#database-change-management)
+  - [Entity auditing](#entity-auditing)
 
 </details>
 
