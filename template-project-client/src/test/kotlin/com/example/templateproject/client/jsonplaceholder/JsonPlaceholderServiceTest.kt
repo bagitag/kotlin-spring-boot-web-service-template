@@ -4,6 +4,7 @@ import com.example.templateproject.client.GenericHttpClient
 import com.example.templateproject.client.RetryableHttpRequestDecorator
 import com.example.templateproject.client.jsonplaceholder.api.Post
 import com.example.templateproject.client.jsonplaceholder.api.User
+import com.example.templateproject.client.jsonplaceholder.configuration.JsonPlaceholderCircuitBreaker
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension

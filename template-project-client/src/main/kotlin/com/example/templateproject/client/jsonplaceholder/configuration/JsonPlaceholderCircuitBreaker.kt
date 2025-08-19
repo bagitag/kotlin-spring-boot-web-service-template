@@ -1,4 +1,4 @@
-package com.example.templateproject.client.jsonplaceholder
+package com.example.templateproject.client.jsonplaceholder.configuration
 
 import org.springframework.retry.annotation.CircuitBreaker
 import org.springframework.retry.annotation.Recover

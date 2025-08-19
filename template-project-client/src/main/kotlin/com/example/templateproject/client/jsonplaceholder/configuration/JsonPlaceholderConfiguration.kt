@@ -1,7 +1,8 @@
-package com.example.templateproject.client.jsonplaceholder
+package com.example.templateproject.client.jsonplaceholder.configuration
 
 import com.example.templateproject.client.CustomClientRequestObservationConvention
 import com.example.templateproject.client.MdcDecorator
+import com.example.templateproject.client.jsonplaceholder.JsonPlaceholderClient
 import io.micrometer.observation.ObservationRegistry
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

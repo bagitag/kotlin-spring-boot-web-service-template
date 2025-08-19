@@ -43,7 +43,7 @@ The configuration can be found in the **client-\[spring-profile].properties** fi
 
 ### Circuit Breaker
 
-The client module uses the Spring Retry as implementation of the Circuit Breaker pattern. See details in [JsonPlaceholderCircuitBreaker](src/main/kotlin/com/example/templateproject/client/jsonplaceholder/JsonPlaceholderCircuitBreaker.kt).
+The client module uses the Spring Retry as implementation of the Circuit Breaker pattern. See details in [JsonPlaceholderCircuitBreaker](src/main/kotlin/com/example/templateproject/client/jsonplaceholder/configuration/JsonPlaceholderCircuitBreaker.kt).
 
 ### Retry
 
@@ -51,11 +51,11 @@ The client module uses the Spring Retry to retry failed requests. The retry conf
 
 ### Caching
 
-The client module caches the responses from the external service using Caffeine. The caching configuration can be found in the [CaffeineCacheConfiguration](src/main/kotlin/com/example/templateproject/client/jsonplaceholder/JsonPlaceholderCacheConfiguration.kt) class.
+The client module caches the responses from the external service using Caffeine. The caching configuration can be found in the [JsonPlaceholderCacheConfiguration](src/main/kotlin/com/example/templateproject/client/jsonplaceholder/configuration/JsonPlaceholderCacheConfiguration.kt) class.
 
 ### Thread pool
 
-A thread pool is configured to execute the requests to the external service. The configuration can be found in the [JsonPlaceholderConfiguration](src/main/kotlin/com/example/templateproject/client/jsonplaceholder/JsonPlaceholderConfiguration.kt) class.
+A thread pool is configured to execute the requests to the external service. The configuration can be found in the [JsonPlaceholderConfiguration](src/main/kotlin/com/example/templateproject/client/jsonplaceholder/configuration/JsonPlaceholderConfiguration.kt) class.
 
 The pool is used with the help of Spring Boot's asynchronous support via the @Async annotation. See details in [JsonPlaceholderService](src/main/kotlin/com/example/templateproject/client/jsonplaceholder/JsonPlaceholderService.kt).
 

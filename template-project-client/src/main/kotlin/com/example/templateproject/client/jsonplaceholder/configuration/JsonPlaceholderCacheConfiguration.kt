@@ -1,4 +1,4 @@
-package com.example.templateproject.client.jsonplaceholder
+package com.example.templateproject.client.jsonplaceholder.configuration
 
 import com.github.benmanes.caffeine.cache.AsyncCache
 import com.github.benmanes.caffeine.cache.Caffeine

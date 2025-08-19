@@ -4,6 +4,8 @@ import com.example.templateproject.client.GenericHttpClient
 import com.example.templateproject.client.RetryableHttpRequestDecorator
 import com.example.templateproject.client.jsonplaceholder.api.Post
 import com.example.templateproject.client.jsonplaceholder.api.User
+import com.example.templateproject.client.jsonplaceholder.configuration.JsonPlaceholderCacheConfiguration
+import com.example.templateproject.client.jsonplaceholder.configuration.JsonPlaceholderCircuitBreaker
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.ResponseEntity

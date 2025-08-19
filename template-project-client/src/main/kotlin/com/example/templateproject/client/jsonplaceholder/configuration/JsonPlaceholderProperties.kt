@@ -1,4 +1,4 @@
-package com.example.templateproject.client.jsonplaceholder
+package com.example.templateproject.client.jsonplaceholder.configuration
 
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotEmpty
