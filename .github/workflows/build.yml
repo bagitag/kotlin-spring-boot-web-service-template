@@ -68,7 +68,7 @@ jobs:
 
       - name: Upload JaCoCo coverage report
         if: ${{ matrix.java-version == env.DEFAULT_JAVA_VERSION }}
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           name: jacoco-report
           path: template-project-jacoco-report/target/site/jacoco-aggregate/
