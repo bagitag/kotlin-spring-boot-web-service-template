@@ -3,8 +3,6 @@
 
     <springProperty scope="context" name="packages" source="app.debug.logging.package.list" defaultValue="UNDEFINED"/>
 
-    <jmxConfigurator />
-
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
     <if condition='!"${packages}".contains("UNDEFINED")'>
