@@ -39,6 +39,8 @@
 
         <jacoco.version>0.8.13</jacoco.version>
 
+        <opentelemetry.version>1.54.1</opentelemetry.version>
+
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
 
