@@ -17,7 +17,7 @@ The project uses [OpenAPI](https://swagger.io/specification/) for API documentat
 
 ```mvn clean verify -Popenapi```
 
-Or it can be reached directly at [http://localhost:8080/api-docs](http://localhost:8080/api-docs) when the application is running.
+Or it can be accessed directly at [http://localhost:8080/api-docs](http://localhost:8080/api-docs) when the application is running.
 
 ## Error handling
 
@@ -40,7 +40,7 @@ The `ErrorDTO` contains the following fields:
 - `id`: A unique identifier for the error, generated based on the exception's stack trace. See details below.
 - `message`: The message that describes the error.
 - `details`: Optional field that contains any additional details about the error.
-- `stackTrace`: Optional field that contains the stack trace of the exception. This field is not included by default to avoid exposing sensitive information in production environments. It is controlled by the `app.stack.trace.enabled` property and it needs to be specifically requested by the client by using the `stackTrace=true` query parameter.
+- `stackTrace`: Optional field that contains the stack trace of the exception. This field is not included by default to avoid exposing sensitive information in production environments. It is controlled by the `app.stack.trace.enabled` property and it needs to be specifically requested by the client using the `stackTrace=true` query parameter.
 
 
 ### Exception ID
@@ -68,6 +68,11 @@ ID = MD5(E + C + M).substring(0, 15)
 ## Debug level logging
 
 It is possible to turn on debug level logging for specific HTTP requests. If a request contains the predefined HTTP header and value, debug level logging will be enabled for that request.
+By default, debug level logging is only turned on for the application packages. The list of packages can be extended in the `application.properties` file using the `app.debug.logging.package.list` property. E.g.:
+
+```
+app.debug.logging.package.list=org.hibernate,org.springframework.data
+```
 
 The logic for handling the debug header is implemented in the [DebugHeaderFilter.kt](../template-project-web/src/main/kotlin/com/example/templateproject/web/configuration/filter/DebugHeaderFilter.kt) class.
 
