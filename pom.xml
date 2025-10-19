@@ -167,6 +167,7 @@
                             <excludes>
                                 <exclude>com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService</exclude>
                                 <exclude>com.example.templateproject.client.GenericHttpClient</exclude>
+                                <include>com.example.templateproject.core.mapper.AbstractMapper</include>
                             </excludes>
                             <limits>
                                 <limit>
@@ -199,6 +200,7 @@
                         <rule>
                             <element>CLASS</element>
                             <includes>
+                                <include>com.example.templateproject.core.mapper.AbstractMapper</include>
                                 <!-- JaCoCo 0.8.13 cannot detect coverage for Kotlin inline functions -->
                                 <include>com.example.templateproject.client.jsonplaceholder.JsonPlaceholderService</include>
                                 <include>com.example.templateproject.client.GenericHttpClient</include>

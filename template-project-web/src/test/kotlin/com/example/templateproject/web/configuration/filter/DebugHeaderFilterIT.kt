@@ -35,6 +35,6 @@ class DebugHeaderFilterIT(
 
         // then
         assertEquals(HttpStatus.OK, response.statusCode)
-        assertTrue(output.out.contains("Debug level logging is turned on for requestId:"))
+        assertTrue(output.out.contains("Debug level logging is turned on for ${RequestIdFilter.REQUEST_ID_MDC_KEY}:"))
     }
 }
