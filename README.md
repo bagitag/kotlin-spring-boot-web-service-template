@@ -4,9 +4,9 @@
 
 [JaCoCo coverage](https://bagitag.github.io/kotlin-spring-boot-web-service-template/)
 
-This is a template project for a simple Spring Boot REST service written in Kotlin. It can be used to quickly create a new web service.
+This is a template for a simple Spring Boot REST service written in Kotlin. It can be used to quickly bootstrap a new web service.
 
-The project contains a lot of useful features and configurations that help you to develop, maintain and troubleshoot your web service. For more details, see the [Features](.document/FEATURES.md) section.
+The project includes useful features and configurations to help you develop, maintain, and troubleshoot your service. For more details, see the [Features](.document/FEATURES.md) section.
 
 ---
 
@@ -38,25 +38,22 @@ flowchart LR
 
 ## Project Structure
 
-The project is structured into the following modules:
+The project is organized into the following modules:
 
-- **api**: Defines the request and response structures for the service.
-- **client**: Contains other service integrations. See details: [here](template-project-client/CLIENT.md)
-- **core**: Contains the core functionality of the application. It acts as a bridge between the web, client and persistence layers.
-- **persistence**: Contains the data access layer of the application. See the details: [here](template-project-persistence/PERSISTENCE.md)
-- **web**: Contains the web layer of the application, including controllers and exception handling.
-- **jacoco-report**: Used for generating the aggregated JaCoCo coverage report.
+- **api**: Defines request and response structures for the service.
+- **client**: Integrations with other services. See details: [CLIENT.md](template-project-client/CLIENT.md).
+- **core**: Core application logic; bridges web, client, and persistence layers.
+- **persistence**: Data access layer. See details: [PERSISTENCE.md](template-project-persistence/PERSISTENCE.md).
+- **web**: Web layer (controllers, exception handling).
+- **jacoco-report**: Generates an aggregated JaCoCo coverage report.
 
 ## Technology Stack
-
 Kotlin, Spring Boot, Maven
 
 ### Database
-
 Liquibase, PostgreSQL
 
 ### Testing
-
 JUnit 5, MockK, Testcontainers
 
 ### Monitoring
@@ -76,7 +73,7 @@ Docker, GitHub Actions
 
 The application needs to connect to a database to be able to run the integration tests. By default, Testcontainers is used to start a database in a Docker container. If you do not have Docker installed please enable the development Maven profile, to use an in-memory database, by adding the following to the Maven command: ```-Pdev```
 
-Further details about running tests can be found [here](./.document/TESTING.md).
+Further details about running tests can be found in [TESTING.md](.document/TESTING.md).
 
 ### Build the project
 
@@ -84,7 +81,7 @@ Maven is used as the build tool. To build the project, run the following command
 
 ```mvn clean install```
 
-Or if you do not have Maven installed, you can use the Maven Wrapper that is included in the project:
+If you do not have Maven installed, you can use the Maven Wrapper that is included in the project:
 
 ```bash
  ./mvnw clean install
@@ -96,11 +93,11 @@ Or if you do not have Maven installed, you can use the Maven Wrapper that is inc
 
 ```mvn clean install -Dmaven.test.skip=true```
 
-- Build the project without running the tests:
+- Build without running the tests:
 
 ```mvn clean install -DskipTests```
 
-- Build the project without the integration tests, running only the unit tests:
+- Build without the integration tests, running only the unit tests:
 
 ```mvn clean install -DskipITs```
 
@@ -114,19 +111,21 @@ To be able to run the application, you must comply with the followings:
 - Have a running database. The application is configured to connect to a PostgreSQL database.
 - Properly configure the application. See the [Configuration](#configuration) section for more information.
 
+For local development, use the `dev` Spring profile to start the application with an in-memory database.
+
 ### Run the application
 
 To run the application, execute the following command:
 
 ```mvn spring-boot:run```
 
-Or if you do not have Maven installed, you can use the Maven Wrapper that is included in the project:
+If you do not have Maven installed, you can use the Maven Wrapper that is included in the project:
 
 ```bash 
  ./mvnw spring-boot:run
 ```
 
-Another way to run the application, that only requires Docker to be installed, is to use the [Docker Compose file](docker-compose.yml) that is included in the project. To run the application using Docker Compose, execute the following command:
+Another way to run the application is to use Docker Compose. The following command will start the required services as defined in the [Docker Compose file](docker-compose.yml):
 
 ```bash
  docker-compose up
@@ -143,7 +142,9 @@ The full list of configuration properties can be found in the `*-dev.properties`
 
 # Further documentation
 
-Detailed documentation can be found for the following topics:
+See the following documents for more information:
 
 - [Development](./.document/DEVELOPMENT.md)
+- [Features](./.document/FEATURES.md)
+- [Observability](./.document/OBSERVABILITY.md)
 - [Testing](./.document/TESTING.md)
