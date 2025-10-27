@@ -300,7 +300,7 @@
                     <argLine>${failsafe.jacoco.args}</argLine>
                 </configuration>
             </plugin>
-            <plugin>
+            <!-- <plugin>
                 <groupId>io.github.mfoo</groupId>
                 <artifactId>libyear-maven-plugin</artifactId>
                 <version>1.2.0</version>
@@ -316,7 +316,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin> -->
         </plugins>
     </build>
 
