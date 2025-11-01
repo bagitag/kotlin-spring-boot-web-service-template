@@ -54,7 +54,7 @@ class GlobalExceptionHandler(
         val logPrefix = generateLogPrefix(exception)
 
         exceptionMetrics.updateExceptionCounter(exceptionId, exception.javaClass.simpleName)
-        logger.error("${logPrefix}ExceptionId: $exceptionId - ${exception.message}", exception)
+        logger.error("${logPrefix}ExceptionId: $exceptionId - $exception", exception)
 
         val stackTrace = getStackTrace(exception, request)
         val body = ErrorDTO(exceptionId, message, details, stackTrace)
