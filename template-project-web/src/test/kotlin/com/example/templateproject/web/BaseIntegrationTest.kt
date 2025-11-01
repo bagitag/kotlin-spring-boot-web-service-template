@@ -14,6 +14,6 @@ import org.springframework.test.context.ActiveProfiles
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @AutoConfigureMockMvc
 @EnableWireMock(
-    ConfigureWireMock(name = "json-placeholder", property = "client.jsonplaceholder.base-url", port = 1234),
+    ConfigureWireMock(name = "json-placeholder", properties = ["client.jsonplaceholder.base-url"], port = 1234),
 )
 abstract class BaseIntegrationTest

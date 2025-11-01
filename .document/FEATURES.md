@@ -72,14 +72,15 @@ ID = MD5(E + C + M).substring(0, 15)
 
 ## Debug level logging
 
-It is possible to turn on debug level logging for specific HTTP requests by including a predefined HTTP header and value in the request.
+Debug level logging can be enabled for certain HTTP requests by meeting the following conditions:
+1. The `app.debug.logging.enabled` property must be set to `true` in the `application.properties` file.
+2. The request must contain a predefined HTTP header and value. See details in [DebugHeaderFilter.kt](../template-project-web/src/main/kotlin/com/example/templateproject/web/configuration/filter/DebugHeaderFilter.kt).
+
 By default, debug logging is enabled only for application packages. The list of packages can be extended in the `application.properties` file using the `app.debug.logging.package.list` property. E.g.:
 
 ```
 app.debug.logging.package.list=org.hibernate,org.springframework.data
 ```
-
-The debug header handling logic the is implemented in [DebugHeaderFilter.kt](../template-project-web/src/main/kotlin/com/example/templateproject/web/configuration/filter/DebugHeaderFilter.kt).
 
 The feature uses the MDC (Mapped Diagnostic Context) and Logback's MDCFilter. See [logback-spring.xml](../template-project-web/src/main/resources/logback-spring.xml) for the configuration and [DebugLoggingTurboFilter.kt](../template-project-web/src/main/kotlin/com/example/templateproject/web/configuration/DebugLoggingTurboFilter.kt) for the implementation details.
 
