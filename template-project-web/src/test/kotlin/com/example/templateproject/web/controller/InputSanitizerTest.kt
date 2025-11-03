@@ -14,6 +14,7 @@ internal class InputSanitizerTest {
             Stream.of(
                 Arguments.of(" 0, ", " 0 "),
                 Arguments.of($$"O$_!%#<.>ß$¤÷×Đä▓O", "O.O"),
+                Arguments.of("A\rB\nC", "ABC"),
             )
     }
 
