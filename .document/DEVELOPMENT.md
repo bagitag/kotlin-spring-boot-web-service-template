@@ -36,6 +36,9 @@ Install the [Detekt IntelliJ plugin](https://plugins.jetbrains.com/plugin/10761-
 
 The [libyear-maven-plugin](https://github.com/mfoo/libyear-maven-plugin) is used to track and manage the age of dependencies. It analyzes the dependencies, checks their release dates, and reports the "age" of each library. The plugin is configured to run during the build process (in the `package` phase) and the build fails if any dependency is older than the configured threshold. See details in the [pom.xml](../pom.xml) file.
 
+> [!WARNING]
+> This plugin is currently not working, so it is commented out.
+
 ## Kotlin Notebook
 
 The [attached kernel mode](https://www.jetbrains.com/help/idea/kotlin-notebook.html#attached-kernel-mode) of [Kotlin Notebook](https://www.jetbrains.com/help/idea/kotlin-notebook.html) is supported via the `kotlin-jupyter-spring-starter` Maven dependency. Build the project with the `-Pdev` profile to include the dependency.

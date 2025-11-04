@@ -92,5 +92,5 @@ If the request already contains a `X-Request-ID` header, that value will be used
 
 The logic can be found in the [RequestIdFilter.kt](../template-project-web/src/main/kotlin/com/example/templateproject/web/configuration/filter/RequestIdFilter.kt) class.
 
-[!NOTE]
-This feature is managed by the `management.otlp.tracing.export.enabled` property in the `application.properties` file. If set to `true`, a higher level tracing solution is used and request ID generation is not required. See [OBSERVABILITY.md](OBSERVABILITY.md) for more details.
+> [!NOTE]
+> This feature is managed by the `management.otlp.tracing.export.enabled` property in the `application.properties` file. If set to `true`, a higher level tracing solution is used and request ID generation is not required. See [OBSERVABILITY.md](OBSERVABILITY.md) for more details.

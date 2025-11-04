@@ -15,7 +15,7 @@ import org.springframework.web.client.ResourceAccessException
 
 @ExtendWith(MockKExtension::class)
 internal class GenericHttpClientTest {
-    private var victim = GenericHttpClient()
+    private val victim = GenericHttpClient()
 
     @Test
     fun `Should return default response when response has no body`() {
