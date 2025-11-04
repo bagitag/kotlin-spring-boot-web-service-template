@@ -63,11 +63,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlin-jupyter-spring-starter</artifactId>
-            <version>${kotlin-jupyter-spring.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>io.mockk</groupId>
@@ -349,6 +344,14 @@
             <properties>
                 <testcontainers.enabled>false</testcontainers.enabled>
             </properties>
+
+            <dependencies>
+                <dependency>
+                    <groupId>org.jetbrains.kotlinx</groupId>
+                    <artifactId>kotlin-jupyter-spring-starter</artifactId>
+                    <version>${kotlin-jupyter-spring.version}</version>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 </project>

@@ -38,4 +38,4 @@ The [libyear-maven-plugin](https://github.com/mfoo/libyear-maven-plugin) is used
 
 ## Kotlin Notebook
 
-The [attached kernel mode](https://www.jetbrains.com/help/idea/kotlin-notebook.html#attached-kernel-mode) of [Kotlin Notebook](https://www.jetbrains.com/help/idea/kotlin-notebook.html) is supported via the `kotlin-jupyter-spring-starter` Maven dependency.
+The [attached kernel mode](https://www.jetbrains.com/help/idea/kotlin-notebook.html#attached-kernel-mode) of [Kotlin Notebook](https://www.jetbrains.com/help/idea/kotlin-notebook.html) is supported via the `kotlin-jupyter-spring-starter` Maven dependency. Build the project with the `-Pdev` profile to include the dependency.
