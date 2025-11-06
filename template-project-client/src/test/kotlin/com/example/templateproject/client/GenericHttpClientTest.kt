@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.ResourceAccessException
+import org.springframework.web.client.RestClientException
 
 @ExtendWith(MockKExtension::class)
 internal class GenericHttpClientTest {
@@ -103,6 +104,36 @@ internal class GenericHttpClientTest {
         assertThrows<ExternalServiceException> {
             victim.perform(clientId, request, defaultResponse) {
                 throw ResourceAccessException(null)
+            }
+        }
+    }
+
+    @Test
+    fun `Should handle RestClientException`() {
+        // given
+        val clientId = "clientId"
+        val request = 1L
+        val defaultResponse = listOf<User>()
+
+        // when - then
+        assertThrows<ExternalServiceException> {
+            victim.perform(clientId, request, defaultResponse) {
+                throw RestClientException("Rest Client Error")
+            }
+        }
+    }
+
+    @Test
+    fun `Should handle RestClientException with null message`() {
+        // given
+        val clientId = "clientId"
+        val request = 1L
+        val defaultResponse = listOf<User>()
+
+        // when - then
+        assertThrows<ExternalServiceException> {
+            victim.perform(clientId, request, defaultResponse) {
+                throw RestClientException(null)
             }
         }
     }

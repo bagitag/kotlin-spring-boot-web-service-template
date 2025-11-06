@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.ResourceAccessException
+import org.springframework.web.client.RestClientException
 
 @Component
 class GenericHttpClient {
@@ -48,6 +49,7 @@ class GenericHttpClient {
             when (e) {
                 is HttpStatusCodeException -> "Communication error: ${e.statusText}"
                 is ResourceAccessException -> e.message ?: "Resource access error"
+                is RestClientException -> e.message ?: "REST client error"
                 else -> "Unknown error"
             }
         throw ExternalServiceException(e, message, clientId)
