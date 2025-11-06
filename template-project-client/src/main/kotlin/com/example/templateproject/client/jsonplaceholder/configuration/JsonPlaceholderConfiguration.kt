@@ -2,6 +2,7 @@ package com.example.templateproject.client.jsonplaceholder.configuration
 
 import com.example.templateproject.client.CustomClientRequestObservationConvention
 import com.example.templateproject.client.MdcDecorator
+import com.example.templateproject.client.RequestIdClientHttpRequestInterceptor
 import com.example.templateproject.client.jsonplaceholder.JsonPlaceholderClient
 import io.micrometer.observation.ObservationRegistry
 import org.springframework.context.annotation.Bean
@@ -19,6 +20,7 @@ import java.util.concurrent.Executor
 @Configuration
 class JsonPlaceholderConfiguration(
     private val properties: JsonPlaceholderProperties,
+    private val requestInterceptor: RequestIdClientHttpRequestInterceptor?,
 ) {
     companion object {
         private const val API_KEY_HEADER = "api-key"
@@ -35,8 +37,10 @@ class JsonPlaceholderConfiguration(
                 .requestFactory(clientHttpRequestFactory())
                 .observationRegistry(observationRegistry)
                 .observationConvention(observationConvention())
-                .build()
-        val factory = HttpServiceProxyFactory.builderFor(RestClientAdapter.create(restClient)).build()
+
+        requestInterceptor?.let { restClient.requestInterceptor(it) }
+
+        val factory = HttpServiceProxyFactory.builderFor(RestClientAdapter.create(restClient.build())).build()
         return factory.createClient(JsonPlaceholderClient::class.java)
     }
 
