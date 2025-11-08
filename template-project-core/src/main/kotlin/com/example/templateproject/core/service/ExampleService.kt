@@ -26,7 +26,7 @@ import java.util.concurrent.TimeoutException
 @Service
 class ExampleService(
     @param:Value($$"${core.database.cache.enabled}") val cacheEnabled: Boolean,
-    @param:Value($$"${core.wordcountcalculation.timeout.millis}") val wordCountTimeout: Long,
+    @param:Value($$"${core.wordcountcalculation.timeout.millis}") private val wordCountTimeout: Long,
     private val exampleRepository: ExampleRepository,
     private val exampleMapper: ExampleMapper,
     private val jsonPlaceholderService: JsonPlaceholderService,

@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutionException
 
 @ControllerAdvice
 class GlobalExceptionHandler(
-    @param:Value($$"${app.stack.trace.enabled:false}") val printStackTraceEnabled: Boolean,
+    @param:Value($$"${app.stack.trace.enabled:false}") private val printStackTraceEnabled: Boolean,
     private val exceptionMetrics: ExceptionMetrics,
     private val externalServiceExceptionHandler: ExternalServiceExceptionHandler,
 ) : ResponseEntityExceptionHandler() {

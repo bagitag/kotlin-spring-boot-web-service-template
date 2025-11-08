@@ -18,9 +18,7 @@ import kotlin.io.path.readBytes
     webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
     properties = [
         "spring.config.import=classpath:client-openapi.properties,classpath:core-openapi.properties," +
-            "classpath:persistence-openapi.properties",
-
-        "app.debug.logging.package.list=UNDEFINED",
+            "classpath:persistence-openapi.properties"
     ],
 )
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
