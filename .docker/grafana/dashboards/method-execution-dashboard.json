@@ -12,30 +12,13 @@
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
         "type": "dashboard"
-      },
-      {
-        "datasource": {
-          "type": "loki",
-          "uid": "loki"
-        },
-        "enable": true,
-        "expr": "{service_name=\"template-project-docker\"} |= \"Started TemplateApplicationKt\"",
-        "hide": false,
-        "iconColor": "blue",
-        "name": "Deployments",
-        "queryType": "range",
-        "target": {
-          "expr": "",
-          "interval": "",
-          "refId": "Anno"
-        }
       }
     ]
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 5,
   "links": [],
   "panels": [
     {
@@ -54,8 +37,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": 0
+                "color": "green"
               },
               {
                 "color": "red",
@@ -91,7 +73,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -100,7 +82,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(http_server_requests_milliseconds_sum{application=\"$application\", app_version=~\"$version\"})\r\n/\r\nsum(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\"})",
+          "expr": "sum(app_method_executions_milliseconds_sum{application=\"$application\", app_version=~\"$version\", topic=~\"$topic\", method=~\"$method\"}) / sum(app_method_executions_milliseconds_count{application=\"$application\", app_version=~\"$version\", topic=~\"$topic\", method=~\"$method\"})",
           "format": "time_series",
           "instant": false,
           "legendFormat": "__auto",
@@ -108,7 +90,7 @@
           "refId": "A"
         }
       ],
-      "title": "Average latency since startup",
+      "title": "Average execution time",
       "type": "stat"
     },
     {
@@ -127,8 +109,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": 0
+                "color": "green"
               },
               {
                 "color": "red",
@@ -144,79 +125,6 @@
         "h": 7,
         "w": 4,
         "x": 4,
-        "y": 0
-      },
-      "id": 16,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.2.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum(rate(http_server_requests_milliseconds_sum{application=\"$application\", app_version=~\"$version\"}[5m]))\r\n/\r\nsum(rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\"}[5m]))",
-          "format": "time_series",
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Average latency",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "default": true,
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "ms"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 4,
-        "x": 8,
         "y": 0
       },
       "id": 11,
@@ -237,7 +145,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -246,7 +154,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(\r\n    $percentile, sum by(le) (\r\n        http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\"}\r\n    )\r\n)",
+          "expr": "sum(histogram_quantile($percentile, sum by(le, method, topic) (app_method_executions_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", topic=~\"$topic\", method=~\"$method\"})))",
           "format": "time_series",
           "instant": false,
           "legendFormat": "__auto",
@@ -254,7 +162,7 @@
           "refId": "A"
         }
       ],
-      "title": "$percentile Average latency since startup",
+      "title": "$percentile Average execution time",
       "type": "stat"
     },
     {
@@ -273,8 +181,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": 0
+                "color": "green"
               },
               {
                 "color": "red",
@@ -289,10 +196,10 @@
       "gridPos": {
         "h": 7,
         "w": 4,
-        "x": 12,
+        "x": 8,
         "y": 0
       },
-      "id": 17,
+      "id": 7,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -301,7 +208,7 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "max"
           ],
           "fields": "",
           "values": false
@@ -310,7 +217,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -318,87 +225,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "exemplar": false,
-          "expr": "histogram_quantile(\r\n    $percentile, sum by(le) (\r\n        rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\"}[5m])\r\n    )\r\n)",
-          "format": "time_series",
+          "expr": "max(sum(rate(app_method_executions_milliseconds_sum{application=\"$application\", app_version=~\"$version\", topic=~\"$topic\", method=~\"$method\"}[1m])) / sum(rate(app_method_executions_milliseconds_count{application=\"$application\", app_version=~\"$version\", topic=~\"$topic\", method=~\"$method\"}[1m])))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "$percentile Average latency",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "default": true,
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "reqps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 6,
-        "x": 16,
-        "y": 0
-      },
-      "id": 15,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.2.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "sum(rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\"}[5m]))",
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Request rate",
+      "title": "Maximum average execution time",
       "type": "stat"
     },
     {
@@ -411,7 +245,7 @@
       },
       "id": 13,
       "panels": [],
-      "title": "Percentile latency",
+      "title": "Percentile execution time",
       "type": "row"
     },
     {
@@ -449,7 +283,6 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -464,8 +297,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": 0
+                "color": "green"
               },
               {
                 "color": "red",
@@ -501,7 +333,7 @@
           "sort": "desc"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -510,17 +342,17 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "histogram_quantile($percentile, sum by(le, method, uri) (rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[5m])))",
+          "expr": "histogram_quantile($percentile, sum by(le, method, topic) (rate(app_method_executions_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", topic=~\"$topic\", method=~\"$method\"}[1m])))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "{{method}} - {{uri}}",
+          "legendFormat": "{{topic}} - {{method}}",
           "range": true,
           "refId": "A",
           "useBackend": false
         }
       ],
-      "title": "$percentile Percentile latency",
+      "title": "$percentile Percentile execution time",
       "type": "timeseries"
     },
     {
@@ -540,11 +372,6 @@
               "type": "auto"
             },
             "filterable": false,
-            "footer": {
-              "reducers": [
-                "mean"
-              ]
-            },
             "inspect": false
           },
           "fieldMinMax": false,
@@ -553,8 +380,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": 0
+                "color": "green"
               },
               {
                 "color": "red",
@@ -575,6 +401,14 @@
       "id": 14,
       "options": {
         "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": [],
+          "reducer": [
+            "mean"
+          ],
+          "show": true
+        },
         "frameIndex": 0,
         "showHeader": true,
         "sortBy": [
@@ -584,7 +418,7 @@
           }
         ]
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -593,7 +427,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.5, sum by(le, method, uri) (rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[5m])))",
+          "expr": "histogram_quantile(0.5, sum by(le, method, topic) (rate(app_method_executions_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", topic=~\"$topic\", method=~\"$method\"}[1m])))",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -607,7 +441,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.9, sum by(le, method, uri) (rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[5m])))",
+          "expr": "histogram_quantile(0.9, sum by(le, method, topic) (rate(app_method_executions_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", topic=~\"$topic\", method=~\"$method\"}[1m])))",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -622,7 +456,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.95, sum by(le, method, uri) (rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[5m])))",
+          "expr": "histogram_quantile(0.95, sum by(le, method, topic) (rate(app_method_executions_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", topic=~\"$topic\", method=~\"$method\"}[1m])))",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -637,7 +471,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.99, sum by(le, method, uri) (rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[5m])))",
+          "expr": "histogram_quantile(0.99, sum by(le, method, topic) (rate(app_method_executions_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", topic=~\"$topic\", method=~\"$method\"}[1m])))",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -646,7 +480,7 @@
           "refId": "E"
         }
       ],
-      "title": "Percentile latency by method and endpoint",
+      "title": "Percentile execution time by method",
       "transformations": [
         {
           "id": "merge",
@@ -659,13 +493,23 @@
               "Time": true
             },
             "includeByName": {},
-            "indexByName": {},
+            "indexByName": {
+              "Time": 0,
+              "Value #A": 3,
+              "Value #B": 4,
+              "Value #C": 5,
+              "Value #E": 6,
+              "method": 2,
+              "topic": 1
+            },
             "renameByName": {
               "Value #A": "50%",
               "Value #B": "90%",
               "Value #C": "95%",
               "Value #D": "97%",
-              "Value #E": "99%"
+              "Value #E": "99%",
+              "method": "Method",
+              "topic": "Topic"
             }
           }
         },
@@ -693,7 +537,7 @@
       },
       "id": 4,
       "panels": [],
-      "title": "Request latency",
+      "title": "Execution time",
       "type": "row"
     },
     {
@@ -731,7 +575,6 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -746,8 +589,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": 0
+                "color": "green"
               },
               {
                 "color": "red",
@@ -783,7 +625,7 @@
           "sort": "desc"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -791,14 +633,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (method, uri) (\r\n    rate(http_server_requests_milliseconds_sum{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[5m])\r\n)\r\n/\r\nsum by (method, uri) (\r\n    rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[5m])\r\n)",
+          "expr": "sum by (method, topic) (rate(app_method_executions_milliseconds_sum{application=\"$application\", app_version=~\"$version\", topic=~\"$topic\", method=~\"$method\"}[1m])) / sum by (method, topic) (rate(app_method_executions_milliseconds_count{application=\"$application\", app_version=~\"$version\", topic=~\"$topic\", method=~\"$method\"}[1m]))",
           "instant": false,
-          "legendFormat": "{{method}} - {{uri}}",
+          "legendFormat": "{{topic}} - {{method}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Request latency by method and endpoint",
+      "title": "Execution time by method",
       "type": "timeseries"
     },
     {
@@ -818,11 +660,6 @@
               "type": "auto"
             },
             "filterable": false,
-            "footer": {
-              "reducers": [
-                "mean"
-              ]
-            },
             "inspect": false
           },
           "fieldMinMax": false,
@@ -831,8 +668,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": 0
+                "color": "green"
               },
               {
                 "color": "red",
@@ -853,9 +689,17 @@
       "id": 10,
       "options": {
         "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": [],
+          "reducer": [
+            "mean"
+          ],
+          "show": true
+        },
         "showHeader": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -864,7 +708,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "topk(10,\r\n    sum by (method, uri) (rate(http_server_requests_milliseconds_sum{application=\"$application\", app_version=~\"$version\", uri!=\"/**\"}[5m]))\r\n    /\r\n    sum by (method, uri) (rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\", uri!=\"/**\"}[5m]))\r\n    )",
+          "expr": "topk(10, sum by (topic, method) (rate(app_method_executions_milliseconds_sum{application=\"$application\", app_version=~\"$version\", topic=~\"$topic\", method=~\"$method\"}[1m])) / sum by (topic, method) (rate(app_method_executions_milliseconds_count{application=\"$application\", app_version=~\"$version\", topic=~\"$topic\", method=~\"$method\"}[1m])))",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -872,7 +716,7 @@
           "refId": "A"
         }
       ],
-      "title": "Top 10 request latencies",
+      "title": "Top 10 method executions",
       "transformations": [
         {
           "id": "organize",
@@ -881,10 +725,16 @@
               "Time": true
             },
             "includeByName": {},
-            "indexByName": {},
+            "indexByName": {
+              "Time": 0,
+              "Value": 3,
+              "method": 2,
+              "topic": 1
+            },
             "renameByName": {
               "Value": "Latency",
-              "method": "HTTP method",
+              "method": "Method",
+              "topic": "Topic",
               "uri": "URI"
             }
           }
@@ -902,7 +752,7 @@
       },
       "id": 3,
       "panels": [],
-      "title": "Request rate",
+      "title": "Execution rate",
       "type": "row"
     },
     {
@@ -940,7 +790,6 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -956,8 +805,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": 0
+                "color": "green"
               },
               {
                 "color": "red",
@@ -965,7 +813,7 @@
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "ops"
         },
         "overrides": []
       },
@@ -993,7 +841,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -1001,14 +849,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (method, uri) (\r\n    rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\", uri=~\"$uri\"}[5m])\r\n)",
+          "expr": "sum by (method, topic) (rate(app_method_executions_milliseconds_count{application=\"$application\", app_version=~\"$version\", topic=~\"$topic\", method=~\"$method\"}[1m]))",
           "instant": false,
-          "legendFormat": "{{method}} - {{uri}}",
+          "legendFormat": "{{topic}} - {{method}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Request rate per method and endpoint",
+      "title": "Execution rate per method",
       "type": "timeseries"
     },
     {
@@ -1028,11 +876,6 @@
               "type": "auto"
             },
             "filterable": false,
-            "footer": {
-              "reducers": [
-                "sum"
-              ]
-            },
             "inspect": false
           },
           "fieldMinMax": false,
@@ -1041,8 +884,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": 0
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1050,7 +892,7 @@
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "ops"
         },
         "overrides": []
       },
@@ -1063,6 +905,14 @@
       "id": 2,
       "options": {
         "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": true
+        },
         "showHeader": true,
         "sortBy": [
           {
@@ -1071,7 +921,7 @@
           }
         ]
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -1080,7 +930,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "topk(10, sum by (method, uri) (rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\"}[5m])))",
+          "expr": "topk(10, sum by (topic, method) (rate(app_method_executions_milliseconds_count{application=\"$application\", app_version=~\"$version\", topic=~\"$topic\", method=~\"$method\"}[1m])))",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -1088,7 +938,7 @@
           "refId": "A"
         }
       ],
-      "title": "Top 10 request rates",
+      "title": "Top 10 execution rates",
       "transformations": [
         {
           "id": "organize",
@@ -1097,10 +947,16 @@
               "Time": true
             },
             "includeByName": {},
-            "indexByName": {},
+            "indexByName": {
+              "Time": 0,
+              "Value": 3,
+              "method": 2,
+              "topic": 1
+            },
             "renameByName": {
-              "Value": "RPS",
-              "method": "HTTP method",
+              "Value": "OPS",
+              "method": "Method",
+              "topic": "Topic",
               "uri": "URI"
             }
           }
@@ -1111,7 +967,7 @@
   ],
   "preload": false,
   "refresh": "",
-  "schemaVersion": 42,
+  "schemaVersion": 41,
   "tags": [],
   "templating": {
     "list": [
@@ -1148,9 +1004,8 @@
           "uid": "prometheus"
         },
         "definition": "label_values(application_started_time_milliseconds,app_version)",
-        "includeAll": true,
+        "includeAll": false,
         "label": "Version",
-        "multi": true,
         "name": "version",
         "options": [],
         "query": {
@@ -1163,8 +1018,58 @@
         "type": "query"
       },
       {
+        "allValue": ".*",
         "current": {
-          "text": "99%",
+          "text": "example-entity-mapping",
+          "value": "example-entity-mapping"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(app_method_executions_milliseconds_count,topic)",
+        "includeAll": false,
+        "label": "Topic",
+        "name": "topic",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(app_method_executions_milliseconds_count,topic)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(app_method_executions_milliseconds_count,method)",
+        "includeAll": true,
+        "label": "Method",
+        "name": "method",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(app_method_executions_milliseconds_count,method)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "0.99",
           "value": "0.99"
         },
         "includeAll": false,
@@ -1201,31 +1106,6 @@
         "type": "custom"
       },
       {
-        "allValue": ".*",
-        "current": {
-          "text": "/example/{id:[0-9]*}",
-          "value": "/example/{id:[0-9]*}"
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "definition": "label_values(http_server_requests_milliseconds_count,uri)",
-        "includeAll": true,
-        "label": "URI",
-        "name": "uri",
-        "options": [],
-        "query": {
-          "qryType": 1,
-          "query": "label_values(http_server_requests_milliseconds_count,uri)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "sort": 1,
-        "type": "query"
-      },
-      {
         "baseFilters": [],
         "datasource": {
           "type": "prometheus",
@@ -1243,7 +1123,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "HTTP traffic",
-  "uid": "ce449iuhrssu8e",
-  "version": 1
+  "title": "Method execution",
+  "uid": "87ea5801-a8b0-401b-a9e9-1c507470f146",
+  "version": 25
 }
