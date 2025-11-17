@@ -7,5 +7,5 @@ data class ErrorDTO(
     val id: String,
     val message: String,
     val details: Any?,
-    val stackTrace: String?
+    val stackTrace: String?,
 )

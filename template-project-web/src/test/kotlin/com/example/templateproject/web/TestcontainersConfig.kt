@@ -17,16 +17,17 @@ class TestcontainersConfig {
     companion object {
         @ServiceConnection
         @Container
-        private val databaseContainer: PostgreSQLContainer<*> = PostgreSQLContainer<Nothing>("postgres:latest")
-            .apply { start() }
+        private val databaseContainer: PostgreSQLContainer<*> =
+            PostgreSQLContainer<Nothing>("postgres:latest")
+                .apply { start() }
     }
 
     @Bean
-    fun dataSource(): DataSource {
-        return DataSourceBuilder.create()
+    fun dataSource(): DataSource =
+        DataSourceBuilder
+            .create()
             .url(databaseContainer.jdbcUrl)
             .username(databaseContainer.username)
             .password(databaseContainer.password)
             .build()
-    }
 }

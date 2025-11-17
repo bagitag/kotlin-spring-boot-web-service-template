@@ -1,4 +1,4 @@
-package com.example.templateproject.client.jsonplaceholder
+package com.example.templateproject.client.jsonplaceholder.configuration
 
 import com.github.benmanes.caffeine.cache.AsyncCache
 import com.github.benmanes.caffeine.cache.Caffeine
@@ -10,13 +10,12 @@ import org.springframework.context.annotation.Configuration
 import java.util.concurrent.TimeUnit
 
 @Configuration
-@ConditionalOnProperty(value = [ "client.jsonplaceholder.cache.enabled" ], havingValue = "true")
+@ConditionalOnProperty(value = ["client.jsonplaceholder.cache.enabled"], havingValue = "true")
 class JsonPlaceholderCacheConfiguration(
-    @Value("\${client.jsonplaceholder.cache.expiration.minutes}") private val expirationMinutes: Long,
-    @Value("\${client.jsonplaceholder.cache.users.maxSize:1}") private val usersCacheMaxSize: Long,
-    val cacheManager: CaffeineCacheManager
+    @param:Value($$"${client.jsonplaceholder.cache.expiration.minutes}") private val expirationMinutes: Long,
+    @param:Value($$"${client.jsonplaceholder.cache.users.maxSize:1}") private val usersCacheMaxSize: Long,
+    private val cacheManager: CaffeineCacheManager,
 ) {
-
     companion object {
         const val USERS_CACHE_NAME = "jsonplaceholder-users"
     }
@@ -26,15 +25,22 @@ class JsonPlaceholderCacheConfiguration(
         registerCache(USERS_CACHE_NAME, usersCacheMaxSize, expirationMinutes)
     }
 
-    private fun registerCache(name: String, maximumSize: Long, expirationMinutes: Long) {
+    private fun registerCache(
+        name: String,
+        maximumSize: Long,
+        expirationMinutes: Long,
+    ) {
         cacheManager.registerCustomCache(name, caffeineAsyncCache(maximumSize, expirationMinutes))
     }
 
-    private fun caffeineAsyncCache(size: Long, expirationMinutes: Long): AsyncCache<Any, Any> {
-        return Caffeine.newBuilder()
+    private fun caffeineAsyncCache(
+        size: Long,
+        expirationMinutes: Long,
+    ): AsyncCache<Any, Any> =
+        Caffeine
+            .newBuilder()
             .expireAfterWrite(expirationMinutes, TimeUnit.MINUTES)
             .maximumSize(size)
             .recordStats()
-            .buildAsync<Any, Any>()
-    }
+            .buildAsync()
 }

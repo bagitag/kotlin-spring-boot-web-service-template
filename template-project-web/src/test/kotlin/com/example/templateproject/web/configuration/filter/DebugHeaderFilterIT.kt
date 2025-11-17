@@ -17,8 +17,9 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 
 @ExtendWith(OutputCaptureExtension::class)
-class DebugHeaderFilterIT(@Autowired val restTemplate: TestRestTemplate) : BaseIntegrationTest() {
-
+class DebugHeaderFilterIT(
+    @param:Autowired val restTemplate: TestRestTemplate,
+) : BaseIntegrationTest() {
     @Test
     fun `Request with debug header should turn on debug level logging`(output: CapturedOutput) {
         // when
@@ -29,11 +30,11 @@ class DebugHeaderFilterIT(@Autowired val restTemplate: TestRestTemplate) : BaseI
                 "${API_BASE_PATH}/$EXAMPLE_ENDPOINT",
                 HttpMethod.GET,
                 HttpEntity<Any>(headers),
-                String::class.java
+                String::class.java,
             )
 
         // then
         assertEquals(HttpStatus.OK, response.statusCode)
-        assertTrue(output.out.contains("Debug level logging is turned on for requestId:"))
+        assertTrue(output.out.contains("Debug level logging is turned on for ${RequestIdFilter.REQUEST_ID_MDC_KEY}:"))
     }
 }

@@ -5,12 +5,13 @@ import org.springframework.http.client.observation.ClientHttpObservationDocument
 import org.springframework.http.client.observation.ClientRequestObservationContext
 import org.springframework.http.client.observation.DefaultClientRequestObservationConvention
 
-class CustomClientRequestObservationConvention(private val clientId: String) :
-    DefaultClientRequestObservationConvention() {
-
-    override fun clientName(context: ClientRequestObservationContext): KeyValue {
-        return if (!clientId.isEmpty())
+class CustomClientRequestObservationConvention(
+    private val clientId: String,
+) : DefaultClientRequestObservationConvention() {
+    override fun clientName(context: ClientRequestObservationContext): KeyValue =
+        if (!clientId.isEmpty()) {
             KeyValue.of(ClientHttpObservationDocumentation.LowCardinalityKeyNames.CLIENT_NAME, clientId)
-        else super.clientName(context)
-    }
+        } else {
+            super.clientName(context)
+        }
 }

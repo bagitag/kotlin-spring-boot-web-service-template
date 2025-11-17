@@ -26,8 +26,9 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
-class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate) : BaseIntegrationTest() {
-
+class ExampleControllerIT(
+    @param:Autowired val restTemplate: TestRestTemplate,
+) : BaseIntegrationTest() {
     private val path = "$API_BASE_PATH/$EXAMPLE_ENDPOINT"
 
     @Test
@@ -44,19 +45,45 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate) : BaseI
         assertEquals(2, actual.body!!.totalPages)
         assertTrue(actual.body!!.sorted)
         assertEquals(2, actual.body!!.sortOrders.size)
-        assertEquals("createdDate", actual.body!!.sortOrders.first().property)
-        assertEquals("DESC", actual.body!!.sortOrders.first().direction)
-        assertEquals("id", actual.body!!.sortOrders.last().property)
-        assertEquals("DESC", actual.body!!.sortOrders.last().direction)
+        assertEquals(
+            "createdDate",
+            actual.body!!
+                .sortOrders
+                .first()
+                .property,
+        )
+        assertEquals(
+            "DESC",
+            actual.body!!
+                .sortOrders
+                .first()
+                .direction,
+        )
+        assertEquals(
+            "id",
+            actual.body!!
+                .sortOrders
+                .last()
+                .property,
+        )
+        assertEquals(
+            "DESC",
+            actual.body!!
+                .sortOrders
+                .last()
+                .direction,
+        )
     }
 
     @Test
     fun testForGetAllPaginatedAndSortedExamples() {
         // when
-        val uriBuilder = UriComponentsBuilder.fromUri(URI.create(path))
-            .queryParam("page", 0)
-            .queryParam("size", 50)
-            .queryParam("sort", "id,asc", "name,desc")
+        val uriBuilder =
+            UriComponentsBuilder
+                .fromUri(URI.create(path))
+                .queryParam("page", 0)
+                .queryParam("size", 50)
+                .queryParam("sort", "id,asc", "name,desc")
         val pageTypeReference = object : ParameterizedTypeReference<PageDetails<ExampleDTO>>() {}
         val actual = restTemplate.exchange(uriBuilder.toUriString(), HttpMethod.GET, null, pageTypeReference)
 
@@ -69,10 +96,34 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate) : BaseI
         assertEquals(1, actual.body!!.totalPages)
         assertTrue(actual.body!!.sorted)
         assertEquals(2, actual.body!!.sortOrders.size)
-        assertEquals("id", actual.body!!.sortOrders.first().property)
-        assertEquals("ASC", actual.body!!.sortOrders.first().direction)
-        assertEquals("name", actual.body!!.sortOrders.last().property)
-        assertEquals("DESC", actual.body!!.sortOrders.last().direction)
+        assertEquals(
+            "id",
+            actual.body!!
+                .sortOrders
+                .first()
+                .property,
+        )
+        assertEquals(
+            "ASC",
+            actual.body!!
+                .sortOrders
+                .first()
+                .direction,
+        )
+        assertEquals(
+            "name",
+            actual.body!!
+                .sortOrders
+                .last()
+                .property,
+        )
+        assertEquals(
+            "DESC",
+            actual.body!!
+                .sortOrders
+                .last()
+                .direction,
+        )
     }
 
     @Test
@@ -80,9 +131,11 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate) : BaseI
         // when
         val searchTerms1 = "4. example"
         val searchTerms2 = "14. example"
-        val uriBuilder = UriComponentsBuilder.fromUri(URI.create("$path/search"))
-            .queryParam("searchTerms", searchTerms1, searchTerms2)
-            .build(false)
+        val uriBuilder =
+            UriComponentsBuilder
+                .fromUri(URI.create("$path/search"))
+                .queryParam("searchTerms", searchTerms1, searchTerms2)
+                .build(false)
         val pageTypeReference = object : ParameterizedTypeReference<PageDetails<ExampleDTO>>() {}
         val actual = restTemplate.exchange(uriBuilder.toUriString(), HttpMethod.GET, null, pageTypeReference)
 
@@ -94,8 +147,20 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate) : BaseI
         assertEquals(2, actual.body!!.totalElements)
         assertEquals(1, actual.body!!.totalPages)
         assertTrue(actual.body!!.sorted)
-        assertEquals(searchTerms2, actual.body!!.content.first().name)
-        assertEquals(searchTerms1, actual.body!!.content.last().name)
+        assertEquals(
+            searchTerms2,
+            actual.body!!
+                .content
+                .first()
+                .name,
+        )
+        assertEquals(
+            searchTerms1,
+            actual.body!!
+                .content
+                .last()
+                .name,
+        )
     }
 
     @Test
@@ -114,7 +179,6 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate) : BaseI
 
     @Nested
     inner class DatabaseManipulatingTests {
-
         @Inject
         private lateinit var historyRepository: ExampleHistoryRepository
 
@@ -144,7 +208,7 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate) : BaseI
             val request = ExampleDTO(name = name)
 
             // when
-            val actual = restTemplate.postForEntity<ExampleDTO>(path, request, ExampleDTO::class.java)
+            val actual = restTemplate.postForEntity(path, request, ExampleDTO::class.java)
 
             // then
             assertEquals(HttpStatus.CREATED, actual.statusCode)
@@ -198,7 +262,11 @@ class ExampleControllerIT(@Autowired val restTemplate: TestRestTemplate) : BaseI
             assertEquals(HistoryEvent.DELETE, historyEntity.event)
         }
 
-        private fun validateHistoryEntity(entity: ExampleDTO, historyEntity: ExampleHistory, event: HistoryEvent) {
+        private fun validateHistoryEntity(
+            entity: ExampleDTO,
+            historyEntity: ExampleHistory,
+            event: HistoryEvent,
+        ) {
             assertEquals(16, historyEntity.id)
             assertEquals(entity.id, historyEntity.entityId)
             assertEquals(entity.name, historyEntity.name)

@@ -23,9 +23,9 @@ const val EXAMPLE_ENDPOINT = "/example"
 @RestController
 @RequestMapping(EXAMPLE_ENDPOINT)
 @Tag(name = "Example", description = "Operations for Examples.")
-class ExampleController(private val exampleService: ExampleService) :
-    AbstractController<ExampleDTO>(exampleService, ExampleDTO::class) {
-
+class ExampleController(
+    private val exampleService: ExampleService,
+) : AbstractController<ExampleDTO>(exampleService, ExampleDTO::class) {
     companion object {
         private val LOGGER = LoggerFactory.getLogger(ExampleController::class.java)
     }
@@ -36,21 +36,22 @@ class ExampleController(private val exampleService: ExampleService) :
         ApiResponse(
             responseCode = "200",
             description = "The Example list has been successfully returned based on the search terms.",
-            useReturnTypeSchema = true
-        )
+            useReturnTypeSchema = true,
+        ),
     )
     @PageableAsQueryParam
     fun searchExamples(
         @Parameter(hidden = true) @PageableDefault pageable: Pageable,
-        @RequestParam searchTerms: List<String>
+        @RequestParam searchTerms: List<String>,
     ): PageDetails<ExampleDTO> {
         val sanitizedSearchTerms = searchTerms.map { removeNonAllowedCharacters(it) }.toList()
 
-        return exampleService.searchExamples(sanitizedSearchTerms, pageable)
+        return exampleService
+            .searchExamples(sanitizedSearchTerms, pageable)
             .apply {
                 LOGGER.info(
                     "Returning ${content.size} out of $totalElements Examples " +
-                            "for the given search terms: $sanitizedSearchTerms"
+                        "for the given search terms: $sanitizedSearchTerms",
                 )
             }
     }
@@ -59,9 +60,10 @@ class ExampleController(private val exampleService: ExampleService) :
     @Operation(summary = "Returns the number of words for each user in order of cardinality.")
     @ApiResponses(
         ApiResponse(
-            responseCode = "200", description = "The word count map.",
-            useReturnTypeSchema = true
-        )
+            responseCode = "200",
+            description = "The word count map.",
+            useReturnTypeSchema = true,
+        ),
     )
     fun getWordStatistics(): ResponseEntity<Map<String, Int>> = ResponseEntity.ok(exampleService.getWordCountForUsers())
 }

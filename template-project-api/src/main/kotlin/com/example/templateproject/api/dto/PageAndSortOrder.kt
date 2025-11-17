@@ -7,10 +7,10 @@ data class PageDetails<T>(
     val totalElements: Long,
     val totalPages: Int,
     val sorted: Boolean,
-    val sortOrders: List<SortOrder>
+    val sortOrders: List<SortOrder>,
 )
 
 data class SortOrder(
     val property: String,
-    val direction: String
+    val direction: String,
 )

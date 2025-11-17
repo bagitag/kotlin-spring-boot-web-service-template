@@ -8,6 +8,8 @@ import org.springframework.data.repository.NoRepositoryBean
 
 @NoRepositoryBean
 interface BaseRepository<E : BaseEntity> : JpaRepository<E, Long> {
-
-    fun findByNameInIgnoreCase(searchTerms: List<String>, pageable: Pageable): Page<E>
+    fun findByNameInIgnoreCase(
+        searchTerms: List<String>,
+        pageable: Pageable,
+    ): Page<E>
 }

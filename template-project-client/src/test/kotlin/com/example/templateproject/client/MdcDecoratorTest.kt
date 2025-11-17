@@ -13,7 +13,6 @@ import org.slf4j.MDC
 
 @ExtendWith(MockKExtension::class)
 internal class MdcDecoratorTest {
-
     private lateinit var victim: MdcDecorator
 
     @BeforeEach

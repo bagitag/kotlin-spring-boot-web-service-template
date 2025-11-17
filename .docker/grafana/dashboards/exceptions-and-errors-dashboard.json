@@ -58,7 +58,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -70,9 +71,85 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 3,
+        "h": 8,
+        "w": 4,
         "x": 0,
+        "y": 0
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "max"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(increase(app_exception_counter_total{application=\"$application\", app_version=~\"$version\", exceptionId=~\".*$exceptionId.*\", exceptionId!~\"$knownExceptionIds\"}[24h]))",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Total exceptions - Last 24h",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "default": true,
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 4,
         "y": 0
       },
       "id": 4,
@@ -93,7 +170,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -101,8 +178,8 @@
             "uid": "prometheus"
           },
           "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "sum(app_exception_counter_total{application=\"$application\", app_version=~\"$version\", exceptionId!~\"$knownExceptionIds\"})",
+          "editorMode": "code",
+          "expr": "sum(increase(app_exception_counter_total{application=\"$application\", app_version=~\"$version\", exceptionId=~\".*$exceptionId.*\", exceptionId!~\"$knownExceptionIds\"}[$__range]))",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -115,6 +192,222 @@
       ],
       "title": "Total exceptions",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "default": true,
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 8,
+        "y": 0
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "max"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "(sum(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\", outcome!=\"SUCCESS\"}) / clamp_min(sum(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\"}), 1)) * 100",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Request error rate",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "default": true,
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false,
+            "footer": {
+              "reducers": [
+                "sum"
+              ]
+            },
+            "inspect": false
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Error"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 171
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "RPS"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 148
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP method"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 178
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 9,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "RPS"
+          }
+        ]
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "topk(5, sum by (method, uri, outcome) (rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\", outcome!=\"SUCCESS\"}[5m])))",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "{{outcome}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Top 5 failed requests",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Time": 0,
+              "Value": 4,
+              "method": 1,
+              "outcome": 3,
+              "uri": 2
+            },
+            "renameByName": {
+              "Value": "RPS",
+              "method": "HTTP method",
+              "outcome": "Error",
+              "uri": "URI"
+            }
+          }
+        }
+      ],
+      "type": "table"
     },
     {
       "datasource": {
@@ -151,6 +444,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -165,7 +459,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -177,10 +472,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 21,
-        "x": 3,
-        "y": 0
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 8
       },
       "id": 3,
       "options": {
@@ -200,7 +495,7 @@
           "sort": "desc"
         }
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -208,8 +503,8 @@
             "uid": "prometheus"
           },
           "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "app_exception_counter_total{application=\"$application\", app_version=~\"$version\", exceptionId=~\".*$exceptionId.*\", exceptionId!~\"$knownExceptionIds\"}",
+          "editorMode": "code",
+          "expr": "increase(app_exception_counter_total{application=\"$application\", app_version=~\"$version\", exceptionId=~\".*$exceptionId.*\", exceptionId!~\"$knownExceptionIds\"}[5m])",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -219,7 +514,7 @@
           "useBackend": false
         }
       ],
-      "title": "Exceptions by type",
+      "title": "Total exceptions by type",
       "type": "timeseries"
     },
     {
@@ -260,6 +555,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -275,7 +571,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -287,18 +584,22 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 12,
+        "h": 11,
         "w": 24,
         "x": 0,
-        "y": 9
+        "y": 19
       },
-      "id": 2,
+      "id": 6,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "table",
           "placement": "right",
-          "showLegend": true
+          "showLegend": true,
+          "sortBy": "Mean",
+          "sortDesc": true
         },
         "tooltip": {
           "hideZeros": false,
@@ -306,7 +607,7 @@
           "sort": "desc"
         }
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -316,7 +617,122 @@
           "disableTextWrap": false,
           "editorMode": "code",
           "exemplar": false,
-          "expr": "irate(app_exception_counter_total{application=\"$application\", app_version=~\"$version\", exceptionId=~\".*$exceptionId.*\", exceptionId!~\"$knownExceptionIds\"}[1m])",
+          "expr": "sum(irate(app_exception_counter_total{application=\"$application\", app_version=~\"$version\", exceptionId!~\"$knownExceptionIds\"}[5m]))",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Exceptions",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Toal exceptions per second",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "default": true,
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "sortBy": "Mean",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "irate(app_exception_counter_total{application=\"$application\", app_version=~\"$version\", exceptionId=~\".*$exceptionId.*\", exceptionId!~\"$knownExceptionIds\"}[5m])",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -337,10 +753,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 9,
+        "h": 6,
+        "w": 24,
         "x": 0,
-        "y": 21
+        "y": 41
       },
       "id": 5,
       "options": {
@@ -349,43 +765,20 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "| ExceptionID | ExceptionType | Comment |\n|-------------|---------------|---------|\n| 1f719ad1a38082a, 9e4198cbdddec8e |  IdNotFoundException | Wrong resource id was provided. |",
+        "content": "| ExceptionID | ExceptionType | Comment |\n|-------------|---------------|---------|\n| 694bb2ad93481ad, c0debafb0de2b15 |  IdNotFoundException | Wrong resource id was provided. |\n| f5611c3c7c86cc2 | ExternalServiceException | Communication error with external service. |",
         "mode": "markdown"
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.2.1",
       "title": "Known exceptions",
       "type": "text"
     }
   ],
   "preload": false,
   "refresh": "30s",
-  "schemaVersion": 41,
+  "schemaVersion": 42,
   "tags": [],
   "templating": {
     "list": [
-      {
-        "current": {
-          "text": "otel-collector:8889",
-          "value": "otel-collector:8889"
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "definition": "label_values(jvm_classes_loaded,instance)",
-        "includeAll": false,
-        "label": "Instance",
-        "name": "instance",
-        "options": [],
-        "query": {
-          "qryType": 1,
-          "query": "label_values(jvm_classes_loaded,instance)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "type": "query"
-      },
       {
         "current": {
           "text": "template-app",
@@ -411,9 +804,7 @@
       },
       {
         "current": {
-          "text": [
-            "All"
-          ],
+          "text": "All",
           "value": [
             "$__all"
           ]
@@ -455,13 +846,13 @@
         "type": "textbox"
       },
       {
-        "allValue": "null = asd",
+        "allowCustomValue": false,
         "current": {
           "text": [
-            "9e4198cbdddec8e"
+            ""
           ],
           "value": [
-            "9e4198cbdddec8e"
+            ""
           ]
         },
         "includeAll": false,
@@ -471,32 +862,37 @@
         "options": [
           {
             "selected": true,
-            "text": "9e4198cbdddec8e",
-            "value": "9e4198cbdddec8e"
+            "text": "None",
+            "value": ""
           },
           {
             "selected": false,
-            "text": "8cffd898e0f96f1",
-            "value": "8cffd898e0f96f1"
+            "text": "694bb2ad93481ad",
+            "value": "694bb2ad93481ad"
           },
           {
             "selected": false,
-            "text": "1f719ad1a38082a",
-            "value": "1f719ad1a38082a"
+            "text": "c0debafb0de2b15",
+            "value": "c0debafb0de2b15"
+          },
+          {
+            "selected": false,
+            "text": "f5611c3c7c86cc2",
+            "value": "f5611c3c7c86cc2"
           }
         ],
-        "query": "9e4198cbdddec8e,8cffd898e0f96f1,1f719ad1a38082a",
+        "query": "None :  ,694bb2ad93481ad,c0debafb0de2b15,f5611c3c7c86cc2",
         "type": "custom"
       }
     ]
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Exceptions & errors",
   "uid": "aa258ef0-15a5-40c8-9b94-736b256c0f80",
-  "version": 3
+  "version": 2
 }

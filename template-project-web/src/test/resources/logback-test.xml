@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+    <springProperty scope="context" name="enableDebugLogging" source="app.debug.logging.enabled" defaultValue="false"/>
     <springProperty scope="context" name="packages" source="app.debug.logging.package.list" defaultValue="UNDEFINED"/>
 
     <jmxConfigurator />
@@ -10,7 +11,11 @@
 
     <property name="LOG_EXCEPTION_CONVERSION_WORD" value="%ex{short}"/>
 
-    <if condition='!"${packages}".contains("UNDEFINED")'>
+    <condition class="ch.qos.logback.core.boolex.PropertyEqualityCondition">
+        <key>enableDebugLogging</key>
+        <value>true</value>
+    </condition>
+    <if>
         <then>
             <turboFilter class="com.example.templateproject.web.configuration.DebugLoggingTurboFilter">
                 <packages>${packages}</packages>

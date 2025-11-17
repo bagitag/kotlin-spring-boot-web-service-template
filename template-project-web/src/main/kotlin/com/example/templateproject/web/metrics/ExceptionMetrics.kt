@@ -5,19 +5,24 @@ import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.stereotype.Component
 
 @Component
-class ExceptionMetrics(private val meterRegistry: MeterRegistry) {
-
+class ExceptionMetrics(
+    private val meterRegistry: MeterRegistry,
+) {
     private companion object {
-        const val exceptionCounterMetricName = "app.exception.counter"
-        const val exceptionIdTagName = "exceptionId"
-        const val exceptionTypeTagName = "exceptionType"
+        const val EXCEPTION_COUNTER_METRIC_NAME = "app.exception.counter"
+        const val EXCEPTION_ID_TAG_NAME = "exceptionId"
+        const val EXCEPTION_TYPE_TAG_NAME = "exceptionType"
     }
 
-    fun updateExceptionCounter(exceptionId: String, exceptionClass: String) {
-        Counter.builder(exceptionCounterMetricName)
+    fun updateExceptionCounter(
+        exceptionId: String,
+        exceptionClass: String,
+    ) {
+        Counter
+            .builder(EXCEPTION_COUNTER_METRIC_NAME)
             .description("Represents the exception count grouped by the generated id.")
-            .tag(exceptionIdTagName, exceptionId)
-            .tag(exceptionTypeTagName, exceptionClass)
+            .tag(EXCEPTION_ID_TAG_NAME, exceptionId)
+            .tag(EXCEPTION_TYPE_TAG_NAME, exceptionClass)
             .register(meterRegistry)
             .increment()
     }

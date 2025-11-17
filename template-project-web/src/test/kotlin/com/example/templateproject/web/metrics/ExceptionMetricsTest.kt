@@ -13,9 +13,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 internal class ExceptionMetricsTest {
-
     @RelaxedMockK
     private lateinit var meterRegistry: MeterRegistry
+
     @MockK
     private lateinit var counter: Counter
 
@@ -32,11 +32,13 @@ internal class ExceptionMetricsTest {
         val exceptionId = "hs7sm2df"
         val exceptionClass = "java.lang.NullPointerException"
 
-        every { Counter.builder("app.exception.counter")
-            .description("Represents the exception count grouped by the generated id.")
-            .tag("exceptionId", exceptionId)
-            .tag("exceptionType", exceptionClass)
-            .register(meterRegistry)
+        every {
+            Counter
+                .builder("app.exception.counter")
+                .description("Represents the exception count grouped by the generated id.")
+                .tag("exceptionId", exceptionId)
+                .tag("exceptionType", exceptionClass)
+                .register(meterRegistry)
         } returns counter
         every { counter.increment() } returns Unit
 

@@ -6,8 +6,9 @@ import org.springframework.beans.factory.InitializingBean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class OpenTelemetryAppenderInitializer(private val openTelemetry: OpenTelemetry) : InitializingBean {
-
+class OpenTelemetryAppenderInitializer(
+    private val openTelemetry: OpenTelemetry,
+) : InitializingBean {
     override fun afterPropertiesSet() {
         OpenTelemetryAppender.install(openTelemetry)
     }

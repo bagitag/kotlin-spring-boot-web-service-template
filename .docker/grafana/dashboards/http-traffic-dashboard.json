@@ -12,13 +12,30 @@
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
         "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "loki"
+        },
+        "enable": true,
+        "expr": "{service_name=\"template-project-docker\"} |= \"Started TemplateApplicationKt\"",
+        "hide": false,
+        "iconColor": "blue",
+        "name": "Deployments",
+        "queryType": "range",
+        "target": {
+          "expr": "",
+          "interval": "",
+          "refId": "Anno"
+        }
       }
     ]
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 1,
   "links": [],
   "panels": [
     {
@@ -38,7 +55,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -74,7 +91,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -83,7 +100,80 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(http_server_requests_milliseconds_sum{application=\"$application\", app_version=~\"$version\"}) / sum(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\"})",
+          "expr": "sum(http_server_requests_milliseconds_sum{application=\"$application\", app_version=~\"$version\"})\r\n/\r\nsum(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\"})",
+          "format": "time_series",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Average latency since startup",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "default": true,
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(http_server_requests_milliseconds_sum{application=\"$application\", app_version=~\"$version\"}[5m]))\r\n/\r\nsum(rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\"}[5m]))",
           "format": "time_series",
           "instant": false,
           "legendFormat": "__auto",
@@ -111,7 +201,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -126,7 +216,7 @@
       "gridPos": {
         "h": 7,
         "w": 4,
-        "x": 4,
+        "x": 8,
         "y": 0
       },
       "id": 11,
@@ -147,7 +237,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -156,7 +246,80 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(histogram_quantile($percentile, sum by(le, method, uri) (http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\"})))",
+          "expr": "histogram_quantile(\r\n    $percentile, sum by(le) (\r\n        http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\"}\r\n    )\r\n)",
+          "format": "time_series",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "$percentile Average latency since startup",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "default": true,
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 12,
+        "y": 0
+      },
+      "id": 17,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "histogram_quantile(\r\n    $percentile, sum by(le) (\r\n        rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\"}[5m])\r\n    )\r\n)",
           "format": "time_series",
           "instant": false,
           "legendFormat": "__auto",
@@ -184,78 +347,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "ms"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 4,
-        "x": 8,
-        "y": 0
-      },
-      "id": 7,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "max"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.2.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "max(sum(rate(http_server_requests_milliseconds_sum{application=\"$application\", app_version=~\"$version\"}[1m])) / sum(rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\"}[1m])))",
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Maximum average latency",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "default": true,
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -270,7 +362,7 @@
       "gridPos": {
         "h": 7,
         "w": 6,
-        "x": 12,
+        "x": 16,
         "y": 0
       },
       "id": 15,
@@ -291,7 +383,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -299,7 +391,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\"}[1m]))",
+          "expr": "sum(rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\"}[5m]))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -310,6 +402,7 @@
       "type": "stat"
     },
     {
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -317,6 +410,7 @@
         "y": 7
       },
       "id": 13,
+      "panels": [],
       "title": "Percentile latency",
       "type": "row"
     },
@@ -355,6 +449,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -370,7 +465,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -401,10 +496,12 @@
           "sortDesc": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "desc"
         }
       },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -413,7 +510,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "histogram_quantile($percentile, sum by(le, method, uri) (rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[1m])))",
+          "expr": "histogram_quantile($percentile, sum by(le, method, uri) (rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[5m])))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -443,6 +540,11 @@
               "type": "auto"
             },
             "filterable": false,
+            "footer": {
+              "reducers": [
+                "mean"
+              ]
+            },
             "inspect": false
           },
           "fieldMinMax": false,
@@ -452,7 +554,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -473,14 +575,6 @@
       "id": 14,
       "options": {
         "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": [],
-          "reducer": [
-            "mean"
-          ],
-          "show": true
-        },
         "frameIndex": 0,
         "showHeader": true,
         "sortBy": [
@@ -490,7 +584,7 @@
           }
         ]
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -499,7 +593,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.5, sum by(le, method, uri) (rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[1m])))",
+          "expr": "histogram_quantile(0.5, sum by(le, method, uri) (rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[5m])))",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -513,7 +607,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.9, sum by(le, method, uri) (rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[1m])))",
+          "expr": "histogram_quantile(0.9, sum by(le, method, uri) (rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[5m])))",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -528,7 +622,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.95, sum by(le, method, uri) (rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[1m])))",
+          "expr": "histogram_quantile(0.95, sum by(le, method, uri) (rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[5m])))",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -543,7 +637,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.99, sum by(le, method, uri) (rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[1m])))",
+          "expr": "histogram_quantile(0.99, sum by(le, method, uri) (rate(http_server_requests_milliseconds_bucket{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[5m])))",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -637,6 +731,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -652,7 +747,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -683,10 +778,12 @@
           "sortDesc": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "desc"
         }
       },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -694,7 +791,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (method, uri) (rate(http_server_requests_milliseconds_sum{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[1m])) / sum by (method, uri) (rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[1m]))",
+          "expr": "sum by (method, uri) (\r\n    rate(http_server_requests_milliseconds_sum{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[5m])\r\n)\r\n/\r\nsum by (method, uri) (\r\n    rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\", uri!=\"/**\", uri=~\"$uri\"}[5m])\r\n)",
           "instant": false,
           "legendFormat": "{{method}} - {{uri}}",
           "range": true,
@@ -721,6 +818,11 @@
               "type": "auto"
             },
             "filterable": false,
+            "footer": {
+              "reducers": [
+                "mean"
+              ]
+            },
             "inspect": false
           },
           "fieldMinMax": false,
@@ -730,7 +832,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -751,17 +853,9 @@
       "id": 10,
       "options": {
         "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": [],
-          "reducer": [
-            "mean"
-          ],
-          "show": true
-        },
         "showHeader": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -770,7 +864,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "topk(10, sum by (method, uri) (rate(http_server_requests_milliseconds_sum{application=\"$application\", app_version=~\"$version\", uri!=\"/**\"}[1m])) / sum by (method, uri) (rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\", uri!=\"/**\"}[1m])))",
+          "expr": "topk(10,\r\n    sum by (method, uri) (rate(http_server_requests_milliseconds_sum{application=\"$application\", app_version=~\"$version\", uri!=\"/**\"}[5m]))\r\n    /\r\n    sum by (method, uri) (rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\", uri!=\"/**\"}[5m]))\r\n    )",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -846,6 +940,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -862,7 +957,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -893,10 +988,12 @@
           "sortDesc": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -904,7 +1001,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (method, uri) (rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\", uri=~\"$uri\"}[1m]))",
+          "expr": "sum by (method, uri) (\r\n    rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\", uri=~\"$uri\"}[5m])\r\n)",
           "instant": false,
           "legendFormat": "{{method}} - {{uri}}",
           "range": true,
@@ -931,6 +1028,11 @@
               "type": "auto"
             },
             "filterable": false,
+            "footer": {
+              "reducers": [
+                "sum"
+              ]
+            },
             "inspect": false
           },
           "fieldMinMax": false,
@@ -940,7 +1042,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -961,14 +1063,6 @@
       "id": 2,
       "options": {
         "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": true
-        },
         "showHeader": true,
         "sortBy": [
           {
@@ -977,7 +1071,7 @@
           }
         ]
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -986,7 +1080,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "topk(10, sum by (method, uri) (rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\"}[1m])))",
+          "expr": "topk(10, sum by (method, uri) (rate(http_server_requests_milliseconds_count{application=\"$application\", app_version=~\"$version\"}[5m])))",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -1015,14 +1109,14 @@
       "type": "table"
     }
   ],
+  "preload": false,
   "refresh": "",
-  "schemaVersion": 39,
+  "schemaVersion": 42,
   "tags": [],
   "templating": {
     "list": [
       {
         "current": {
-          "selected": false,
           "text": "template-app",
           "value": "template-app"
         },
@@ -1031,10 +1125,8 @@
           "uid": "prometheus"
         },
         "definition": "label_values(application)",
-        "hide": 0,
         "includeAll": false,
         "label": "Application",
-        "multi": false,
         "name": "application",
         "options": [],
         "query": {
@@ -1044,13 +1136,10 @@
         },
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       },
       {
         "current": {
-          "selected": false,
           "text": "0.0.1-SNAPSHOT",
           "value": "0.0.1-SNAPSHOT"
         },
@@ -1059,10 +1148,9 @@
           "uid": "prometheus"
         },
         "definition": "label_values(application_started_time_milliseconds,app_version)",
-        "hide": 0,
-        "includeAll": false,
+        "includeAll": true,
         "label": "Version",
-        "multi": false,
+        "multi": true,
         "name": "version",
         "options": [],
         "query": {
@@ -1072,20 +1160,15 @@
         },
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       },
       {
         "current": {
-          "selected": true,
           "text": "99%",
           "value": "0.99"
         },
-        "hide": 0,
         "includeAll": false,
         "label": "Percentile",
-        "multi": false,
         "name": "percentile",
         "options": [
           {
@@ -1115,14 +1198,11 @@
           }
         ],
         "query": "99% : 0.99, 97% : 0.97, 95% : 0.95, 90% : 0.9, 50% : 0.5,",
-        "queryValue": "",
-        "skipUrlSync": false,
         "type": "custom"
       },
       {
         "allValue": ".*",
         "current": {
-          "selected": true,
           "text": "/example/{id:[0-9]*}",
           "value": "/example/{id:[0-9]*}"
         },
@@ -1131,10 +1211,8 @@
           "uid": "prometheus"
         },
         "definition": "label_values(http_server_requests_milliseconds_count,uri)",
-        "hide": 0,
         "includeAll": true,
         "label": "URI",
-        "multi": false,
         "name": "uri",
         "options": [],
         "query": {
@@ -1144,19 +1222,17 @@
         },
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
         "sort": 1,
         "type": "query"
       },
       {
+        "baseFilters": [],
         "datasource": {
           "type": "prometheus",
           "uid": "prometheus"
         },
         "filters": [],
-        "hide": 0,
         "name": "Filters",
-        "skipUrlSync": false,
         "type": "adhoc"
       }
     ]
@@ -1169,6 +1245,5 @@
   "timezone": "browser",
   "title": "HTTP traffic",
   "uid": "ce449iuhrssu8e",
-  "version": 3,
-  "weekStart": ""
+  "version": 1
 }

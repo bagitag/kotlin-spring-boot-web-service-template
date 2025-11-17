@@ -14,7 +14,6 @@ import org.slf4j.MDC
 
 @ExtendWith(MockKExtension::class)
 internal class DebugLoggingTurboFilterTest {
-
     private lateinit var victim: DebugLoggingTurboFilter
 
     @BeforeEach

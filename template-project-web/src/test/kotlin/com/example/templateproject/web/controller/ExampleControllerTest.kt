@@ -18,9 +18,9 @@ import org.springframework.http.HttpStatus
 
 @ExtendWith(MockKExtension::class)
 internal class ExampleControllerTest {
-
     @MockK
     private lateinit var exampleService: ExampleService
+
     @InjectMockKs
     private lateinit var victim: ExampleController
 

@@ -7,10 +7,12 @@ import org.springframework.data.repository.NoRepositoryBean
 
 @NoRepositoryBean
 interface BaseHistoryRepository<E : BaseHistoryEntity> : JpaRepository<E, Long> {
-
     fun findByEntityId(entityId: Long): List<E>
 
     fun findByEvent(event: HistoryEvent): List<E>
 
-    fun findByEntityIdAndEvent(entityId: Long, event: HistoryEvent): List<E>
+    fun findByEntityIdAndEvent(
+        entityId: Long,
+        event: HistoryEvent,
+    ): List<E>
 }

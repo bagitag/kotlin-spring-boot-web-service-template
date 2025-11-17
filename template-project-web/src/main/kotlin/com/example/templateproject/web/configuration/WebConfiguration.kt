@@ -13,14 +13,14 @@ const val API_BASE_PATH = "$API_PATH_PREFIX/$API_VERSION"
 
 @Configuration
 class WebConfiguration : WebMvcConfigurer {
-
     val basePackageName: String = TemplateApplication::class.java.`package`.name
 
     override fun configurePathMatch(configurer: PathMatchConfigurer) {
         configurer.addPathPrefix(
             API_BASE_PATH,
-            HandlerTypePredicate.forAnnotation(RestController::class.java)
-                .and(HandlerTypePredicate.forBasePackage("$basePackageName.web.controller"))
+            HandlerTypePredicate
+                .forAnnotation(RestController::class.java)
+                .and(HandlerTypePredicate.forBasePackage("$basePackageName.web.controller")),
         )
     }
 }

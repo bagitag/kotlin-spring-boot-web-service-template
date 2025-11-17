@@ -13,16 +13,20 @@ import org.springframework.stereotype.Component
 @Component
 @Order(1)
 class DebugHeaderFilter : Filter {
-
     companion object {
         private val LOGGER = LoggerFactory.getLogger(DebugHeaderFilter::class.java)
         const val DEBUG_REQUEST_HEADER_NAME = "Jh7rLp2q9w4s8xv"
         const val DEBUG_REQUEST_HEADER_VALUE = "Gk3sFp7vRq9w2Lx"
         const val DEBUG_MODE_MDC_KEY = "debugLevel"
         const val DEBUG_MODE_MDC_VALUE = "on"
+        const val TRACE_ID_MDC_KEY = "traceId"
     }
 
-    override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
+    override fun doFilter(
+        request: ServletRequest,
+        response: ServletResponse,
+        chain: FilterChain,
+    ) {
         if (request is HttpServletRequest && isValidRequestPath(request.requestURI)) {
             val debugHeader = request.getHeader(DEBUG_REQUEST_HEADER_NAME)
 
@@ -30,7 +34,13 @@ class DebugHeaderFilter : Filter {
                 MDC.put(DEBUG_MODE_MDC_KEY, DEBUG_MODE_MDC_VALUE)
 
                 val requestId = MDC.get(RequestIdFilter.REQUEST_ID_MDC_KEY)
-                LOGGER.debug("Debug level logging is turned on for requestId: {}", requestId)
+                val traceId = MDC.get(TRACE_ID_MDC_KEY)
+
+                LOGGER.debug(
+                    "Debug level logging is turned on for {}: {}",
+                    if (requestId.isNullOrEmpty()) TRACE_ID_MDC_KEY else RequestIdFilter.REQUEST_ID_MDC_KEY,
+                    requestId ?: traceId,
+                )
             }
 
             try {

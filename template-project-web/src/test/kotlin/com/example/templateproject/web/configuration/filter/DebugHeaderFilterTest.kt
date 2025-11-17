@@ -1,6 +1,7 @@
 package com.example.templateproject.web.configuration.filter
 
 import com.example.templateproject.web.configuration.API_BASE_PATH
+import com.example.templateproject.web.configuration.filter.DebugHeaderFilter.Companion.TRACE_ID_MDC_KEY
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
@@ -22,7 +23,6 @@ import org.slf4j.MDC
 
 @ExtendWith(MockKExtension::class)
 internal class DebugHeaderFilterTest {
-
     private lateinit var victim: DebugHeaderFilter
 
     private val request = mockk<HttpServletRequest>()
@@ -112,13 +112,15 @@ internal class DebugHeaderFilterTest {
     }
 
     @Test
-    fun `Should run logic`() {
+    fun `Should run logic and log requestID`() {
         // given
         val response = mockk<HttpServletResponse>()
         every { filterChain.doFilter(request, response) } returns mockk()
 
         every { request.getHeader(DebugHeaderFilter.DEBUG_REQUEST_HEADER_NAME) }
             .returns(DebugHeaderFilter.DEBUG_REQUEST_HEADER_VALUE)
+
+        every { MDC.get(RequestIdFilter.REQUEST_ID_MDC_KEY) } returns "requestId"
 
         // when
         assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
@@ -127,6 +129,53 @@ internal class DebugHeaderFilterTest {
         verifyOrder {
             MDC.put(DebugHeaderFilter.DEBUG_MODE_MDC_KEY, DebugHeaderFilter.DEBUG_MODE_MDC_VALUE)
             MDC.get(RequestIdFilter.REQUEST_ID_MDC_KEY)
+            MDC.get(TRACE_ID_MDC_KEY)
+            MDC.remove(DebugHeaderFilter.DEBUG_MODE_MDC_KEY)
+        }
+    }
+
+    @Test
+    fun `Should run logic and log traceID if requestID is empty`() {
+        // given
+        val response = mockk<HttpServletResponse>()
+        every { filterChain.doFilter(request, response) } returns mockk()
+
+        every { request.getHeader(DebugHeaderFilter.DEBUG_REQUEST_HEADER_NAME) }
+            .returns(DebugHeaderFilter.DEBUG_REQUEST_HEADER_VALUE)
+
+        every { MDC.get(RequestIdFilter.REQUEST_ID_MDC_KEY) } returns ""
+
+        // when
+        assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
+
+        // then
+        verifyOrder {
+            MDC.put(DebugHeaderFilter.DEBUG_MODE_MDC_KEY, DebugHeaderFilter.DEBUG_MODE_MDC_VALUE)
+            MDC.get(RequestIdFilter.REQUEST_ID_MDC_KEY)
+            MDC.get(TRACE_ID_MDC_KEY)
+            MDC.remove(DebugHeaderFilter.DEBUG_MODE_MDC_KEY)
+        }
+    }
+
+    @Test
+    fun `Should run logic and log traceID`() {
+        // given
+        val response = mockk<HttpServletResponse>()
+        every { filterChain.doFilter(request, response) } returns mockk()
+
+        every { request.getHeader(DebugHeaderFilter.DEBUG_REQUEST_HEADER_NAME) }
+            .returns(DebugHeaderFilter.DEBUG_REQUEST_HEADER_VALUE)
+
+        every { MDC.get(RequestIdFilter.REQUEST_ID_MDC_KEY) } returns null
+
+        // when
+        assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
+
+        // then
+        verifyOrder {
+            MDC.put(DebugHeaderFilter.DEBUG_MODE_MDC_KEY, DebugHeaderFilter.DEBUG_MODE_MDC_VALUE)
+            MDC.get(RequestIdFilter.REQUEST_ID_MDC_KEY)
+            MDC.get(TRACE_ID_MDC_KEY)
             MDC.remove(DebugHeaderFilter.DEBUG_MODE_MDC_KEY)
         }
     }

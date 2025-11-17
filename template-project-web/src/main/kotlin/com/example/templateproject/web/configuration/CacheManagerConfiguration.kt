@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @EnableCaching
 class CacheManagerConfiguration {
-
     @Bean
     fun caffeineCacheManager() = CaffeineCacheManager()
 }

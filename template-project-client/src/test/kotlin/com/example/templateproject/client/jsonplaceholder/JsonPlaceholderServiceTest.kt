@@ -4,6 +4,7 @@ import com.example.templateproject.client.GenericHttpClient
 import com.example.templateproject.client.RetryableHttpRequestDecorator
 import com.example.templateproject.client.jsonplaceholder.api.Post
 import com.example.templateproject.client.jsonplaceholder.api.User
+import com.example.templateproject.client.jsonplaceholder.configuration.JsonPlaceholderCircuitBreaker
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -19,13 +20,15 @@ import org.springframework.web.client.HttpServerErrorException
 
 @ExtendWith(MockKExtension::class)
 internal class JsonPlaceholderServiceTest {
-
     @MockK
     private lateinit var jsonPlaceholderClient: JsonPlaceholderClient
+
     @MockK
     private lateinit var httpClient: GenericHttpClient
+
     @MockK
     private lateinit var retryDecorator: RetryableHttpRequestDecorator
+
     @MockK
     private lateinit var circuitBreaker: JsonPlaceholderCircuitBreaker
 
@@ -40,11 +43,12 @@ internal class JsonPlaceholderServiceTest {
     @Test
     fun `Get users should return user list`() {
         // given
-        val body = listOf(
-            User(1, "1", "username1", "email1"),
-            User(2, "2", "username2", "email2"),
-            User(3, "3", "username3", "email3")
-        )
+        val body =
+            listOf(
+                User(1, "1", "username1", "email1"),
+                User(2, "2", "username2", "email2"),
+                User(3, "3", "username3", "email3"),
+            )
 
         every { jsonPlaceholderClient.getUsers() } returns ResponseEntity.ok(body)
 
@@ -89,7 +93,7 @@ internal class JsonPlaceholderServiceTest {
             httpClient.perform(
                 any<String>(),
                 any<String>(),
-                any<List<User>>()
+                any<List<User>>(),
             ) { any() }
         } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
 
@@ -101,11 +105,12 @@ internal class JsonPlaceholderServiceTest {
     fun `Get posts by user id should return post list`() {
         // given
         val userId = 10L
-        val body = listOf(
-            Post(1, userId, "title1", "body1"),
-            Post(2, userId, "title2", "body2"),
-            Post(3, userId, "title3", "body3")
-        )
+        val body =
+            listOf(
+                Post(1, userId, "title1", "body1"),
+                Post(2, userId, "title2", "body2"),
+                Post(3, userId, "title3", "body3"),
+            )
 
         every { jsonPlaceholderClient.getAllPostByUserId(userId) } returns ResponseEntity.ok(body)
 
@@ -153,7 +158,7 @@ internal class JsonPlaceholderServiceTest {
             httpClient.perform(
                 any<String>(),
                 any<String>(),
-                any<List<Post>>()
+                any<List<Post>>(),
             ) { any() }
         } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
 

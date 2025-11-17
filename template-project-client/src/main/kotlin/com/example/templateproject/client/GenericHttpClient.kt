@@ -6,10 +6,10 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.ResourceAccessException
+import org.springframework.web.client.RestClientException
 
 @Component
 class GenericHttpClient {
-
     companion object {
         private val LOGGER = LoggerFactory.getLogger(GenericHttpClient::class.java)
     }
@@ -18,7 +18,7 @@ class GenericHttpClient {
         clientId: String,
         request: Any,
         defaultResponse: RESPONSE,
-        httpCall: () -> ResponseEntity<RESPONSE>
+        httpCall: () -> ResponseEntity<RESPONSE>,
     ): RESPONSE {
         LOGGER.debug("[$clientId] ==> Sending request: {}", request)
 
@@ -41,12 +41,17 @@ class GenericHttpClient {
         return result
     }
 
-    private fun handleException(e: Exception, clientId: String) {
-        val message = when (e) {
-            is HttpStatusCodeException -> "Communication error: ${e.statusText}"
-            is ResourceAccessException -> e.message ?: "Resource access error"
-            else -> "Unknown error"
-        }
+    private fun handleException(
+        e: Exception,
+        clientId: String,
+    ) {
+        val message =
+            when (e) {
+                is HttpStatusCodeException -> "Communication error: ${e.statusText}"
+                is ResourceAccessException -> e.message ?: "Resource access error"
+                is RestClientException -> e.message ?: "REST client error"
+                else -> "Unknown error"
+            }
         throw ExternalServiceException(e, message, clientId)
     }
 }

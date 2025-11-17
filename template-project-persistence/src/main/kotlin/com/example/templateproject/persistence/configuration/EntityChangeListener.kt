@@ -13,8 +13,9 @@ import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Component
 
 @Component
-class EntityChangeListener(private val applicationContext: ApplicationContext) {
-
+class EntityChangeListener(
+    private val applicationContext: ApplicationContext,
+) {
     companion object {
         private val LOGGER = LoggerFactory.getLogger(EntityChangeListener::class.java)
         private const val HISTORY_MAPPER_SUFFIX = "HistoryMapper"
@@ -30,7 +31,10 @@ class EntityChangeListener(private val applicationContext: ApplicationContext) {
     @PreRemove
     fun preRemove(entity: BaseEntity) = saveHistoryEntity(entity, HistoryEvent.DELETE)
 
-    private fun saveHistoryEntity(entity: BaseEntity, event: HistoryEvent) {
+    private fun saveHistoryEntity(
+        entity: BaseEntity,
+        event: HistoryEvent,
+    ) {
         val mapper = getHistoryMapper(entity)
         val repository = getHistoryRepository(entity)
 
@@ -44,16 +48,20 @@ class EntityChangeListener(private val applicationContext: ApplicationContext) {
     @Suppress("UNCHECKED_CAST")
     private fun getHistoryMapper(entity: BaseEntity): AbstractHistoryMapper<BaseEntity, BaseHistoryEntity>? {
         val mapperBeanName = entity::class.simpleName + HISTORY_MAPPER_SUFFIX
-        return applicationContext.getBeansOfType(AbstractHistoryMapper::class.java)
+        return applicationContext
+            .getBeansOfType(AbstractHistoryMapper::class.java)
             .filterKeys { it.equals(mapperBeanName, ignoreCase = true) }
-            .values.firstOrNull() as AbstractHistoryMapper<BaseEntity, BaseHistoryEntity>
+            .values
+            .firstOrNull() as AbstractHistoryMapper<BaseEntity, BaseHistoryEntity>
     }
 
     @Suppress("UNCHECKED_CAST")
     private fun getHistoryRepository(entity: BaseEntity): BaseHistoryRepository<BaseHistoryEntity>? {
         val repositoryBeanName = entity::class.simpleName + HISTORY_REPOSITORY_SUFFIX
-        return applicationContext.getBeansOfType(BaseHistoryRepository::class.java)
+        return applicationContext
+            .getBeansOfType(BaseHistoryRepository::class.java)
             .filterKeys { it.equals(repositoryBeanName, ignoreCase = true) }
-            .values.firstOrNull() as BaseHistoryRepository<BaseHistoryEntity>
+            .values
+            .firstOrNull() as BaseHistoryRepository<BaseHistoryEntity>
     }
 }

@@ -12,16 +12,21 @@ import org.springframework.stereotype.Component
 
 @Component
 @ConditionalOnProperty(name = ["management.otlp.tracing.export.enabled"], havingValue = "true")
-class TraceIdFilter(private val tracer: Tracer) : Filter {
-
+class TraceIdFilter(
+    private val tracer: Tracer,
+) : Filter {
     companion object {
         const val TRACE_ID_HEADER = "X-Trace-ID"
     }
 
-    override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-        if (request is HttpServletRequest
-            && response is HttpServletResponse
-            && isValidRequestPath(request.requestURI)
+    override fun doFilter(
+        request: ServletRequest,
+        response: ServletResponse,
+        chain: FilterChain,
+    ) {
+        if (request is HttpServletRequest &&
+            response is HttpServletResponse &&
+            isValidRequestPath(request.requestURI)
         ) {
             tracer.currentTraceContext().context()?.traceId()?.let {
                 response.addHeader(TRACE_ID_HEADER, it)

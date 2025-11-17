@@ -8,8 +8,8 @@ import com.example.templateproject.persistence.entity.Example
 import com.example.templateproject.web.configuration.API_BASE_PATH
 import com.example.templateproject.web.controller.EXAMPLE_ENDPOINT
 import com.example.templateproject.web.controller.ExampleController
+import com.example.templateproject.web.exception.GlobalExceptionHandler.Companion.STACK_TRACE_QUERY_PARAMETER_NAME
 import com.example.templateproject.web.metrics.ExceptionMetrics
-import io.micrometer.core.instrument.MockClock
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.`is`
@@ -32,9 +32,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest(ExampleController::class)
 @ActiveProfiles("test")
-@Import(MockClock::class, SimpleMeterRegistry::class, ExceptionMetrics::class, ExternalServiceExceptionHandler::class)
-class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
-
+@Import(ExceptionMetrics::class, SimpleMeterRegistry::class, ExternalServiceExceptionHandler::class)
+class GlobalExceptionHandlerIT(
+    @param:Autowired val mockMvc: MockMvc,
+) {
     private val path = "$API_BASE_PATH/$EXAMPLE_ENDPOINT"
 
     @MockitoBean
@@ -48,7 +49,8 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
         `when`(exampleService.getEntityById(id)).thenThrow(IdNotFoundException(Example::class, id))
 
         // when - then
-        mockMvc.perform(MockMvcRequestBuilders.get("$path/$id").contentType(MediaType.APPLICATION_JSON))
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("$path/$id").contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound)
             .andExpect(jsonPath("$.id").isNotEmpty)
             .andExpect(jsonPath("$.stackTrace").doesNotExist())
@@ -65,10 +67,13 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
         `when`(exampleService.updateEntity(dto)).thenThrow(IdNotFoundException(Example::class, id))
 
         // when - then
-        mockMvc.perform(MockMvcRequestBuilders.put("$path?trace=true")
-            .content("{ \"id\": $id, \"name\":\"$name\"}")
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNotFound)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .put("$path?$STACK_TRACE_QUERY_PARAMETER_NAME=true")
+                    .content("{ \"id\": $id, \"name\":\"$name\"}")
+                    .contentType(MediaType.APPLICATION_JSON),
+            ).andExpect(status().isNotFound)
             .andExpect(jsonPath("$.id").isNotEmpty)
             .andExpect(jsonPath("$.stackTrace").isNotEmpty)
             .andExpect(jsonPath("$.message").value("Could not find Example with id: $id"))
@@ -83,10 +88,13 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
         `when`(exampleService.getEntityById(id)).thenThrow(RuntimeException())
 
         // when - then
-        mockMvc.perform(MockMvcRequestBuilders.get("$path/$id")
-            .param(ExampleExceptionHandler.stackTraceParameter, "true")
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isInternalServerError)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("$path/$id")
+                    .param(STACK_TRACE_QUERY_PARAMETER_NAME, "true")
+                    .contentType(MediaType.APPLICATION_JSON),
+            ).andExpect(status().isInternalServerError)
             .andExpect(jsonPath("$.id").isNotEmpty)
             .andExpect(jsonPath("$.stackTrace").isNotEmpty)
             .andExpect(jsonPath("$.message").value("Unknown internal server error"))
@@ -99,10 +107,13 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
         val id = 10L
 
         // when - then
-        mockMvc.perform(MockMvcRequestBuilders.post(path)
-            .content("{ \"id\": $id }")
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post(path)
+                    .content("{ \"id\": $id }")
+                    .contentType(MediaType.APPLICATION_JSON),
+            ).andExpect(status().isBadRequest)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").isNotEmpty)
             .andExpect(jsonPath("$.stackTrace").doesNotExist())
@@ -112,29 +123,41 @@ class ExampleExceptionHandlerIT(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Create example should return validation errors if content is not valid`() {
-        validatePutAndPost(mockMvc.perform(MockMvcRequestBuilders.post(path)
-            .content("{ \"name\": \"  \" }")
-            .contentType(MediaType.APPLICATION_JSON)
-        ))
+        validatePutAndPost(
+            mockMvc.perform(
+                MockMvcRequestBuilders
+                    .post(path)
+                    .content("{ \"name\": \"  \" }")
+                    .contentType(MediaType.APPLICATION_JSON),
+            ),
+        )
     }
 
     @Test
     fun `Update example should return validation errors if content is not valid`() {
-        validatePutAndPost(mockMvc.perform(
-            MockMvcRequestBuilders.put(path)
-                .content("{ \"id\": 1, \"name\": \"  \" }")
-                .contentType(MediaType.APPLICATION_JSON)
-        ))
+        validatePutAndPost(
+            mockMvc.perform(
+                MockMvcRequestBuilders
+                    .put(path)
+                    .content("{ \"id\": 1, \"name\": \"  \" }")
+                    .contentType(MediaType.APPLICATION_JSON),
+            ),
+        )
     }
 
     private fun validatePutAndPost(action: ResultActions) {
-        action.andExpect(status().isBadRequest)
+        action
+            .andExpect(status().isBadRequest)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").isNotEmpty)
             .andExpect(jsonPath("$.stackTrace").doesNotExist())
             .andExpect(jsonPath("$.message", equalTo("Invalid request content.")))
             .andExpect(jsonPath("$.details.name.length()", `is`(2)))
-            .andExpect(jsonPath("$.details.name[*]",
-                containsInAnyOrder("must not be blank", "must be between 3 and 20 characters")))
+            .andExpect(
+                jsonPath(
+                    "$.details.name[*]",
+                    containsInAnyOrder("must not be blank", "must be between 3 and 20 characters"),
+                ),
+            )
     }
 }
