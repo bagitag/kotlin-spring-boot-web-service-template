@@ -12,6 +12,7 @@ The primary supported database is PostgreSQL.
 - [Features](#features)
   - [Database change management](#database-change-management)
   - [Entity auditing](#entity-auditing)
+  - [Caching](#caching)
 - [Database configuration](#database-configuration)
 
 </details>
@@ -36,6 +37,10 @@ The project uses [Liquibase](https://www.liquibase.org/) for database management
 The project uses [Spring Data JPA Auditing](https://docs.spring.io/spring-data/jpa/reference/auditing.html) to automatically populate auditing fields such as `createdDate` and `lastModifiedDate` in the entities. See details in [BaseEntity.kt](src/main/kotlin/com/example/templateproject/persistence/entity/BaseEntity.kt).
 
 On the other hand, with the help of the JPA entity lifecycle events, history records are inserted into the `*_history` tables to track changes made to the entities. Details can be found in [EntityChangeListener.kt](src/main/kotlin/com/example/templateproject/persistence/configuration/EntityChangeListener.kt).
+
+### Caching
+
+Entities are cached using Caffeine on the service layer. Configuration is in [DatabaseCacheConfiguration](../template-project-core/src/main/kotlin/com/example/templateproject/core/configuration/DatabaseCacheConfiguration.kt).
 
 ## Database configuration
 
