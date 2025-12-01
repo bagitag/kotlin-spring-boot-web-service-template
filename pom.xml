@@ -41,7 +41,7 @@
 
         <opentelemetry.version>1.54.1</opentelemetry.version>
 
-        <kotlin-jupyter-spring.version>0.16.0-736</kotlin-jupyter-spring.version>
+        <kotlin-jupyter-spring.version>0.17.0-750</kotlin-jupyter-spring.version>
 
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
