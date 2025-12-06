@@ -39,7 +39,7 @@ class ExternalServiceExceptionHandler(
             val json = objectMapper.readValue(response, Map::class.java) as Map<String, String>
             mapOf("response" to json)
         } catch (e: JacksonException) {
-            LOGGER.warn("[$serviceName] - Failed to parse server response: {}", e.message)
+            LOGGER.warn("[{}] - Failed to parse server response: {}", serviceName, e.message)
             mapOf("rawResponse" to response)
         }
 }

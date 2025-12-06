@@ -49,7 +49,7 @@ abstract class AbstractController<D : BaseDTO>(
     ): PageDetails<D> =
         service
             .getEntities(pageable)
-            .apply { LOGGER.info("Returning ${content.size} out of $totalElements ${clazz.simpleName}") }
+            .apply { LOGGER.info("Returning {} out of {} {}", content.size, totalElements, clazz.simpleName) }
 
     @GetMapping("/{id:[0-9]*}", produces = ["application/json"])
     @Operation(summary = "Gets entity by its id.")
@@ -66,7 +66,7 @@ abstract class AbstractController<D : BaseDTO>(
     fun getEntityById(
         @PathVariable id: Long,
     ): D {
-        LOGGER.info("Returning ${clazz.simpleName} with id: $id")
+        LOGGER.info("Returning {} with id: {}", clazz.simpleName, id)
         return service.getEntityById(id)
     }
 
@@ -85,7 +85,7 @@ abstract class AbstractController<D : BaseDTO>(
     fun createEntity(
         @RequestBody @Valid request: D,
     ): ResponseEntity<D> {
-        LOGGER.info("Creating ${clazz.simpleName}: ${StringUtils.trimAllWhitespace(request.toString())}")
+        LOGGER.info("Creating {}: {}", clazz.simpleName, request)
         val createdEntity = service.createEntity(request)
         return ResponseEntity.status(HttpStatus.CREATED).body(createdEntity)
     }
@@ -112,7 +112,7 @@ abstract class AbstractController<D : BaseDTO>(
     fun updateEntity(
         @RequestBody @Valid request: D,
     ): D {
-        LOGGER.info("Updating ${clazz.simpleName}: ${StringUtils.trimAllWhitespace(request.toString())}")
+        LOGGER.info("Updating {}: {}", clazz.simpleName, request)
         return service.updateEntity(request)
     }
 
@@ -122,7 +122,7 @@ abstract class AbstractController<D : BaseDTO>(
     fun deleteEntity(
         @PathVariable id: Long,
     ): ResponseEntity<Void> {
-        LOGGER.info("Deleting ${clazz.simpleName} with id: $id")
+        LOGGER.info("Deleting {} with id: {}", clazz.simpleName, id)
         service.deleteEntity(id)
         return ResponseEntity.noContent().build()
     }

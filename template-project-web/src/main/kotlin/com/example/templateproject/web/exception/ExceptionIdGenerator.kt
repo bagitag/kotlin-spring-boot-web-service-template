@@ -27,7 +27,7 @@ object ExceptionIdGenerator {
                     stackTraceElement.className + stackTraceElement.methodName
             DigestUtils.md5DigestAsHex(exceptionIdString.toByteArray()).take(EXCEPTION_ID_LENGTH)
         } catch (e: Exception) {
-            LOGGER.error("Unexpected error while generating exceptionId: $e")
+            LOGGER.error("Unexpected error while generating exceptionId:", e)
             "unknown"
         }
 

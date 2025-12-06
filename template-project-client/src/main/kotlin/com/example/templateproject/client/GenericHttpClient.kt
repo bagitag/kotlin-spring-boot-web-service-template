@@ -20,7 +20,7 @@ class GenericHttpClient {
         defaultResponse: RESPONSE,
         httpCall: () -> ResponseEntity<RESPONSE>,
     ): RESPONSE {
-        LOGGER.debug("[$clientId] ==> Sending request: {}", request)
+        LOGGER.debug("[{}] ==> Sending request: {}", clientId, request)
 
         var result = defaultResponse
 
@@ -29,11 +29,11 @@ class GenericHttpClient {
 
             if (responseEntity.hasBody()) {
                 result = responseEntity.body!!
-                LOGGER.debug("[$clientId] <== Received response: {}", result)
+                LOGGER.debug("[{}] <== Received response: {}", clientId, result)
             }
 
             if (!responseEntity.statusCode.is2xxSuccessful) {
-                LOGGER.error("[$clientId] - Received unexpected response: {}", responseEntity)
+                LOGGER.error("[{}] - Received unexpected response: {}", clientId, responseEntity)
             }
         } catch (e: Exception) {
             handleException(e, clientId)
