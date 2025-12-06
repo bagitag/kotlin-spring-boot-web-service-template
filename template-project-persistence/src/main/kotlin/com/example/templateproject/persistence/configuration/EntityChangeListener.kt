@@ -41,7 +41,7 @@ class EntityChangeListener(
         if (mapper != null && repository != null) {
             val historyEntity = mapper.toHistoryEntity(entity, event)
             repository.save(historyEntity)
-            LOGGER.debug("Created history entry for ${entity::class.simpleName} entity with id: ${entity.id}")
+            LOGGER.debug("Created history entry for {} entity with id: {}", entity::class.simpleName, entity.id)
         }
     }
 

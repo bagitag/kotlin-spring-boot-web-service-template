@@ -50,8 +50,8 @@ class ExampleController(
             .searchExamples(sanitizedSearchTerms, pageable)
             .apply {
                 LOGGER.info(
-                    "Returning ${content.size} out of $totalElements Examples " +
-                        "for the given search terms: $sanitizedSearchTerms",
+                    "Returning {} out of {} Examples " +
+                        "for the given search terms: {}", content.size, totalElements, sanitizedSearchTerms
                 )
             }
     }
