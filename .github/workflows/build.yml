@@ -60,7 +60,7 @@ jobs:
 
       - name: Store JAR as artifact for the main branch
         if: ${{ github.ref == 'refs/heads/main' && matrix.java-version == env.DEFAULT_JAVA_VERSION }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ github.ref_name }}-artifact
           path: template-project-web/target/*-exec.jar
