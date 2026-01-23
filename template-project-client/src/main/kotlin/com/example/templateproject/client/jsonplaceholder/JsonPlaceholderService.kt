@@ -38,7 +38,7 @@ class JsonPlaceholderService(
         return execute(request, listOf()) { jsonPlaceholderClient.getAllPostByUserId(userId) }
     }
 
-    private fun <T> execute(
+    private fun <T : Any> execute(
         request: Any,
         defaultResponse: T,
         httpCall: () -> ResponseEntity<T>,
