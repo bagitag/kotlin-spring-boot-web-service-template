@@ -17,8 +17,7 @@ abstract class AbstractMapper<E : BaseEntity, D : BaseDTO>(
 
     abstract fun toDTO(entity: E): D
 
-    protected fun getEntityId(id: Long): E =
-        repository.findById(id).orElseThrow { IdNotFoundException(clazz, id) }
+    protected fun getEntityId(id: Long): E = repository.findById(id).orElseThrow { IdNotFoundException(clazz, id) }
 
     protected fun setBaseDTOFields(
         dto: D,
