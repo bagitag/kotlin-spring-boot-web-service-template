@@ -4,7 +4,6 @@ import com.example.templateproject.client.jsonplaceholder.api.Post
 import com.example.templateproject.client.jsonplaceholder.api.User
 import com.example.templateproject.web.BaseIntegrationTest
 import com.example.templateproject.web.configuration.API_BASE_PATH
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
@@ -28,11 +27,12 @@ import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import tools.jackson.databind.json.JsonMapper
 import java.net.URI
 import java.util.stream.LongStream
 
 class JsonPlaceholderIT(
-    @param:Autowired private val objectMapper: ObjectMapper,
+    @param:Autowired private val jsonMapper: JsonMapper,
     @param:Autowired private val mockMvc: MockMvc,
     @param:Autowired private val cacheManager: CacheManager,
     @param:Value($$"${client.jsonplaceholder.base-url}") private val baseUrl: String,
@@ -73,7 +73,7 @@ class JsonPlaceholderIT(
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
-                        .withBody(objectMapper.writeValueAsString(users)),
+                        .withBody(jsonMapper.writeValueAsString(users)),
                 ),
         )
 
@@ -118,7 +118,7 @@ class JsonPlaceholderIT(
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
-                        .withBody(objectMapper.writeValueAsString(users)),
+                        .withBody(jsonMapper.writeValueAsString(users)),
                 ),
         )
 
@@ -147,7 +147,7 @@ class JsonPlaceholderIT(
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
-                        .withBody(objectMapper.writeValueAsString(users)),
+                        .withBody(jsonMapper.writeValueAsString(users)),
                 ),
         )
 
@@ -188,13 +188,13 @@ class JsonPlaceholderIT(
         wiremock.stubFor(
             get(urlPathEqualTo("/posts"))
                 .withQueryParam("userId", equalTo(userId.toString()))
-                .willReturn(okJson(objectMapper.writeValueAsString(posts))),
+                .willReturn(okJson(jsonMapper.writeValueAsString(posts))),
         )
     }
 
     private fun verifyResponse(actual: MvcResult) {
         assertNotNull(actual.response.contentAsString)
-        val map = objectMapper.readValue(actual.response.contentAsString, HashMap::class.java)
+        val map = jsonMapper.readValue(actual.response.contentAsString, HashMap::class.java)
         assertEquals(3, map!!.size)
         assertEquals(10, map["username1"])
         assertEquals(5, map["username2"])

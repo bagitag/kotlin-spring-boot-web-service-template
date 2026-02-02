@@ -1,15 +1,15 @@
 package com.example.templateproject.client.exception
 
-import com.fasterxml.jackson.core.JacksonException
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
+import tools.jackson.core.JacksonException
+import tools.jackson.databind.json.JsonMapper
 
 @Component
 class ExternalServiceExceptionHandler(
-    private val objectMapper: ObjectMapper,
+    private val jsonMapper: JsonMapper,
 ) {
     companion object {
         private val LOGGER = LoggerFactory.getLogger(ExternalServiceExceptionHandler::class.java)
@@ -36,7 +36,7 @@ class ExternalServiceExceptionHandler(
         serviceName: String,
     ): Map<String, Any> =
         try {
-            val json = objectMapper.readValue(response, Map::class.java) as Map<String, String>
+            val json = jsonMapper.readValue(response, Map::class.java) as Map<String, String>
             mapOf("response" to json)
         } catch (e: JacksonException) {
             LOGGER.warn("[{}] - Failed to parse server response: {}", serviceName, e.message)
