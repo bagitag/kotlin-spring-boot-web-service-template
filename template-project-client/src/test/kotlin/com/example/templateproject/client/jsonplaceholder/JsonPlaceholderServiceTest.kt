@@ -1,7 +1,6 @@
 package com.example.templateproject.client.jsonplaceholder
 
 import com.example.templateproject.client.GenericHttpClient
-import com.example.templateproject.client.RetryableHttpRequestDecorator
 import com.example.templateproject.client.jsonplaceholder.api.Post
 import com.example.templateproject.client.jsonplaceholder.api.User
 import com.example.templateproject.client.jsonplaceholder.configuration.JsonPlaceholderCircuitBreaker
@@ -14,6 +13,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.core.retry.RetryTemplate
+import org.springframework.core.retry.Retryable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.HttpServerErrorException
@@ -27,7 +28,7 @@ internal class JsonPlaceholderServiceTest {
     private lateinit var httpClient: GenericHttpClient
 
     @MockK
-    private lateinit var retryDecorator: RetryableHttpRequestDecorator
+    private lateinit var retryTemplate: RetryTemplate
 
     @MockK
     private lateinit var circuitBreaker: JsonPlaceholderCircuitBreaker
@@ -37,7 +38,7 @@ internal class JsonPlaceholderServiceTest {
     @BeforeEach
     fun initialize() {
         victim =
-            JsonPlaceholderService("clientId", false, jsonPlaceholderClient, httpClient, retryDecorator, circuitBreaker)
+            JsonPlaceholderService("clientId", false, jsonPlaceholderClient, httpClient, retryTemplate, circuitBreaker)
     }
 
     @Test
@@ -53,8 +54,10 @@ internal class JsonPlaceholderServiceTest {
         every { jsonPlaceholderClient.getUsers() } returns ResponseEntity.ok(body)
 
         every {
-            retryDecorator.retryForHttpServerError<List<User>>(any(), any())
-        } answers { secondArg<() -> List<User>>().invoke() }
+            retryTemplate.execute<List<User>>(any())
+        } answers {
+            firstArg<Retryable<List<User>>>().execute()
+        }
 
         every {
             httpClient.perform<List<User>>(any(), any(), any(), any())
@@ -62,17 +65,21 @@ internal class JsonPlaceholderServiceTest {
 
         every {
             circuitBreaker.decorate<List<User>>(any())
-        } answers { firstArg<() -> List<User>>().invoke() }
+        } answers {
+            firstArg<() -> List<User>>().invoke()
+        }
 
         // when
         val actual = victim.getUsers()
 
         // then
         assertEquals(body.size, actual.get().size)
-        assertEquals(body[0].id, actual.get()[0].id)
-        assertEquals(body[0].name, actual.get()[0].name)
-        assertEquals(body[0].username, actual.get()[0].username)
-        assertEquals(body[0].email, actual.get()[0].email)
+        body.forEachIndexed { index, user ->
+            assertEquals(user.id, actual.get()[index].id)
+            assertEquals(user.name, actual.get()[index].name)
+            assertEquals(user.username, actual.get()[index].username)
+            assertEquals(user.email, actual.get()[index].email)
+        }
         assertFalse(victim.cacheEnabled)
     }
 
@@ -82,7 +89,7 @@ internal class JsonPlaceholderServiceTest {
         every { jsonPlaceholderClient.getUsers() } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
 
         every {
-            retryDecorator.retryForHttpServerError<List<User>>(any(), any())
+            retryTemplate.execute<List<User>>(any())
         } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
 
         every {
@@ -115,8 +122,10 @@ internal class JsonPlaceholderServiceTest {
         every { jsonPlaceholderClient.getAllPostByUserId(userId) } returns ResponseEntity.ok(body)
 
         every {
-            retryDecorator.retryForHttpServerError<List<Post>>(any(), any())
-        } answers { secondArg<() -> List<Post>>().invoke() }
+            retryTemplate.execute<List<Post>>(any())
+        } answers {
+            firstArg<Retryable<List<Post>>>().execute()
+        }
 
         every {
             httpClient.perform<List<Post>>(any(), any(), any(), any())
@@ -124,17 +133,21 @@ internal class JsonPlaceholderServiceTest {
 
         every {
             circuitBreaker.decorate<List<User>>(any())
-        } answers { firstArg<() -> List<User>>().invoke() }
+        } answers {
+            firstArg<() -> List<User>>().invoke()
+        }
 
         // when
         val actual = victim.getPostsByUserId(userId)
 
         // then
         assertEquals(body.size, actual.get().size)
-        assertEquals(body[0].id, actual.get()[0].id)
-        assertEquals(body[0].userId, actual.get()[0].userId)
-        assertEquals(body[0].title, actual.get()[0].title)
-        assertEquals(body[0].body, actual.get()[0].body)
+        body.forEachIndexed { index, post ->
+            assertEquals(post.id, actual.get()[index].id)
+            assertEquals(post.userId, actual.get()[index].userId)
+            assertEquals(post.title, actual.get()[index].title)
+            assertEquals(post.body, actual.get()[index].body)
+        }
         assertFalse(victim.cacheEnabled)
     }
 
@@ -147,7 +160,7 @@ internal class JsonPlaceholderServiceTest {
         } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
 
         every {
-            retryDecorator.retryForHttpServerError<List<Post>>(any(), any())
+            retryTemplate.execute<List<Post>>(any())
         } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
 
         every {
@@ -164,5 +177,14 @@ internal class JsonPlaceholderServiceTest {
 
         // when - then
         assertThrows<HttpServerErrorException> { victim.getPostsByUserId(userId).get() }
+    }
+
+    @Test
+    fun `Retryable getName returns expected value`() {
+        // given
+        val retryable = victim.retryable { "result" }
+
+        // when - then
+        assertEquals("JsonPlaceholderServiceRetryable", retryable.name)
     }
 }

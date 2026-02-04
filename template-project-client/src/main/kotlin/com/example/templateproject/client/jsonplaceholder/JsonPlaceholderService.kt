@@ -1,13 +1,14 @@
 package com.example.templateproject.client.jsonplaceholder
 
 import com.example.templateproject.client.GenericHttpClient
-import com.example.templateproject.client.RetryableHttpRequestDecorator
 import com.example.templateproject.client.jsonplaceholder.api.Post
 import com.example.templateproject.client.jsonplaceholder.api.User
 import com.example.templateproject.client.jsonplaceholder.configuration.JsonPlaceholderCacheConfiguration
 import com.example.templateproject.client.jsonplaceholder.configuration.JsonPlaceholderCircuitBreaker
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.core.retry.RetryTemplate
+import org.springframework.core.retry.Retryable
 import org.springframework.http.ResponseEntity
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
@@ -19,7 +20,7 @@ class JsonPlaceholderService(
     @param:Value($$"${client.jsonplaceholder.cache.enabled}") val cacheEnabled: Boolean,
     private val jsonPlaceholderClient: JsonPlaceholderClient,
     private val httpClient: GenericHttpClient,
-    private val retryDecorator: RetryableHttpRequestDecorator,
+    private val retryTemplateForHttpServerError: RetryTemplate,
     private val circuitBreaker: JsonPlaceholderCircuitBreaker,
 ) {
     @Cacheable(
@@ -44,10 +45,19 @@ class JsonPlaceholderService(
         httpCall: () -> ResponseEntity<T>,
     ): CompletableFuture<T> =
         CompletableFuture.completedFuture(
-            retryDecorator.retryForHttpServerError(request) {
-                circuitBreaker.decorate {
-                    httpClient.perform(clientId, request, defaultResponse, httpCall)
-                }
-            },
+            retryTemplateForHttpServerError.execute(
+                retryable {
+                    circuitBreaker.decorate {
+                        httpClient.perform(clientId, request, defaultResponse, httpCall)
+                    }
+                },
+            ),
         )
+
+    internal fun <T> retryable(method: () -> T) =
+        object : Retryable<T> {
+            override fun execute(): T = method()
+
+            override fun getName() = "JsonPlaceholderServiceRetryable"
+        }
 }

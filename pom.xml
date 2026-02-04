@@ -146,6 +146,7 @@
                 <configuration>
                     <excludes>
                         <exclude>**/*Configuration.class</exclude>
+                        <exclude>**/*Configuration$*.class</exclude>
                         <exclude>com/example/**/*CircuitBreaker.class</exclude>
                         <exclude>com/example/**/*Properties.class</exclude>
                         <exclude>com/example/templateproject/TemplateApplicationKt.class</exclude>
