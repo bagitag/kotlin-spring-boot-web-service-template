@@ -11,8 +11,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.ResourceAccessException
-import tools.jackson.databind.json.JsonMapper
 import tools.jackson.core.JacksonException
+import tools.jackson.databind.json.JsonMapper
 
 @ExtendWith(MockKExtension::class)
 class ExternalServiceExceptionHandlerTest {

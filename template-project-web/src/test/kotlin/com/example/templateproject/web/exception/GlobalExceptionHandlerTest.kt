@@ -154,7 +154,7 @@ internal class GlobalExceptionHandlerTest {
 
         // and
         every { webRequest.getParameterValues(STACK_TRACE_QUERY_PARAMETER_NAME) } returns
-            arrayOf(null, "", "   ", "asdas", "false")
+            arrayOf("", "   ", "asdas", "false")
 
         // when
         val actual = victim.handleExceptions(exception, webRequest)
