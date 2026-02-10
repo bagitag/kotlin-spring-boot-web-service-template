@@ -4,7 +4,6 @@ import com.example.templateproject.client.GenericHttpClient
 import com.example.templateproject.client.jsonplaceholder.api.Post
 import com.example.templateproject.client.jsonplaceholder.api.User
 import com.example.templateproject.client.jsonplaceholder.configuration.JsonPlaceholderCacheConfiguration
-import com.example.templateproject.client.jsonplaceholder.configuration.JsonPlaceholderCircuitBreaker
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.core.retry.RetryTemplate
@@ -21,7 +20,6 @@ class JsonPlaceholderService(
     private val jsonPlaceholderClient: JsonPlaceholderClient,
     private val httpClient: GenericHttpClient,
     private val retryTemplateForHttpServerError: RetryTemplate,
-    private val circuitBreaker: JsonPlaceholderCircuitBreaker,
 ) {
     @Cacheable(
         JsonPlaceholderCacheConfiguration.USERS_CACHE_NAME,
@@ -47,9 +45,7 @@ class JsonPlaceholderService(
         CompletableFuture.completedFuture(
             retryTemplateForHttpServerError.execute(
                 retryable {
-                    circuitBreaker.decorate {
-                        httpClient.perform(clientId, request, defaultResponse, httpCall)
-                    }
+                    httpClient.perform(clientId, request, defaultResponse, httpCall)
                 },
             ),
         )

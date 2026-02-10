@@ -3,7 +3,6 @@ package com.example.templateproject.client.jsonplaceholder
 import com.example.templateproject.client.GenericHttpClient
 import com.example.templateproject.client.jsonplaceholder.api.Post
 import com.example.templateproject.client.jsonplaceholder.api.User
-import com.example.templateproject.client.jsonplaceholder.configuration.JsonPlaceholderCircuitBreaker
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -30,15 +29,12 @@ internal class JsonPlaceholderServiceTest {
     @MockK
     private lateinit var retryTemplate: RetryTemplate
 
-    @MockK
-    private lateinit var circuitBreaker: JsonPlaceholderCircuitBreaker
-
     private lateinit var victim: JsonPlaceholderService
 
     @BeforeEach
     fun initialize() {
         victim =
-            JsonPlaceholderService("clientId", false, jsonPlaceholderClient, httpClient, retryTemplate, circuitBreaker)
+            JsonPlaceholderService("clientId", false, jsonPlaceholderClient, httpClient, retryTemplate)
     }
 
     @Test
@@ -63,12 +59,6 @@ internal class JsonPlaceholderServiceTest {
             httpClient.perform<List<User>>(any(), any(), any(), any())
         } returns body
 
-        every {
-            circuitBreaker.decorate<List<User>>(any())
-        } answers {
-            firstArg<() -> List<User>>().invoke()
-        }
-
         // when
         val actual = victim.getUsers()
 
@@ -90,10 +80,6 @@ internal class JsonPlaceholderServiceTest {
 
         every {
             retryTemplate.execute<List<User>>(any())
-        } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
-
-        every {
-            circuitBreaker.decorate { any<Any>() }
         } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
 
         every {
@@ -131,12 +117,6 @@ internal class JsonPlaceholderServiceTest {
             httpClient.perform<List<Post>>(any(), any(), any(), any())
         } returns body
 
-        every {
-            circuitBreaker.decorate<List<User>>(any())
-        } answers {
-            firstArg<() -> List<User>>().invoke()
-        }
-
         // when
         val actual = victim.getPostsByUserId(userId)
 
@@ -161,10 +141,6 @@ internal class JsonPlaceholderServiceTest {
 
         every {
             retryTemplate.execute<List<Post>>(any())
-        } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
-
-        every {
-            circuitBreaker.decorate<List<Post>> { any() }
         } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
 
         every {

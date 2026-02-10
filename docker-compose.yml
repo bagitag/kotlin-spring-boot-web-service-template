@@ -25,7 +25,7 @@ services:
       client.jsonplaceholder.cache.enabled: true
       client.jsonplaceholder.cache.expiration.minutes: 10
 
-      client.jsonplaceholder.circuitbreaker.failure.rate: 10
+#      client.jsonplaceholder.circuitbreaker.failure.rate: 10
 
       client.jsonplaceholder.threadpool.core-pool-size: 15
       client.jsonplaceholder.threadpool.max-pool-size: 30
