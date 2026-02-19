@@ -38,7 +38,7 @@ services:
       management.prometheus.metrics.export.enabled: true
       management.logging.export.enabled: false
       management.otlp.metrics.export.enabled: false
-      management.otlp.tracing.export.enabled: false
+      management.tracing.export.enabled: false
 
     ports:
       - "8080:8080"

@@ -78,7 +78,7 @@ Traces are exported to the OpenTelemetry Collector, which forwards them to Grafa
 
 ### Development mode
 
-- OpenTelemetry and trace collection are disabled via the `management.otlp.tracing.export.enabled` property in [application-dev.properties](../template-project-web/src/main/resources/application-dev.properties).
+- OpenTelemetry and trace collection are disabled via the `management.tracing.export.enabled` property in [application-dev.properties](../template-project-web/src/main/resources/application-dev.properties).
 - Low-level tracing is supported with the help of the `requestId`. See the `Request ID generation` section of [FEATURES.md](FEATURES.md) for details.
 
 ### Non-dev mode
