@@ -208,9 +208,6 @@ components:
           type: string
         stackTrace:
           type: string
-      required:
-      - id
-      - message
     ExampleDTO:
       type: object
       properties:
@@ -254,14 +251,6 @@ components:
         totalPages:
           type: integer
           format: int32
-      required:
-      - content
-      - pageNumber
-      - pageSize
-      - sortOrders
-      - sorted
-      - totalElements
-      - totalPages
     SortOrder:
       type: object
       properties:
@@ -269,6 +258,3 @@ components:
           type: string
         property:
           type: string
-      required:
-      - direction
-      - property

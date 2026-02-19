@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+    <property name="LOG_EXCEPTION_CONVERSION_WORD" value="%ex{short}"/>
+
     <springProperty scope="context" name="enableDebugLogging" source="app.debug.logging.enabled" defaultValue="false"/>
     <springProperty scope="context" name="packages" source="app.debug.logging.package.list" defaultValue="UNDEFINED"/>
 
-    <jmxConfigurator />
+    <jmxConfigurator/>
 
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
-
-    <property name="LOG_EXCEPTION_CONVERSION_WORD" value="%ex{short}"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
     <condition class="ch.qos.logback.core.boolex.PropertyEqualityCondition">
         <key>enableDebugLogging</key>
