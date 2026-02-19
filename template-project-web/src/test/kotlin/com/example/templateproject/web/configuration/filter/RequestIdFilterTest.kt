@@ -8,9 +8,8 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import io.mockk.verifyOrder
+import jakarta.servlet.DispatcherType
 import jakarta.servlet.FilterChain
-import jakarta.servlet.ServletRequest
-import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.junit.jupiter.api.AfterEach
@@ -26,8 +25,8 @@ import org.slf4j.MDC
 internal class RequestIdFilterTest {
     private lateinit var victim: RequestIdFilter
 
-    private val request = mockk<HttpServletRequest>()
-    private val response = mockk<ServletResponse>()
+    private val request = mockk<HttpServletRequest>(relaxed = true)
+    private val response = mockk<HttpServletResponse>(relaxed = true)
     private val filterChain = mockk<FilterChain>()
 
     @BeforeEach
@@ -37,27 +36,16 @@ internal class RequestIdFilterTest {
 
         every { filterChain.doFilter(request, response) } returns mockk()
         every { request.requestURI }.returns("${API_BASE_PATH}/test")
+
+        every { request.dispatcherType } returns DispatcherType.REQUEST
+        every { request.getAttribute(any()) } returns null
     }
 
     @AfterEach
     fun tearDown() {
+        verify(exactly = 1) { filterChain.doFilter(request, response) }
         unmockkStatic(MDC::class)
         MDC.clear()
-    }
-
-    @Test
-    fun `Should not run logic if request is not HttpServletRequest`() {
-        // given
-        val request = mockk<ServletRequest>()
-
-        every { filterChain.doFilter(request, response) } returns mockk()
-
-        // when
-        assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
-
-        // then
-        verify(exactly = 0) { MDC.put(any(), any()) }
-        verify(exactly = 1) { filterChain.doFilter(any(), any()) }
     }
 
     @ParameterizedTest
@@ -77,11 +65,7 @@ internal class RequestIdFilterTest {
     @Test
     fun `Should use request id from header`() {
         // given
-        val response = mockk<HttpServletResponse>()
-        every { filterChain.doFilter(request, response) } returns mockk()
-
         every { request.getHeader(RequestIdFilter.REQUEST_ID_HEADER) }.returns("external_requestId")
-        every { response.addHeader(any(), any()) } returns mockk()
 
         // when
         assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
@@ -89,7 +73,7 @@ internal class RequestIdFilterTest {
         // then
         verifyOrder {
             MDC.put(RequestIdFilter.REQUEST_ID_MDC_KEY, any())
-            response.addHeader(RequestIdFilter.REQUEST_ID_HEADER, any())
+            response.setHeader(RequestIdFilter.REQUEST_ID_HEADER, any())
             MDC.remove(RequestIdFilter.REQUEST_ID_MDC_KEY)
         }
     }
@@ -97,11 +81,7 @@ internal class RequestIdFilterTest {
     @Test
     fun `Should generate request id if header contains empty id`() {
         // given
-        val response = mockk<HttpServletResponse>()
-        every { filterChain.doFilter(request, response) } returns mockk()
-
         every { request.getHeader(RequestIdFilter.REQUEST_ID_HEADER) }.returns("")
-        every { response.addHeader(any(), any()) } returns mockk()
 
         // when
         assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
@@ -109,7 +89,7 @@ internal class RequestIdFilterTest {
         // then
         verifyOrder {
             MDC.put(RequestIdFilter.REQUEST_ID_MDC_KEY, any())
-            response.addHeader(RequestIdFilter.REQUEST_ID_HEADER, any())
+            response.setHeader(RequestIdFilter.REQUEST_ID_HEADER, any())
             MDC.remove(RequestIdFilter.REQUEST_ID_MDC_KEY)
         }
     }
@@ -117,11 +97,7 @@ internal class RequestIdFilterTest {
     @Test
     fun `Should generate request id`() {
         // given
-        val response = mockk<HttpServletResponse>()
-        every { filterChain.doFilter(request, response) } returns mockk()
-
         every { request.getHeader(RequestIdFilter.REQUEST_ID_HEADER) }.returns(null)
-        every { response.addHeader(any(), any()) } returns mockk()
 
         // when
         assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
@@ -129,7 +105,7 @@ internal class RequestIdFilterTest {
         // then
         verifyOrder {
             MDC.put(RequestIdFilter.REQUEST_ID_MDC_KEY, any())
-            response.addHeader(RequestIdFilter.REQUEST_ID_HEADER, any())
+            response.setHeader(RequestIdFilter.REQUEST_ID_HEADER, any())
             MDC.remove(RequestIdFilter.REQUEST_ID_MDC_KEY)
         }
     }

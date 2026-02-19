@@ -31,11 +31,11 @@ This module handles integration with third-party services and external APIs. The
 
 ### Circuit Breaker
 
-The module uses the Spring Retry to implement the Circuit Breaker pattern. See the implementation in [JsonPlaceholderCircuitBreaker](src/main/kotlin/com/example/templateproject/client/jsonplaceholder/configuration/JsonPlaceholderCircuitBreaker.kt).
+[//]: # ( TODO)
 
 ### Retry
 
-The module uses the Spring Retry to retry failed requests. The retry configuration is defined in [RetryableHttpRequestDecorator](src/main/kotlin/com/example/templateproject/client/RetryableHttpRequestDecorator.kt).
+The module uses the Spring Retry to retry failed requests. The retry configuration is defined in [RetryTemplateConfiguration](src/main/kotlin/com/example/templateproject/client/RetryTemplateConfiguration.kt).
 
 ### Caching
 
