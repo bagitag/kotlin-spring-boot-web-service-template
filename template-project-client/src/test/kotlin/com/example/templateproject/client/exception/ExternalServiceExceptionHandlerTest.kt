@@ -1,22 +1,23 @@
 package com.example.templateproject.client.exception
 
-import com.fasterxml.jackson.core.JsonParseException
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.ResourceAccessException
+import tools.jackson.core.JacksonException
+import tools.jackson.databind.json.JsonMapper
 
 @ExtendWith(MockKExtension::class)
 class ExternalServiceExceptionHandlerTest {
     @MockK
-    private lateinit var objectMapper: ObjectMapper
+    private lateinit var jsonMapper: JsonMapper
 
     @InjectMockKs
     private lateinit var victim: ExternalServiceExceptionHandler
@@ -60,7 +61,8 @@ class ExternalServiceExceptionHandlerTest {
             HttpClientErrorException(HttpStatus.BAD_REQUEST, "Bad Request", null, response.toByteArray(), null)
         val externalServiceException = ExternalServiceException(exception, "Test message", serviceName)
 
-        every { objectMapper.readValue(response, Map::class.java) } throws JsonParseException("Parsing error")
+        val jacksonException = JacksonException.wrapWithPath(Exception("Parsing error"), Any(), "response")
+        every { jsonMapper.readValue(response, Map::class.java) } throws jacksonException
 
         // when
         val actual = victim.getDetails(externalServiceException)
@@ -68,6 +70,7 @@ class ExternalServiceExceptionHandlerTest {
         // then
         assert(actual["serviceName"] == serviceName) { "Service name should be included in details" }
         assert(actual["rawResponse"] == response) { "Raw response should be included in details" }
+        assertNull(actual["response"]) { "Response should be null when parsing fails" }
     }
 
     @Test
@@ -75,7 +78,7 @@ class ExternalServiceExceptionHandlerTest {
         // given
         val serviceName = "testService"
         val response = """{"key1": "value1", "key2": "value2"}"""
-        val parsedResponse = mapOf("key" to "value")
+        val parsedResponse = mapOf("key1" to "value1", "key2" to "value2")
         val exception =
             HttpServerErrorException(
                 HttpStatus.INTERNAL_SERVER_ERROR,
@@ -86,7 +89,7 @@ class ExternalServiceExceptionHandlerTest {
             )
         val externalServiceException = ExternalServiceException(exception, "Test message", serviceName)
 
-        every { objectMapper.readValue(response, Map::class.java) } returns parsedResponse
+        every { jsonMapper.readValue(response, Map::class.java) } returns parsedResponse
 
         // when
         val actual = victim.getDetails(externalServiceException)

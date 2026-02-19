@@ -51,7 +51,7 @@ class JsonPlaceholderConfiguration(
                 corePoolSize = properties.threadPool.corePoolSize
                 maxPoolSize = properties.threadPool.maxPoolSize
                 queueCapacity = properties.threadPool.queueCapacity
-                threadNamePrefix = THREAD_NAME_PREFIX
+                setThreadNamePrefix(THREAD_NAME_PREFIX)
                 setTaskDecorator(
                     CompositeTaskDecorator(
                         listOf(

@@ -12,7 +12,7 @@ import java.util.Optional
 @Service
 class ExampleMapper(
     override val repository: ExampleRepository,
-) : AbstractMapper<Example, ExampleDTO>(repository) {
+) : AbstractMapper<Example, ExampleDTO>(repository, Example::class) {
     @Timed(
         value = "app.method.executions",
         extraTags = ["topic", "example-entity-mapping"],

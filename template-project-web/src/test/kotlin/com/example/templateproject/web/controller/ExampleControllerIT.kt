@@ -7,7 +7,6 @@ import com.example.templateproject.persistence.entity.history.HistoryEvent
 import com.example.templateproject.persistence.repository.history.ExampleHistoryRepository
 import com.example.templateproject.web.BaseIntegrationTest
 import com.example.templateproject.web.configuration.API_BASE_PATH
-import jakarta.inject.Inject
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -15,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.resttestclient.TestRestTemplate
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpEntity
@@ -179,10 +178,10 @@ class ExampleControllerIT(
 
     @Nested
     inner class DatabaseManipulatingTests {
-        @Inject
+        @Autowired
         private lateinit var historyRepository: ExampleHistoryRepository
 
-        @Inject
+        @Autowired
         private lateinit var jdbcTemplate: JdbcTemplate
 
         @BeforeEach

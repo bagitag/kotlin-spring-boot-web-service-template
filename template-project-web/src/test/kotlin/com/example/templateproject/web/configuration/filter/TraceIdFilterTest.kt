@@ -7,61 +7,42 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
+import jakarta.servlet.DispatcherType
 import jakarta.servlet.FilterChain
-import jakarta.servlet.ServletRequest
-import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import kotlin.String
 
 @ExtendWith(MockKExtension::class)
 internal class TraceIdFilterTest {
     private lateinit var victim: TraceIdFilter
 
     private val tracer = mockk<Tracer>()
-    private val request = mockk<HttpServletRequest>()
-    private val response = mockk<HttpServletResponse>()
+    private val request = mockk<HttpServletRequest>(relaxed = true)
+    private val response = mockk<HttpServletResponse>(relaxed = true)
     private val filterChain = mockk<FilterChain>()
 
     @BeforeEach
     fun initialize() {
         victim = TraceIdFilter(tracer)
 
-        every { filterChain.doFilter(request, response) } returns mockk()
         every { request.requestURI }.returns("${API_BASE_PATH}/test")
-    }
-
-    @Test
-    fun `Should not run logic if request is not HttpServletRequest`() {
-        // given
-        val request = mockk<ServletRequest>()
-
         every { filterChain.doFilter(request, response) } returns mockk()
 
-        // when
-        assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
-
-        // then
-        verify(exactly = 1) { filterChain.doFilter(any(), any()) }
+        every { request.dispatcherType } returns DispatcherType.REQUEST
+        every { request.getAttribute(any()) } returns null
     }
 
-    @Test
-    fun `Should not run logic if response is not HttpServletResponse`() {
-        // given
-        val response = mockk<ServletResponse>()
-
-        every { filterChain.doFilter(request, response) } returns mockk()
-
-        // when
-        assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
-
-        // then
-        verify(exactly = 1) { filterChain.doFilter(any(), any()) }
+    @AfterEach
+    fun tearDown() {
+        verify(exactly = 1) { filterChain.doFilter(request, response) }
     }
 
     @ParameterizedTest
@@ -74,7 +55,7 @@ internal class TraceIdFilterTest {
         assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
 
         // then
-        verify(exactly = 1) { filterChain.doFilter(any(), any()) }
+        verify(exactly = 0) { response.setHeader(TraceIdFilter.TRACE_ID_HEADER, any()) }
     }
 
     @Test
@@ -82,33 +63,26 @@ internal class TraceIdFilterTest {
         // given
         every { tracer.currentTraceContext().context() }.returns(null)
 
-        every { filterChain.doFilter(request, response) } returns mockk()
-
         // when
         assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
 
         // then
-        verify(exactly = 0) { response.addHeader(TraceIdFilter.TRACE_ID_HEADER, any()) }
+        verify(exactly = 0) { response.setHeader(TraceIdFilter.TRACE_ID_HEADER, any()) }
     }
 
     @Test
-    fun `Should add trace id as response header`() {
+    fun `Should set trace id as response header`() {
         // given
         val traceContext = mockk<TraceContext>()
-
         every { tracer.currentTraceContext().context() }.returns(traceContext)
 
         val traceId = "traceId"
         every { traceContext.traceId() }.returns(traceId)
 
-        every { response.addHeader(TraceIdFilter.TRACE_ID_HEADER, traceId) } returns mockk()
-
-        every { filterChain.doFilter(request, response) } returns mockk()
-
         // when
         assertDoesNotThrow { victim.doFilter(request, response, filterChain) }
 
         // then
-        verify(exactly = 1) { response.addHeader(TraceIdFilter.TRACE_ID_HEADER, traceId) }
+        verify(exactly = 1) { response.setHeader(TraceIdFilter.TRACE_ID_HEADER, traceId) }
     }
 }

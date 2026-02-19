@@ -31,7 +31,7 @@ interface JsonPlaceholderClient {
     @PostExchange(POSTS_ENDPOINT)
     fun createPost(
         @RequestBody post: Post,
-    ): ResponseEntity<Post?>
+    ): ResponseEntity<Post>
 
     @PutExchange("$POSTS_ENDPOINT/{id}")
     fun updatePost(
