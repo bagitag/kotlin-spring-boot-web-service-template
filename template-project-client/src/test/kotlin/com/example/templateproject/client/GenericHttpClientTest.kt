@@ -103,7 +103,7 @@ internal class GenericHttpClientTest {
         // when - then
         assertThrows<ExternalServiceException> {
             victim.perform(clientId, request, defaultResponse) {
-                throw ResourceAccessException(null)
+                throw ResourceAccessException("error")
             }
         }
     }
@@ -133,7 +133,7 @@ internal class GenericHttpClientTest {
         // when - then
         assertThrows<ExternalServiceException> {
             victim.perform(clientId, request, defaultResponse) {
-                throw RestClientException(null)
+                throw RestClientException("error")
             }
         }
     }

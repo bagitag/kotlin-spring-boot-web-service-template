@@ -14,7 +14,7 @@ class GenericHttpClient {
         private val LOGGER = LoggerFactory.getLogger(GenericHttpClient::class.java)
     }
 
-    fun <RESPONSE> perform(
+    fun <RESPONSE : Any> perform(
         clientId: String,
         request: Any,
         defaultResponse: RESPONSE,

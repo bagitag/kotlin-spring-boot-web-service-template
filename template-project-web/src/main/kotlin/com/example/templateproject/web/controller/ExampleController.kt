@@ -51,7 +51,10 @@ class ExampleController(
             .apply {
                 LOGGER.info(
                     "Returning {} out of {} Examples " +
-                        "for the given search terms: {}", content.size, totalElements, sanitizedSearchTerms
+                        "for the given search terms: {}",
+                    content.size,
+                    totalElements,
+                    sanitizedSearchTerms,
                 )
             }
     }

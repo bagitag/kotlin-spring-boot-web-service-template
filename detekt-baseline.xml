@@ -6,7 +6,6 @@
     <ID>TooGenericExceptionCaught:ExceptionIdGenerator.kt$ExceptionIdGenerator$e: Exception</ID>
     <ID>TooGenericExceptionCaught:GenericHttpClient.kt$GenericHttpClient$e: Exception</ID>
     <ID>UtilityClassWithPublicConstructor:BaseIntegrationTest.kt$BaseIntegrationTest</ID>
-    <ID>UnusedPrivateMember:JsonPlaceholderCircuitBreaker.kt$JsonPlaceholderCircuitBreaker$@Recover private fun &lt;T> recover(ex: Exception): T</ID>
     <ID>SwallowedException:ExampleService.kt$ExampleService$e: TimeoutException</ID>
   </Whitelist>
 </SmellBaseline>

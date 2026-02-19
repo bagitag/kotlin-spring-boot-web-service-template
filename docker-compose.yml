@@ -25,19 +25,21 @@ services:
       client.jsonplaceholder.cache.enabled: true
       client.jsonplaceholder.cache.expiration.minutes: 10
 
-      client.jsonplaceholder.circuitbreaker.failure.rate: 10
+#      client.jsonplaceholder.circuitbreaker.failure.rate: 10
 
       client.jsonplaceholder.threadpool.core-pool-size: 15
       client.jsonplaceholder.threadpool.max-pool-size: 30
       client.jsonplaceholder.threadpool.queue-capacity: 5
 
-      max.retry.attempts: 2
+      client.retry.maximum-retries: 1
+      client.retry.delay.millis: 300
 
       management.endpoints.web.exposure.include: health,info,prometheus
       management.prometheus.metrics.export.enabled: true
       management.logging.export.enabled: false
       management.otlp.metrics.export.enabled: false
-      management.otlp.tracing.export.enabled: false
+      management.tracing.export.enabled: false
+      management.tracing.export.otlp.enabled: false
 
     ports:
       - "8080:8080"
