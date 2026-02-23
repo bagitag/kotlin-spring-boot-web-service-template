@@ -39,7 +39,7 @@
 
         <jacoco.version>0.8.14</jacoco.version>
 
-        <kotlin-jupyter-spring.version>0.17.0-763</kotlin-jupyter-spring.version>
+        <kotlin-jupyter-spring.version>0.18.0-863</kotlin-jupyter-spring.version>
 
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
