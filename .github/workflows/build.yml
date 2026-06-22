@@ -37,7 +37,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up JDK
         uses: actions/setup-java@v5
@@ -68,7 +68,7 @@ jobs:
 
       - name: Upload JaCoCo coverage report
         if: ${{ matrix.java-version == env.DEFAULT_JAVA_VERSION }}
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           name: jacoco-report
           path: template-project-jacoco-report/target/site/jacoco-aggregate/
@@ -83,7 +83,7 @@ jobs:
 
       - name: Add JaCoCo coverage to PR
         if: ${{ matrix.java-version == env.DEFAULT_JAVA_VERSION && github.event_name == 'pull_request' }}
-        uses: madrapps/jacoco-report@v1.7.2
+        uses: madrapps/jacoco-report@v1.8.0
         with:
           paths: |
             ${{ github.workspace }}/template-project-jacoco-report/target/site/jacoco-aggregate/jacoco.xml
@@ -121,6 +121,6 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
         with:
           artifact_name: jacoco-report
