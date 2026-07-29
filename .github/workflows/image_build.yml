@@ -42,7 +42,6 @@ jobs:
       - name: Build with Maven
         if: steps.download-artifact.outcome != 'success'
         run: |
-          chmod +x mvnw
           ./mvnw -B -V package -ntp -DskipTests
 
       - name: Get app version
