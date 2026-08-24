@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.core.retry.RetryException
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
@@ -108,12 +109,20 @@ class ExampleService(
             throw ExecutionTimeoutException("Calculating word count for users", e.message)
         } catch (ex: ExecutionException) {
             val cause = ex.cause!!
-            throw cause as? ExternalServiceException
-                ?: ExternalServiceException(cause, cause.message!!, jsonPlaceholderService.clientId)
+            throw when (cause) {
+                is ExternalServiceException -> cause
+                is RetryException -> cause.cause as? ExternalServiceException
+                    ?: createExternalServiceException(cause.cause)
+
+                else -> createExternalServiceException(cause)
+            }
         }
 
         return userNameWordCountMap.entries
             .sortedByDescending { it.value }
             .associate { it.key to it.value }
     }
+
+    private fun createExternalServiceException(cause: Throwable) =
+        ExternalServiceException(cause, cause.message!!, jsonPlaceholderService.clientId)
 }

@@ -15,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.core.retry.RetryTemplate
 import org.springframework.core.retry.Retryable
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.web.client.HttpServerErrorException
 
 @ExtendWith(MockKExtension::class)
@@ -47,8 +46,6 @@ internal class JsonPlaceholderServiceTest {
                 User(3, "3", "username3", "email3"),
             )
 
-        every { jsonPlaceholderClient.getUsers() } returns ResponseEntity.ok(body)
-
         every {
             retryTemplate.execute<List<User>>(any())
         } answers {
@@ -76,18 +73,8 @@ internal class JsonPlaceholderServiceTest {
     @Test
     fun `Get users should return error`() {
         // given
-        every { jsonPlaceholderClient.getUsers() } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
-
         every {
             retryTemplate.execute<List<User>>(any())
-        } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
-
-        every {
-            httpClient.perform(
-                any<String>(),
-                any<String>(),
-                any<List<User>>(),
-            ) { any() }
         } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
 
         // when - then
@@ -104,8 +91,6 @@ internal class JsonPlaceholderServiceTest {
                 Post(2, userId, "title2", "body2"),
                 Post(3, userId, "title3", "body3"),
             )
-
-        every { jsonPlaceholderClient.getAllPostByUserId(userId) } returns ResponseEntity.ok(body)
 
         every {
             retryTemplate.execute<List<Post>>(any())
@@ -135,20 +120,9 @@ internal class JsonPlaceholderServiceTest {
     fun `Get posts by user id should return error`() {
         // given
         val userId = 1L
-        every {
-            jsonPlaceholderClient.getAllPostByUserId(userId)
-        } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
 
         every {
             retryTemplate.execute<List<Post>>(any())
-        } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
-
-        every {
-            httpClient.perform(
-                any<String>(),
-                any<String>(),
-                any<List<Post>>(),
-            ) { any() }
         } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
 
         // when - then

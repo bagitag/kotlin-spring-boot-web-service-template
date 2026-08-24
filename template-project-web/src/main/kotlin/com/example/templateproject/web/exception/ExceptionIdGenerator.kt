@@ -1,12 +1,11 @@
 package com.example.templateproject.web.exception
 
 import com.example.templateproject.TemplateApplication
-import com.example.templateproject.web.controller.AbstractController
 import org.slf4j.LoggerFactory
 import org.springframework.util.DigestUtils
 
 object ExceptionIdGenerator {
-    private val LOGGER = LoggerFactory.getLogger(AbstractController::class.java)
+    private val LOGGER = LoggerFactory.getLogger(ExceptionIdGenerator::class.java)
 
     const val EXCEPTION_ID_LENGTH = 15
 

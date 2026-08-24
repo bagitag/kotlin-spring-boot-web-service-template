@@ -65,6 +65,7 @@ class GlobalExceptionHandler(
     private fun unwrapException(originalException: Exception) =
         when (originalException) {
             is ExecutionException -> originalException.cause as Exception
+//            is ExternalServiceException -> originalException.cause as Exception
             else -> originalException
         }
 
